@@ -82,6 +82,19 @@ class ApiClient {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      if (res.status === 401 && typeof window !== 'undefined') {
+        const hadToken = !!localStorage.getItem('minna_access_token');
+        if (hadToken && !cleanEndpoint.includes('/auth/otp') && !cleanEndpoint.includes('/auth/google')) {
+          localStorage.removeItem('minna_access_token');
+          localStorage.removeItem('minna_refresh_token');
+          localStorage.removeItem('minna_user');
+          const lang = localStorage.getItem('minna-lang') || 'uz';
+          if (!window.location.pathname.includes('/auth/login')) {
+            window.location.href = `/${lang}/auth/login?revoked=true`;
+          }
+        }
+      }
+
       const message =
         data.message ||
         (Array.isArray(data.message) ? data.message.join(', ') : 'Server xatoligi');

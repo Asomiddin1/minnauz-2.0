@@ -55,6 +55,15 @@ function LoginForm() {
   const boxes = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('revoked') === 'true') {
+        setError('Sessiyangiz admin tomonidan yoki boshqa qurilmadan bekor qilingan. Iltimos, qaytadan kiring.');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (cooldown <= 0) return
     const id = window.setTimeout(() => setCooldown((c) => c - 1), 1000)
     return () => window.clearTimeout(id)

@@ -37,6 +37,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Foydalanuvchi topilmadi');
     }
 
+    // Check if device session was revoked by admin or logged out
+    if (payload.deviceId) {
+      const session = await this.prisma.deviceSession.findUnique({
+        where: { deviceId: payload.deviceId },
+        select: { id: true, userId: true },
+      });
+
+      if (!session || session.userId !== user.id) {
+        throw new UnauthorizedException(
+          'Sessiyangiz admin tomonidan bekor qilingan yoki tugatilgan. Iltimos qaytadan kiring.',
+        );
+      }
+    }
+
     return {
       ...user,
       deviceId: payload.deviceId,

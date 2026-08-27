@@ -23,8 +23,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [devices, setDevices] = React.useState<DeviceSession[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Restore user from localStorage and verify with /auth/me on mount
+  // Restore user from localStorage and verify with /auth/me on mount + heartbeat check
   React.useEffect(() => {
+    const checkSession = async () => {
+      const token = localStorage.getItem('minna_access_token');
+      const savedUser = localStorage.getItem('minna_user');
+
+      if (token && savedUser) {
+        try {
+          const freshUser = await api.getMe();
+          setUser(freshUser);
+          localStorage.setItem('minna_user', JSON.stringify(freshUser));
+        } catch {
+          // If 401, api client will automatically clear storage and redirect
+          setUser(null);
+        }
+      }
+    };
+
     const initAuth = async () => {
       try {
         const savedUser = localStorage.getItem('minna_user');
@@ -32,13 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (savedUser && token) {
           setUser(JSON.parse(savedUser));
-          // Refresh user data from API in background
-          api.getMe().then((freshUser) => {
-            setUser(freshUser);
-            localStorage.setItem('minna_user', JSON.stringify(freshUser));
-          }).catch(() => {
-            // Token might be expired
-          });
+          await checkSession();
         }
       } catch (e) {
         console.error('Auth initialization error:', e);
@@ -48,6 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
+
+    // Check session on tab focus and every 15 seconds
+    const handleFocus = () => checkSession();
+    window.addEventListener('focus', handleFocus);
+    const interval = setInterval(checkSession, 15000);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   const saveAuthSession = (authData: AuthResponse) => {
