@@ -1,91 +1,218 @@
 'use client';
 
 import * as React from 'react';
-import { BookOpen, Play, CheckCircle, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { BookOpen, Play, CheckCircle2, Clock, Sparkles, Layers, ArrowRight, Award, Flame } from 'lucide-react';
+import { api, CourseListItem } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 export default function CoursesPage() {
-  const courses = [
-    {
-      title: 'Minna no Nihongo I (N5)',
-      desc: 'Boshlangʻich yapon tili: Hiragana, Katakana, 100+ Kanji va 25 ta dars.',
-      lessons: '25 dars',
-      level: 'N5',
-      progress: 48,
-    },
-    {
-      title: 'Minna no Nihongo II (N4)',
-      desc: 'Kundalik soʻzlashuv, murakkab feʼl shakllari va 300 ta Kanji.',
-      lessons: '25 dars',
-      level: 'N4',
-      progress: 0,
-    },
-    {
-      title: 'JLPT N3 Oʻrta daraja',
-      desc: 'Gazeta sarlavhalari, Keigo asoslari va tabiiy tezlikdagi suhbatlar.',
-      lessons: '30 dars',
-      level: 'N3',
-      progress: 0,
-    },
-  ];
+  const { lang } = useLang();
+  const [courses, setCourses] = React.useState<CourseListItem[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [selectedLevel, setSelectedLevel] = React.useState<string>('ALL');
+
+  React.useEffect(() => {
+    async function loadCourses() {
+      try {
+        const data = await api.getCourses();
+        setCourses(data);
+      } catch (err) {
+        console.error('Kurslarni yuklashda xatolik:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCourses();
+  }, []);
+
+  const levels = ['ALL', 'N5', 'N4', 'N3'];
+
+  const filteredCourses = courses.filter((c) => {
+    if (selectedLevel === 'ALL') return true;
+    return c.level === selectedLevel;
+  });
+
+  const totalLessons = courses.reduce((acc, c) => acc + c.totalLessons, 0);
+  const avgProgress = courses.length > 0
+    ? Math.round(courses.reduce((acc, c) => acc + c.progress, 0) / courses.length)
+    : 0;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="headline text-[32px] font-semibold text-foreground">Kurslar</h1>
-        <p className="text-[15px] text-muted-foreground mt-1">
-          JLPT darajalari bo'yicha bosqichma-bosqich videodarslar va mashqlar
-        </p>
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-[1240px] mx-auto pb-12">
+      {/* Top Banner / Hero Header */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0071e3] via-[#005bb5] to-[#1d1d1f] p-6 sm:p-8 md:p-10 text-white shadow-xl">
+        <div className="relative z-10 max-w-2xl space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 text-[12px] font-semibold tracking-wide backdrop-blur-md">
+            <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
+            <span>JLPT Standart Oʻquv Dasturi</span>
+          </div>
+          <h1 className="text-[28px] sm:text-[36px] font-bold tracking-tight leading-tight">
+            Yapon tili kurslari va darsliklar
+          </h1>
+          <p className="text-[14px] sm:text-[16px] text-white/80 leading-relaxed">
+            Minna no Nihongo xalqaro darsligi asosida tuzilgan 5 bosqichli toʻliq interaktiv oʻquv tizimi: Lugʻat (Kotoba), Grammatika (Bunpou), Kanji, Mashqlar (Renshuu) va AI suhbat.
+          </p>
+        </div>
+
+        {/* Quick Stats Pill */}
+        <div className="relative z-10 mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:w-fit">
+          <div className="rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">Jami kurslar</div>
+            <div className="text-[20px] font-bold mt-0.5">{courses.length || 3} ta</div>
+          </div>
+          <div className="rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">Darslar soni</div>
+            <div className="text-[20px] font-bold mt-0.5">{totalLessons || 80}+ dars</div>
+          </div>
+          <div className="col-span-2 sm:col-span-1 rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">Oʻrtacha oʻzlashtirish</div>
+            <div className="text-[20px] font-bold mt-0.5">{avgProgress}%</div>
+          </div>
+        </div>
+
+        {/* Decorative background glow circle */}
+        <div className="pointer-events-none absolute -right-16 -top-16 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute right-12 bottom-0 h-48 w-48 rounded-full bg-amber-400/15 blur-2xl" />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {courses.map((course, i) => (
-          <div
-            key={i}
-            className="flex flex-col justify-between rounded-[28px] border border-border bg-card p-6 transition-all duration-300 hover:shadow-md"
-          >
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="rounded-lg bg-primary/10 px-3 py-1 text-[12px] font-bold text-primary">
-                  {course.level}
-                </span>
-                <span className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  {course.lessons}
-                </span>
-              </div>
+      {/* Level Filters */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          {levels.map((lvl) => (
+            <button
+              key={lvl}
+              type="button"
+              onClick={() => setSelectedLevel(lvl)}
+              className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 ${
+                selectedLevel === lvl
+                  ? 'bg-foreground text-background shadow-xs'
+                  : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
+              }`}
+            >
+              {lvl === 'ALL' ? 'Barcha darajalar' : `JLPT ${lvl}`}
+            </button>
+          ))}
+        </div>
 
-              <h3 className="headline text-[20px] font-semibold text-foreground">
-                {course.title}
-              </h3>
-              <p className="text-[14px] leading-relaxed text-muted-foreground">
-                {course.desc}
-              </p>
-            </div>
+        <div className="text-[13px] text-muted-foreground font-medium">
+          {filteredCourses.length} ta kurs mavjud
+        </div>
+      </div>
 
-            <div className="pt-6 mt-6 border-t border-border space-y-3">
-              {course.progress > 0 && (
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-[12px] text-muted-foreground">
-                    <span>O'zlashtirish</span>
-                    <span className="font-semibold text-foreground">{course.progress}%</span>
+      {/* Loading Skeleton */}
+      {loading && (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-72 rounded-[28px] border border-border bg-card/60 p-6 animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {/* Courses Cards Grid */}
+      {!loading && (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredCourses.map((course) => {
+            const hasStarted = course.progress > 0;
+            return (
+              <div
+                key={course.id}
+                className="group flex flex-col justify-between rounded-[28px] border border-border/80 bg-card p-6 shadow-xs transition-all duration-300 hover:shadow-md hover:border-primary/40 relative overflow-hidden"
+              >
+                <div className="space-y-4">
+                  {/* Badge & Meta */}
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-xl bg-primary/10 px-3 py-1 text-[12px] font-bold text-primary tracking-wide">
+                      {course.level}
+                    </span>
+                    <div className="flex items-center gap-3 text-[12px] text-muted-foreground font-medium">
+                      <span className="flex items-center gap-1">
+                        <Layers className="h-3.5 w-3.5" />
+                        {course.totalModules || 3} modul
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        {course.totalLessons || 25} dars
+                      </span>
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${course.progress}%` }} />
+
+                  {/* Course Title & Description */}
+                  <div>
+                    <h3 className="headline text-[20px] font-bold text-foreground group-hover:text-primary transition-colors">
+                      {course.title}
+                    </h3>
+                    <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground line-clamp-2">
+                      {course.description || 'Yapon tilini samarali va bosqichma-bosqich oʻrganish uchun moʻljallangan interaktiv kurs.'}
+                    </p>
+                  </div>
+
+                  {/* Teacher / Author Info */}
+                  <div className="flex items-center gap-2.5 pt-1">
+                    {course.author?.avatarUrl ? (
+                      <img
+                        src={course.author.avatarUrl}
+                        alt={course.author.fullName || 'Ustoz'}
+                        className="h-6 w-6 rounded-full object-cover border border-border"
+                      />
+                    ) : (
+                      <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                        {course.author?.fullName ? course.author.fullName.charAt(0) : 'M'}
+                      </div>
+                    )}
+                    <div className="text-[12px] truncate">
+                      <span className="text-muted-foreground">Muallif: </span>
+                      <span className="font-semibold text-foreground">
+                        {course.author?.fullName || 'MinnaUz Sensei (Rasmiy)'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-[14px] font-medium text-background transition-opacity hover:opacity-90"
-              >
-                <Play className="h-3.5 w-3.5 fill-current" />
-                <span>{course.progress > 0 ? 'Davom ettirish' : 'Kursni boshlash'}</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+                {/* Bottom Actions & Progress */}
+                <div className="pt-6 mt-6 border-t border-border/70 space-y-4">
+                  {hasStarted ? (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-[12px] text-muted-foreground font-medium">
+                        <span>Oʻzlashtirish</span>
+                        <span className="font-bold text-foreground">{course.progress}%</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-500"
+                          style={{ width: `${course.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                      <Flame className="h-3.5 w-3.5 text-amber-500" />
+                      <span>Yangi boshlovchilar uchun tavsiya etiladi</span>
+                    </div>
+                  )}
+
+                  <Link
+                    href={`/${lang}/dashboard/courses/${course.slug || course.id}`}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-[14px] font-semibold text-background transition-all hover:bg-primary hover:text-white"
+                  >
+                    {hasStarted ? (
+                      <>
+                        <Play className="h-3.5 w-3.5 fill-current" />
+                        <span>Davom ettirish</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Kursni boshlash</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

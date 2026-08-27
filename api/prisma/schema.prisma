@@ -14,6 +14,22 @@ enum Role {
   SUPER_ADMIN
 }
 
+enum CourseLevel {
+  N5
+  N4
+  N3
+  N2
+  N1
+  OTHER
+}
+
+enum ExerciseType {
+  QUIZ
+  AUDIO_LISTENING
+  FILL_BLANK
+  MATCHING
+}
+
 model User {
   id            String          @id @default(uuid())
   email         String          @unique
@@ -26,6 +42,16 @@ model User {
 
   sessions      DeviceSession[]
   otpCodes      OtpCode[]
+
+  // Author relations
+  authoredCourses Course[]      @relation("CourseAuthor")
+  
+  // Progress relations
+  lessonProgress  UserLessonProgress[]
+  
+  // Teacher / Group relations
+  teachingGroups  Group[]       @relation("TeacherGroups")
+  groupMemberships GroupMember[]
 
   @@map("users")
 }
@@ -58,4 +84,179 @@ model OtpCode {
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("otp_codes")
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  title       String
+  slug        String       @unique
+  description String?
+  level       CourseLevel  @default(N5)
+  coverImage  String?
+  authorId    String?
+  isPublished Boolean      @default(true)
+  order       Int          @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  author      User?        @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  modules     CourseModule[]
+  groups      Group[]
+
+  @@map("courses")
+}
+
+model CourseModule {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  description String?
+  order       Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@map("course_modules")
+}
+
+model Lesson {
+  id            String       @id @default(uuid())
+  moduleId      String
+  title         String
+  japaneseTitle String?      // e.g. "第1課"
+  slug          String?
+  order         Int          @default(1)
+  videoUrl      String?
+  summary       String?
+  kaiwaScenario Json?        // AI conversational prompt and guidelines
+  isPublished   Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  module        CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  kotobaItems   KotobaItem[]
+  bunpouItems   BunpouItem[]
+  kanjiItems    KanjiItem[]
+  renshuuItems  RenshuuItem[]
+  userProgress  UserLessonProgress[]
+
+  @@map("lessons")
+}
+
+model KotobaItem {
+  id                  String   @id @default(uuid())
+  lessonId            String
+  word                String   // e.g. わたし or 私
+  furigana            String?  // e.g. わたし
+  romaji              String?  // e.g. watashi
+  meaningUz           String   // e.g. men
+  meaningRu           String?  // e.g. я
+  meaningEn           String?  // e.g. I, me
+  partOfSpeech        String?  // e.g. Ot, Fe'l, Sifat
+  audioUrl            String?
+  sampleSentence      String?  // e.g. わたしは がくせいです。
+  sampleSentenceUz    String?  // e.g. Men talabaman.
+  order               Int      @default(1)
+
+  lesson              Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("kotoba_items")
+}
+
+model BunpouItem {
+  id            String   @id @default(uuid())
+  lessonId      String
+  title         String   // e.g. ~ は ~ です
+  structure     String?  // e.g. N1 は N2 です
+  explanationUz String   // Grammar explanation in Uzbek
+  explanationRu String?  // Grammar explanation in Russian
+  examples      Json?    // Array of { japanese: string, romaji: string, uzbek: string }
+  order         Int      @default(1)
+
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("bunpou_items")
+}
+
+model KanjiItem {
+  id              String   @id @default(uuid())
+  lessonId        String
+  character       String   // e.g. 日
+  onyomi          String?  // e.g. ニチ, ジツ
+  kunyomi         String?  // e.g. ひ, -び, -か
+  meaningUz       String   // e.g. Quyosh, kun
+  meaningRu       String?  // e.g. Солнце, день
+  strokeCount     Int?     // e.g. 4
+  strokeOrderData String?  // SVG path or image url
+  radical         String?  // e.g. 日
+  examples        Json?    // Array of { word: string, reading: string, meaning: string }
+  order           Int      @default(1)
+
+  lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("kanji_items")
+}
+
+model RenshuuItem {
+  id            String       @id @default(uuid())
+  lessonId      String
+  type          ExerciseType @default(QUIZ)
+  question      String
+  audioUrl      String?
+  options       Json?        // Array of options: string[]
+  correctAnswer String       // Exact string of correct answer
+  explanation   String?
+  order         Int          @default(1)
+
+  lesson        Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("renshuu_items")
+}
+
+model UserLessonProgress {
+  id                String    @id @default(uuid())
+  userId            String
+  lessonId          String
+  completedSections Json?     // Array of completed tab keys e.g. ["kotoba", "bunpou", "kanji", "renshuu"]
+  quizScore         Int?      // Score percentage e.g. 100
+  isCompleted       Boolean   @default(false)
+  lastStudiedAt     DateTime  @default(now())
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson            Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("user_lesson_progress")
+}
+
+model Group {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  inviteCode  String        @unique
+  teacherId   String
+  courseId    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  teacher     User          @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
+  course      Course?       @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  members     GroupMember[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@map("group_members")
 }

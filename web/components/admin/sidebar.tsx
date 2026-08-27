@@ -66,7 +66,6 @@ export function AdminSidebar() {
       label: 'Kurslar & Darslar',
       href: `/${lang}/admin/courses`,
       icon: BookOpen,
-      badge: 'Tez kunda',
     },
     {
       label: 'JLPT Testlar',
