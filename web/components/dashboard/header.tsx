@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Search, Sparkles, Maximize2, Moon, Sun } from 'lucide-react';
 import { useLang, type Lang } from '@/lib/i18n';
 import { useThemeCtx } from '@/lib/theme';
@@ -15,10 +16,14 @@ export function DashboardHeader({
   onTabChange?: (tab: string) => void;
 }) {
   const { lang } = useLang();
+  const pathname = usePathname();
   const { theme, toggle } = useThemeCtx();
   const [currentTab, setCurrentTab] = React.useState(activeTab || 'Bosh sahifa');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isFocusMode, setIsFocusMode] = React.useState(false);
+
+  // Faqat Dashboard asosiy bosh sahifasida (/uz/dashboard yoki /dashboard) tablar ko'rinadi
+  const isDashboardHome = pathname ? /^\/([a-z]{2}\/)?dashboard\/?$/.test(pathname) : false;
 
   const tabs = [
     { id: 'home', label: 'Bosh sahifa' },
@@ -47,7 +52,7 @@ export function DashboardHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex flex-col border-b border-border bg-card/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 flex flex-col border-b border-border bg-card/90 backdrop-blur-xl transition-all duration-300 shadow-xs">
       {/* Top Search & Actions Bar */}
       <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6">
         {/* Search Input */}
@@ -73,7 +78,7 @@ export function DashboardHeader({
             type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition-colors hover:bg-secondary"
+            className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition-colors hover:bg-secondary cursor-pointer"
           >
             {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           </button>
@@ -81,7 +86,7 @@ export function DashboardHeader({
           <button
             type="button"
             onClick={toggleFocusMode}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 h-9 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 h-9 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer"
           >
             <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
             <span>Diqqat rejimi</span>
@@ -89,26 +94,28 @@ export function DashboardHeader({
         </div>
       </div>
 
-      {/* Sub Navigation Tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto px-4 sm:px-6 py-2 no-scrollbar border-t border-border/50">
-        {tabs.map((tab) => {
-          const isActive = currentTab === tab.label;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleTabClick(tab.label)}
-              className={`shrink-0 rounded-full px-3.5 py-1 text-[13px] font-medium transition-all duration-200 ${
-                isActive
-                  ? 'bg-foreground text-background shadow-xs'
-                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Sub Navigation Tabs (Faqat /dashboard bosh sahifasida chiqadi) */}
+      {isDashboardHome && (
+        <div className="flex items-center gap-1 overflow-x-auto px-4 sm:px-6 py-2 no-scrollbar border-t border-border/50 animate-in fade-in duration-200">
+          {tabs.map((tab) => {
+            const isActive = currentTab === tab.label;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleTabClick(tab.label)}
+                className={`shrink-0 rounded-full px-3.5 py-1 text-[13px] font-medium transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? 'bg-foreground text-background shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 }
