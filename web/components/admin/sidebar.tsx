@@ -10,7 +10,6 @@ import {
   FileCheck2,
   Settings,
   LogOut,
-  Menu,
   X,
   PanelLeftClose,
   PanelLeft,
@@ -29,11 +28,16 @@ interface NavItem {
   badge?: string;
 }
 
-export function AdminSidebar() {
+export function AdminSidebar({
+  mobileOpen = false,
+  onMobileClose,
+}: {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}) {
   const { lang } = useLang();
   const { user, logout } = useAuth();
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   React.useEffect(() => {
@@ -66,7 +70,6 @@ export function AdminSidebar() {
       label: 'Kurslar & Darslar',
       href: `/${lang}/admin/courses`,
       icon: BookOpen,
-      badge: 'Tez kunda',
     },
     {
       label: 'JLPT Testlar',
@@ -95,52 +98,54 @@ export function AdminSidebar() {
     ? user.email.slice(0, 2).toUpperCase()
     : 'AD';
 
-  const navContent = (
+  const renderNavContent = (isMobileDrawer = false) => (
     <div
       className={`flex h-full flex-col justify-between bg-card border-r border-border transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'p-2.5 items-center' : 'p-4'
+        !isMobileDrawer && isCollapsed ? 'p-2.5 items-center' : 'p-4'
       }`}
     >
-      <div className="w-full space-y-5">
-        {/* Brand & Mode Header */}
+      <div className="w-full space-y-6">
+        {/* Header: Logo & Collapse Toggle */}
         <div
           className={`flex items-center pt-2 pb-1 ${
-            isCollapsed ? 'justify-center' : 'justify-between px-2'
+            !isMobileDrawer && isCollapsed ? 'justify-center' : 'justify-between px-2'
           }`}
         >
-          {!isCollapsed ? (
+          {isMobileDrawer || !isCollapsed ? (
             <>
-              <Link href={`/${lang}/admin`} className="flex items-center gap-2.5">
+              <Link href={`/${lang}/admin`} onClick={onMobileClose} className="flex items-center gap-2.5">
                 <LogoMark className="h-7 w-7" />
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[17px] font-bold tracking-tight text-foreground">
-                      MinnaUz
-                    </span>
-                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                      Admin
-                    </span>
-                  </div>
+                <div className="space-y-0.5">
+                  <span className="text-[17px] font-bold tracking-tight text-foreground block leading-none">
+                    MinnaUz
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 block">
+                    Admin Panel
+                  </span>
                 </div>
               </Link>
+
               <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={toggleCollapse}
-                  title="Sidebarni kichraytirish"
-                  aria-label="Collapse sidebar"
-                  className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                >
-                  <PanelLeftClose className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMobileOpen(false)}
-                  className="grid h-8 w-8 place-items-center rounded-full border border-border text-foreground md:hidden hover:bg-secondary"
-                  aria-label="Close sidebar"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                {!isMobileDrawer ? (
+                  <button
+                    type="button"
+                    onClick={toggleCollapse}
+                    title="Sidebarni kichraytirish"
+                    aria-label="Collapse sidebar"
+                    className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  >
+                    <PanelLeftClose className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onMobileClose}
+                    className="grid h-8 w-8 place-items-center rounded-full border border-border text-foreground hover:bg-secondary"
+                    aria-label="Close sidebar"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </>
           ) : (
@@ -161,8 +166,21 @@ export function AdminSidebar() {
           )}
         </div>
 
-        {/* Navigation Items */}
-        <nav className="space-y-1.5 pt-2">
+        {/* Back to User Dashboard */}
+        <Link
+          href={`/${lang}/dashboard`}
+          onClick={onMobileClose}
+          title={!isMobileDrawer && isCollapsed ? 'Oʻquvchi paneliga qaytish' : undefined}
+          className={`flex items-center rounded-xl text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground ${
+            !isMobileDrawer && isCollapsed ? 'h-10 w-10 justify-center mx-auto' : 'gap-2 px-3.5 py-2'
+          }`}
+        >
+          <ArrowLeft className="h-4 w-4 shrink-0" />
+          {(isMobileDrawer || !isCollapsed) && <span>Oʻquvchi paneli</span>}
+        </Link>
+
+        {/* Nav Items */}
+        <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -171,29 +189,33 @@ export function AdminSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                title={isCollapsed ? item.label : undefined}
-                onClick={() => setMobileOpen(false)}
+                title={!isMobileDrawer && isCollapsed ? item.label : undefined}
+                onClick={onMobileClose}
                 className={`group flex items-center justify-between rounded-xl text-[14px] font-medium transition-all duration-200 ${
-                  isCollapsed
+                  !isMobileDrawer && isCollapsed
                     ? 'h-11 w-11 justify-center mx-auto'
                     : 'px-3.5 py-2.5'
                 } ${
                   active
-                    ? 'bg-foreground text-background shadow-xs font-semibold'
+                    ? 'bg-purple-600 text-white shadow-sm font-semibold'
                     : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon
-                    className={`h-[18px] w-[18px] shrink-0 transition-colors ${
-                      active ? 'text-background' : 'text-muted-foreground group-hover:text-foreground'
+                    className={`h-[18px] w-[18px] shrink-0 ${
+                      active ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
                     }`}
                   />
-                  {!isCollapsed && <span>{item.label}</span>}
+                  {(isMobileDrawer || !isCollapsed) && <span>{item.label}</span>}
                 </div>
 
-                {!isCollapsed && item.badge && (
-                  <span className="rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                {(isMobileDrawer || !isCollapsed) && item.badge && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      active ? 'bg-white/20 text-white' : 'bg-secondary text-muted-foreground'
+                    }`}
+                  >
                     {item.badge}
                   </span>
                 )}
@@ -203,48 +225,22 @@ export function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Bottom Switcher & Profile Section */}
-      <div className="w-full space-y-2.5 pt-3 border-t border-border">
-        {/* Switch back to user app */}
-        {!isCollapsed ? (
-          <Link
-            href={`/${lang}/dashboard`}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 text-primary" />
-            <span>Oʻquvchi paneliga qaytish</span>
-          </Link>
-        ) : (
-          <Link
-            href={`/${lang}/dashboard`}
-            title="Oʻquvchi paneliga qaytish"
-            className="grid h-9 w-9 place-items-center rounded-lg text-primary hover:bg-secondary mx-auto"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        )}
-
-        {/* User Card */}
-        {!isCollapsed ? (
-          <>
-            <div className="flex items-center gap-3 p-2 rounded-xl bg-secondary/40 border border-border/50">
-              {user?.avatarUrl ? (
-                <img
-                  src={user.avatarUrl}
-                  alt={user.fullName || 'Admin'}
-                  className="h-9 w-9 rounded-full object-cover border border-border"
-                />
-              ) : (
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-amber-500 to-amber-700 font-bold text-white text-[13px]">
-                  {initials}
-                </div>
-              )}
-              <div className="overflow-hidden flex-1 min-w-0">
+      {/* User Info & Logout */}
+      <div className="w-full pt-4 border-t border-border">
+        {isMobileDrawer || !isCollapsed ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 px-2">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-purple-600 font-bold text-white shadow-xs text-[13px]">
+                {initials}
+              </div>
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <p className="truncate text-[13px] font-semibold text-foreground">
-                    {user?.fullName || user?.email?.split('@')[0] || 'Admin'}
+                    {user?.fullName || 'Admin'}
                   </p>
-                  <ShieldCheck className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  <span className="shrink-0 rounded-md bg-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wide uppercase text-purple-600 dark:text-purple-400">
+                    {user?.role === 'SUPER_ADMIN' ? 'Super' : 'Admin'}
+                  </span>
                 </div>
                 <p className="truncate text-[11px] text-muted-foreground">
                   {user?.email || 'admin@minna.uz'}
@@ -255,17 +251,17 @@ export function AdminSidebar() {
             <button
               type="button"
               onClick={logout}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium text-destructive transition-colors hover:bg-destructive/10"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4" />
               <span>Chiqish</span>
             </button>
-          </>
+          </div>
         ) : (
-          <div className="flex flex-col items-center gap-2.5">
+          <div className="flex flex-col items-center gap-3">
             <div
-              title={`${user?.fullName || user?.email} (Admin)`}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-amber-500 to-amber-700 font-bold text-white text-[13px]"
+              title={`${user?.fullName || 'Admin'} (${user?.role})`}
+              className="grid h-9 w-9 place-items-center rounded-full bg-purple-600 font-bold text-white shadow-xs text-[12px]"
             >
               {initials}
             </div>
@@ -273,7 +269,7 @@ export function AdminSidebar() {
               type="button"
               onClick={logout}
               title="Chiqish"
-              className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
+              className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -285,29 +281,11 @@ export function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border bg-card px-4 md:hidden">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open admin menu"
-            className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground hover:bg-secondary"
-          >
-            <Menu className="h-4 w-4" />
-          </button>
-          <div className="flex items-center gap-2">
-            <LogoMark className="h-6 w-6" />
-            <span className="font-bold text-[16px] text-foreground">MinnaUz Admin</span>
-          </div>
-        </div>
-      </div>
-
       {/* Mobile Backdrop */}
       {mobileOpen && (
         <div
-          onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs md:hidden"
+          onClick={onMobileClose}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs md:hidden animate-in fade-in"
         />
       )}
 
@@ -317,7 +295,7 @@ export function AdminSidebar() {
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {navContent}
+        {renderNavContent(true)}
       </div>
 
       {/* Desktop Persistent Sidebar */}
@@ -326,7 +304,7 @@ export function AdminSidebar() {
           isCollapsed ? 'w-[72px]' : 'w-64'
         }`}
       >
-        {navContent}
+        {renderNavContent(false)}
       </aside>
     </>
   );

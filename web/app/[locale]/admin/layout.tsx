@@ -17,6 +17,7 @@ export default function AdminLayout({
   const { user, isAuthenticated, isLoading } = useAuth();
   const { lang } = useLang();
   const router = useRouter();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
@@ -72,10 +73,13 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-      <div className="flex flex-1 flex-col overflow-x-hidden">
-        <AdminHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+      <AdminSidebar
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
+      <div className="flex flex-1 flex-col min-w-0">
+        <AdminHeader onMenuClick={() => setMobileOpen(true)} />
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1320px]">
             {children}
           </div>
