@@ -19,41 +19,57 @@ import {
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
+import { api, UserDashboardStats } from '@/lib/api';
 
 export default function DashboardPage() {
   const { lang } = useLang();
+  const [statsData, setStatsData] = React.useState<UserDashboardStats | null>(null);
+
+  React.useEffect(() => {
+    async function loadStats() {
+      try {
+        const res = await api.getUserDashboardStats();
+        setStatsData(res);
+      } catch (err) {
+        console.error('Stats load error:', err);
+      }
+    }
+    loadStats();
+  }, []);
 
   const stats = [
     {
       label: 'Streak (kunlar)',
-      value: '12 kun',
+      value: statsData ? `${statsData.streakDays} kun` : '1 kun',
       icon: Flame,
       color: 'text-amber-500 bg-amber-500/10',
     },
     {
       label: 'Yodlangan soʻzlar',
-      value: '248 ta',
+      value: statsData ? `${statsData.wordsLearned} ta` : '0 ta',
       icon: BookOpen,
       color: 'text-[#0071e3] bg-[#0071e3]/10',
     },
     {
       label: 'Yakunlangan darslar',
-      value: '18 / 50',
+      value: statsData ? `${statsData.completedLessons} / ${statsData.totalLessons}` : '0 / 25',
       icon: CheckCircle2,
       color: 'text-emerald-500 bg-emerald-500/10',
     },
     {
       label: 'JLPT N5 tayyorgarlik',
-      value: '64%',
+      value: statsData ? `${statsData.n5ProgressPercent}%` : '0%',
       icon: TrendingUp,
       color: 'text-indigo-500 bg-indigo-500/10',
     },
   ];
 
-  // Calendar dates for August 2026 (Aug 1 is Saturday)
-  const streakDays = [1, 3, 5, 6, 7];
+  // Calendar dates for current month
+  const today = new Date();
+  const currentDay = today.getDate();
+  const streakDays = [currentDay];
   const calendarDays = [
-    null, null, null, null, null, 1, 2, // Week 1
+    null, null, null, null, null, 1, 2,
     3, 4, 5, 6, 7, 8, 9,
     10, 11, 12, 13, 14, 15, 16,
     17, 18, 19, 20, 21, 22, 23,
@@ -61,25 +77,15 @@ export default function DashboardPage() {
     31, null, null, null, null, null, null
   ];
 
-  const continueLessons = [
-    {
-      kanji: 'ひらがな',
-      title: 'Bir haftada hiragana',
-      progress: '12 tadan 6-dars',
-      link: `/${lang}/dashboard/courses`,
-    },
-    {
-      kanji: '漢字',
-      title: "N5 kanji · 3-to'plam",
-      progress: '9 tadan 2-dars',
-      link: `/${lang}/dashboard/courses`,
-    },
-    {
-      kanji: '聴解',
-      title: 'N4 tinglash',
-      progress: '14 tadan 8-dars',
-      link: `/${lang}/dashboard/courses`,
-    },
+  // Weekly progress bar chart data
+  const weeklyActivity = [
+    { day: 'Du', height: 'h-10', active: false },
+    { day: 'Se', height: 'h-16', active: false },
+    { day: 'Ch', height: 'h-8', active: false },
+    { day: 'Pa', height: 'h-20', active: true },
+    { day: 'Ju', height: 'h-12', active: false },
+    { day: 'Sh', height: 'h-5', active: false },
+    { day: 'Ya', height: 'h-14', active: false },
   ];
 
   return (
@@ -168,10 +174,10 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* 3. Main Split Grid: Left Content (Course + Practice) & Right Content (Calendar + Tests) */}
+      {/* 3. Main Split Grid: Left Column & Right Column */}
       <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
         
-        {/* Left Column */}
+        {/* Left Column (Courses & Tests Grid) */}
         <div className="space-y-6">
           
           {/* Active Course Card */}
@@ -228,40 +234,111 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* "To'xtagan joyingizdan davom eting" */}
-          <div className="space-y-4">
-            <h3 className="text-[18px] font-bold text-foreground">
-              Toʻxtagan joyingizdan davom eting
-            </h3>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {continueLessons.map((item, i) => (
-                <Link key={i} href={item.link} className="group block">
-                  <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-foreground/20">
-                    <div className="relative flex h-24 items-center justify-center rounded-xl bg-secondary/60">
-                      <span className="font-jp text-[28px] font-medium text-foreground/80">
-                        {item.kanji}
-                      </span>
-                      <div className="absolute bottom-2.5 right-2.5 grid h-7 w-7 place-items-center rounded-full bg-foreground text-background shadow-xs transition-transform group-hover:scale-110">
-                        <Play className="h-3 w-3 fill-current ml-0.5" />
-                      </div>
-                    </div>
-
-                    <div className="mt-3.5 space-y-0.5">
-                      <h4 className="text-[13px] font-semibold text-foreground group-hover:text-[#0071e3] transition-colors">
-                        {item.title}
-                      </h4>
-                      <p className="text-[11px] text-muted-foreground">{item.progress}</p>
-                    </div>
+          {/* Side-by-Side: Tests & Overall Progress */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* JLPT Mock Testlar Card */}
+            <div className="space-y-5 rounded-[28px] border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      Imtihon
+                    </p>
+                    <h3 className="headline text-[19px] font-semibold text-foreground mt-0.5">
+                      JLPT Mock Testlar
+                    </h3>
                   </div>
-                </Link>
-              ))}
+                </div>
+
+                <div className="space-y-2.5">
+                  {[
+                    { level: 'N5 Mock Test #1', score: '142 / 180', date: 'Kecha' },
+                    { level: 'N5 Tinglab tushunish', score: '48 / 60', date: '3 kun oldin' },
+                    { level: 'N5 Lugʻat va Kanji', score: '52 / 60', date: '5 kun oldin' },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-xl bg-secondary/40 p-3 border border-border/40"
+                    >
+                      <div>
+                        <p className="text-[13px] font-medium text-foreground">{item.level}</p>
+                        <p className="text-[11px] text-muted-foreground">{item.date}</p>
+                      </div>
+                      <span className="text-[12px] font-semibold text-[#0071e3]">{item.score}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link href={`/${lang}/dashboard/tests`} className="block pt-2">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-secondary"
+                >
+                  <Award className="h-4 w-4 text-[#0071e3]" />
+                  <span>Barcha testlar</span>
+                </button>
+              </Link>
             </div>
+
+            {/* Umumiy Progress Widget */}
+            <div className="rounded-[28px] border border-border bg-card p-6 shadow-xs flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[19px] font-bold text-foreground">Umumiy progress</h3>
+                  <span className="rounded-full border border-border bg-secondary/50 px-3 py-1 text-[12px] font-medium text-muted-foreground">
+                    Bu hafta
+                  </span>
+                </div>
+
+                {/* Bugungi o'rganish vaqti */}
+                <div className="mt-3">
+                  <p className="text-[13px] text-muted-foreground font-medium">Bugungi oʻrganish vaqti</p>
+                  <div className="flex items-baseline gap-1 mt-0.5">
+                    <span className="text-[28px] font-bold text-foreground">1</span>
+                    <span className="text-[15px] font-semibold text-foreground">h</span>
+                    <span className="text-[28px] font-bold text-foreground ml-1">12</span>
+                    <span className="text-[15px] font-semibold text-foreground">m</span>
+                  </div>
+                </div>
+
+                {/* Ustunli Diagramma */}
+                <div className="flex items-end justify-between gap-1.5 pt-5 pb-1">
+                  {weeklyActivity.map((item, idx) => (
+                    <div key={idx} className="flex flex-1 flex-col items-center gap-2">
+                      <div className="flex h-20 items-end justify-center w-full">
+                        <div
+                          className={`w-full max-w-[28px] rounded-full transition-all duration-300 ${
+                            item.active
+                              ? 'bg-[#0071e3]'
+                              : 'bg-[#0071e3]/60 hover:bg-[#0071e3]/80'
+                          } ${item.height}`}
+                        />
+                      </div>
+                      <span className="text-[12px] font-medium text-muted-foreground">{item.day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Haftalik maqsad progressi */}
+              <div className="space-y-2 border-t border-border pt-4">
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-muted-foreground font-medium">Haftalik maqsad</span>
+                  <span className="font-bold text-foreground">78%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+                  <div className="h-full rounded-full bg-foreground" style={{ width: '78%' }} />
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
 
-        {/* Right Column (Calendar & Tests) */}
+        {/* Right Column (Calendar) */}
         <div className="space-y-6">
           
           {/* Calendar (Streak) Card */}
@@ -339,49 +416,6 @@ export default function DashboardPage() {
                 <span>Oʻtkazib yuborilgan</span>
               </div>
             </div>
-          </div>
-
-          {/* JLPT Mock Testlar */}
-          <div className="space-y-5 rounded-[28px] border border-border bg-card p-6 shadow-xs">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  Imtihon Tayyorgarligi
-                </p>
-                <h3 className="headline text-[20px] font-semibold text-foreground mt-0.5">
-                  JLPT Mock Testlar
-                </h3>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                { level: 'N5 Mock Test #1', score: '142 / 180 (Oʻtgan)', date: 'Kecha' },
-                { level: 'N5 Tinglab tushunish', score: '48 / 60', date: '3 kun oldin' },
-                { level: 'N5 Lugʻat va Ierogliflar', score: '52 / 60', date: '5 kun oldin' },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-xl bg-secondary/40 p-3.5 border border-border/40"
-                >
-                  <div>
-                    <p className="text-[14px] font-medium text-foreground">{item.level}</p>
-                    <p className="text-[12px] text-muted-foreground">{item.date}</p>
-                  </div>
-                  <span className="text-[13px] font-semibold text-[#0071e3]">{item.score}</span>
-                </div>
-              ))}
-            </div>
-
-            <Link href={`/${lang}/dashboard/tests`} className="block pt-1">
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-[14px] font-medium text-foreground transition-colors hover:bg-secondary"
-              >
-                <Award className="h-4 w-4 text-[#0071e3]" />
-                <span>Barcha testlarni koʻrish</span>
-              </button>
-            </Link>
           </div>
 
         </div>

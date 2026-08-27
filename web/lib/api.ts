@@ -86,6 +86,7 @@ export interface CourseLessonSummary {
   summary?: string;
   status: 'COMPLETED' | 'CURRENT' | 'LOCKED' | 'AVAILABLE';
   isCompleted: boolean;
+  isLocked?: boolean;
   quizScore?: number | null;
   completedSections: string[];
   counts: {
@@ -146,7 +147,7 @@ export interface BunpouItem {
   structure?: string;
   explanationUz: string;
   explanationRu?: string;
-  examples?: { japanese: string; romaji?: string; uzbek: string }[];
+  examples: { japanese: string; romaji?: string; uzbek: string; russian?: string }[];
   order: number;
 }
 
@@ -161,7 +162,7 @@ export interface KanjiItem {
   strokeCount?: number;
   strokeOrderData?: string;
   radical?: string;
-  examples?: { word: string; reading: string; meaning: string }[];
+  examples: { word: string; reading: string; meaning: string }[];
   order: number;
 }
 
@@ -175,6 +176,23 @@ export interface RenshuuItem {
   correctAnswer: string;
   explanation?: string;
   order: number;
+}
+
+export interface UserDashboardStats {
+  streakDays: number;
+  wordsLearned: number;
+  completedLessons: number;
+  totalLessons: number;
+  n5ProgressPercent: number;
+  recentLessons: {
+    id: string;
+    title: string;
+    japaneseTitle?: string;
+    courseTitle: string;
+    courseSlug: string;
+    isCompleted: boolean;
+    quizScore?: number | null;
+  }[];
 }
 
 export interface LessonDetailsResponse {
@@ -191,6 +209,7 @@ export interface LessonDetailsResponse {
     goal?: string;
     sampleDialog?: { speaker: string; text: string; uz: string }[];
   };
+  isLocked?: boolean;
   module: {
     id: string;
     title: string;
@@ -321,7 +340,10 @@ class ApiClient {
     }
   }
 
-  // === COURSES & LESSONS (STUDENT) ===
+  // === STUDENT COURSES & LESSONS ===
+  async getUserDashboardStats() {
+    return this.request<UserDashboardStats>('/courses/user/stats');
+  }
 
   async getCourses() {
     return this.request<CourseListItem[]>('/courses');

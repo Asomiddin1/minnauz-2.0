@@ -3,12 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Moon, Sun, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { Moon, Sun, ShieldCheck, ArrowUpRight, Menu } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useThemeCtx } from '@/lib/theme';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
+import { LogoMark } from '@/components/intro/Logo';
 
-export function AdminHeader() {
+export function AdminHeader({
+  onMenuClick,
+}: {
+  onMenuClick?: () => void;
+}) {
   const { lang } = useLang();
   const { theme, toggle } = useThemeCtx();
   const pathname = usePathname();
@@ -29,9 +34,18 @@ export function AdminHeader() {
   const breadcrumb = getBreadcrumb();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/85 px-4 backdrop-blur-xl sm:px-6">
-      {/* Left: Breadcrumbs / Title */}
-      <div>
+    <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-card/85 px-3.5 sm:px-6 backdrop-blur-xl">
+      {/* Left: Mobile Menu Trigger + Breadcrumbs */}
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Admin menyu"
+          className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-secondary active:scale-95 transition-all md:hidden cursor-pointer"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+
         <div className="flex items-center gap-2">
           <Link
             href={`/${lang}/admin`}
@@ -47,12 +61,12 @@ export function AdminHeader() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 sm:gap-2.5">
         <Link
           href={`/${lang}/dashboard`}
           className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary"
         >
-          <span>Asosiy sayt</span>
+          <span>Oʻquvchi paneli</span>
           <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
         </Link>
 
@@ -62,7 +76,7 @@ export function AdminHeader() {
           type="button"
           onClick={toggle}
           aria-label="Toggle theme"
-          className="grid h-9 w-9 place-items-center rounded-lg border border-border text-foreground transition-colors hover:bg-secondary"
+          className="grid h-8.5 w-8.5 sm:h-9 sm:w-9 place-items-center rounded-lg border border-border text-foreground transition-colors hover:bg-secondary cursor-pointer"
         >
           {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
         </button>

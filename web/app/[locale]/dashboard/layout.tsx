@@ -15,6 +15,7 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading } = useAuth();
   const { lang } = useLang();
   const router = useRouter();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -39,10 +40,19 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      <DashboardSidebar />
-      <div className="flex flex-1 flex-col overflow-x-hidden">
-        <DashboardHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+      {/* Sidebar (Desktop persistent + Mobile slide drawer) */}
+      <DashboardSidebar
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Sticky Header with Hamburger trigger */}
+        <DashboardHeader onMenuClick={() => setMobileSidebarOpen(true)} />
+
+        {/* Page Content */}
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1240px]">
             {children}
           </div>

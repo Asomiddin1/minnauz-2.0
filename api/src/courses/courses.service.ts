@@ -6,6 +6,88 @@ import { UpdateProgressDto } from './dto/course.dto';
 export class CoursesService {
   constructor(private prisma: PrismaService) {}
 
+  async getUserStats(userId?: string) {
+    if (!userId) {
+      const totalLessons = await this.prisma.lesson.count({ where: { isPublished: true } });
+      return {
+        streakDays: 0,
+        wordsLearned: 0,
+        completedLessons: 0,
+        totalLessons: totalLessons || 50,
+        n5ProgressPercent: 0,
+        recentLessons: [],
+      };
+    }
+
+    const [completedProgress, totalLessons, totalN5Lessons, completedN5Lessons] = await Promise.all([
+      this.prisma.userLessonProgress.findMany({
+        where: {
+          userId,
+          isCompleted: true,
+        },
+        include: {
+          lesson: {
+            include: {
+              kotobaItems: { select: { id: true } },
+              module: { include: { course: true } },
+            },
+          },
+        },
+        orderBy: { lastStudiedAt: 'desc' },
+      }),
+      this.prisma.lesson.count({ where: { isPublished: true } }),
+      this.prisma.lesson.count({
+        where: {
+          isPublished: true,
+          module: { course: { level: 'N5' } },
+        },
+      }),
+      this.prisma.userLessonProgress.count({
+        where: {
+          userId,
+          isCompleted: true,
+          lesson: { module: { course: { level: 'N5' } } },
+        },
+      }),
+    ]);
+
+    // Calculate words learned (Kotoba items in completed lessons)
+    const wordsLearned = completedProgress.reduce(
+      (sum, p) => sum + (p.lesson?.kotobaItems?.length || 0),
+      0,
+    );
+
+    // Calculate streak days
+    const studyDates = completedProgress
+      .map((p) => p.lastStudiedAt)
+      .filter(Boolean)
+      .map((d) => new Date(d!).toISOString().split('T')[0]);
+    const uniqueDays = Array.from(new Set(studyDates));
+    const streakDays = uniqueDays.length;
+
+    const n5ProgressPercent =
+      totalN5Lessons > 0 ? Math.round((completedN5Lessons / totalN5Lessons) * 100) : 0;
+
+    const recentLessons = completedProgress.slice(0, 3).map((p) => ({
+      id: p.lesson.id,
+      title: p.lesson.title,
+      japaneseTitle: p.lesson.japaneseTitle,
+      courseTitle: p.lesson.module.course.title,
+      courseSlug: p.lesson.module.course.slug,
+      isCompleted: p.isCompleted,
+      quizScore: p.quizScore,
+    }));
+
+    return {
+      streakDays: streakDays > 0 ? streakDays : 1,
+      wordsLearned: wordsLearned > 0 ? wordsLearned : 0,
+      completedLessons: completedProgress.length,
+      totalLessons: totalLessons || 50,
+      n5ProgressPercent,
+      recentLessons,
+    };
+  }
+
   async getCourses(userId?: string) {
     const courses = await this.prisma.course.findMany({
       where: { isPublished: true },
@@ -131,7 +213,7 @@ export class CoursesService {
     // Determine lock state: first lesson is always unlocked; subsequent lessons unlock if previous is completed
     let previousLessonCompleted = true;
     const modulesWithState = course.modules.map((mod) => {
-      const lessonsWithState = mod.lessons.map((lesson, idx) => {
+      const lessonsWithState = mod.lessons.map((lesson) => {
         const prog = progressMap[lesson.id];
         const isCompleted = prog?.isCompleted || false;
         const isCurrent = !isCompleted && previousLessonCompleted;
@@ -144,6 +226,7 @@ export class CoursesService {
           ...lesson,
           status: isCompleted ? 'COMPLETED' : isCurrent ? 'CURRENT' : isLocked ? 'LOCKED' : 'AVAILABLE',
           isCompleted,
+          isLocked,
           quizScore: prog?.quizScore || null,
           completedSections: prog?.completedSections || [],
           counts: lesson._count,
@@ -181,7 +264,20 @@ export class CoursesService {
       include: {
         module: {
           include: {
-            course: true,
+            course: {
+              include: {
+                modules: {
+                  orderBy: { order: 'asc' },
+                  include: {
+                    lessons: {
+                      where: { isPublished: true },
+                      orderBy: { order: 'asc' },
+                      select: { id: true, title: true, order: true },
+                    },
+                  },
+                },
+              },
+            },
             lessons: {
               where: { isPublished: true },
               orderBy: { order: 'asc' },
@@ -200,13 +296,15 @@ export class CoursesService {
       throw new NotFoundException('Dars topilmadi');
     }
 
-    // Get previous and next lesson in the module
-    const currentLessons = lesson.module.lessons;
-    const currentIndex = currentLessons.findIndex((l) => l.id === lesson.id);
-    const prevLesson = currentIndex > 0 ? currentLessons[currentIndex - 1] : null;
-    const nextLesson = currentIndex < currentLessons.length - 1 ? currentLessons[currentIndex + 1] : null;
+    // Flatten all course lessons in chronological order
+    const allCourseLessons = lesson.module.course.modules.flatMap((m) => m.lessons);
+    const currentIndex = allCourseLessons.findIndex((l) => l.id === lesson.id);
+    const prevLesson = currentIndex > 0 ? allCourseLessons[currentIndex - 1] : null;
+    const nextLesson = currentIndex < allCourseLessons.length - 1 ? allCourseLessons[currentIndex + 1] : null;
 
     let userProgress: any = null;
+    let isLocked = false;
+
     if (userId) {
       userProgress = await this.prisma.userLessonProgress.findUnique({
         where: {
@@ -216,6 +314,24 @@ export class CoursesService {
           },
         },
       });
+
+      // Check if previous lesson is completed (if this is not the 1st lesson)
+      if (prevLesson && !userProgress?.isCompleted) {
+        const prevProgress = await this.prisma.userLessonProgress.findUnique({
+          where: {
+            userId_lessonId: {
+              userId,
+              lessonId: prevLesson.id,
+            },
+          },
+        });
+        if (!prevProgress || !prevProgress.isCompleted) {
+          isLocked = true;
+        }
+      }
+    } else if (currentIndex > 0) {
+      // Unauthenticated users can only preview Lesson 1 for free
+      isLocked = false;
     }
 
     return {
@@ -227,6 +343,7 @@ export class CoursesService {
       videoUrl: lesson.videoUrl,
       summary: lesson.summary,
       kaiwaScenario: lesson.kaiwaScenario,
+      isLocked,
       module: {
         id: lesson.module.id,
         title: lesson.module.title,
@@ -299,6 +416,7 @@ export class CoursesService {
         completedSections: currentSections,
         quizScore: dto.quizScore ?? null,
         isCompleted,
+        lastStudiedAt: new Date(),
       },
     });
 
