@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  TEACHER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  fullName      String?
+  avatarUrl     String?
+  role          Role            @default(USER)
+  isVerified    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  sessions      DeviceSession[]
+  otpCodes      OtpCode[]
+
+  @@map("users")
+}
+
+model DeviceSession {
+  id            String   @id @default(uuid())
+  userId        String
+  deviceId      String   @unique
+  deviceName    String?  // e.g. "Chrome on Windows", "Safari on iPhone"
+  os            String?
+  browser       String?
+  ipAddress     String?
+  refreshToken  String   // Hashed refresh token
+  lastActiveAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("device_sessions")
+}
+
+model OtpCode {
+  id        String   @id @default(uuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("otp_codes")
+}

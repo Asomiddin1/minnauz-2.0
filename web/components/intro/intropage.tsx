@@ -1,0 +1,42 @@
+'use client'
+
+import { useScrollbarAutohide } from '@/lib/hooks'
+import { LangProvider } from '@/lib/i18n'
+import { ThemeProvider } from '@/lib/theme'
+import Nav from '@/components/intro/Nav'
+import Hero from '@/components/intro/Hero'
+import Levels from '@/components/intro/Levels'
+import Practice from '@/components/intro/Practice'
+import Kids from '@/components/intro/Kids'
+import Premium from '@/components/intro/Premium'
+import Schools from '@/components/intro/Schools'
+import Footer from '@/components/intro/Footer'
+
+function Content() {
+  useScrollbarAutohide()
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Nav />
+      <main>
+        <Hero />
+        <Levels />
+        <Practice />
+        <Kids />
+        <Premium />
+        <Schools />
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+export default function LandingPage() {
+  return (
+    <ThemeProvider>
+      <LangProvider>
+        <Content />
+      </LangProvider>
+    </ThemeProvider>
+  )
+}

@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #fbfbfd;
+  --foreground: #1d1d1f;
+  --card: #ffffff;
+  --card-foreground: #1d1d1f;
+  --primary: #0071e3;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f2f6;
+  --secondary-foreground: #1d1d1f;
+  --muted: #f5f5f7;
+  --muted-foreground: #6e6e73;
+  --accent: #1a9e4b;
+  --accent-foreground: #ffffff;
+  --destructive: #d93025;
+  --border: rgba(0, 0, 0, 0.1);
+  --ring: #0071e3;
+  --glass: rgba(251, 251, 253, 0.72);
+  --radius: 18px;
+}
+
+.dark {
+  --background: #0a0d18;
+  --foreground: #edf0f7;
+  --card: #121726;
+  --card-foreground: #edf0f7;
+  --primary: #0a84ff;
+  --primary-foreground: #ffffff;
+  --secondary: #1b2133;
+  --secondary-foreground: #edf0f7;
+  --muted: #161c2b;
+  --muted-foreground: #98a1b8;
+  --accent: #30d158;
+  --accent-foreground: #04250f;
+  --destructive: #ff6961;
+  --border: rgba(255, 255, 255, 0.09);
+  --ring: #0a84ff;
+  --glass: rgba(10, 13, 24, 0.72);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-glass: var(--glass);
+  --radius-card: var(--radius);
+  --font-display: 'Inter Tight', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-jp: 'Zen Kaku Gothic New', 'Inter', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    transition:
+      background-color 0.4s ease,
+      color 0.4s ease;
+  }
+
+  ::selection {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  /* Scrollbars stay out of the way until the page is actually moving. */
+  html {
+    scrollbar-width: none;
+  }
+
+  html.scrolling {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  html.scrolling ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  html.scrolling ::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--muted-foreground) 55%, transparent);
+    border-radius: 99px;
+  }
+}
+
+@layer utilities {
+  .headline {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .brand-panel {
+    --primary: #ffffff;
+    color: #ffffff;
+    background:
+      radial-gradient(120% 120% at 85% 15%, rgba(255, 255, 255, 0.18), transparent 55%),
+      linear-gradient(135deg, #0a84ff 0%, #0057c8 55%, #1e3a8a 100%);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
