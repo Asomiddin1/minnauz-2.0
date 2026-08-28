@@ -154,7 +154,7 @@ export function DashboardSidebar({
         >
           {isMobileDrawer || !isCollapsed ? (
             <>
-              <Link href={`/${lang}/dashboard`} onClick={onMobileClose} className="flex items-center gap-2.5">
+              <Link href={`/`} onClick={onMobileClose} className="flex items-center gap-2.5">
                 <LogoMark className="h-7 w-7" />
                 <span className="text-[19px] font-semibold tracking-[-0.045em] text-foreground">
                   MinnaUz
