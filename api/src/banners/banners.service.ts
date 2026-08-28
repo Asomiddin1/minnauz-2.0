@@ -1,39 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateBannerDto, UpdateBannerDto } from './dto/banner.dto';
 
-export class CreateBannerDto {
-  title: string;
-  desc: string;
-  tag?: string;
-  tagIcon?: string;
-  image?: string;
-  btnText?: string;
-  btnUrl?: string;
-  btnIcon?: string;
-  actionType?: 'LINK' | 'PLAN_MODAL' | 'NOTIFICATION_DETAIL';
-  notificationId?: string;
-  order?: number;
-  isActive?: boolean;
-  isDismissible?: boolean;
-  targetAudience?: 'ALL' | 'USER' | 'TEACHER';
-}
-
-export class UpdateBannerDto {
-  title?: string;
-  desc?: string;
-  tag?: string;
-  tagIcon?: string;
-  image?: string;
-  btnText?: string;
-  btnUrl?: string;
-  btnIcon?: string;
-  actionType?: 'LINK' | 'PLAN_MODAL' | 'NOTIFICATION_DETAIL';
-  notificationId?: string;
-  order?: number;
-  isActive?: boolean;
-  isDismissible?: boolean;
-  targetAudience?: 'ALL' | 'USER' | 'TEACHER';
-}
+export { CreateBannerDto, UpdateBannerDto };
 
 @Injectable()
 export class BannersService {
@@ -117,11 +86,17 @@ export class BannersService {
       throw new NotFoundException('Banner topilmadi');
     }
 
+    const dataToUpdate: any = { ...dto };
+    if (dataToUpdate.notificationId === '') {
+      dataToUpdate.notificationId = null;
+    }
+    if (dataToUpdate.btnUrl === '') {
+      dataToUpdate.btnUrl = null;
+    }
+
     return (this.prisma as any).banner.update({
       where: { id },
-      data: {
-        ...dto,
-      },
+      data: dataToUpdate,
       include: {
         notification: true,
       },

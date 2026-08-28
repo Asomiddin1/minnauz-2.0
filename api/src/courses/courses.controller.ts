@@ -10,7 +10,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 import { CoursesService } from './courses.service';
-import { UpdateProgressDto } from './dto/course.dto';
+import { UpdateProgressDto, LogStudyTimeDto, SaveStudyPlanDto } from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
@@ -50,7 +50,7 @@ export class CoursesController {
   @ApiOperation({ summary: 'Foydalanuvchi platformada oʻtkazgan oʻrganish vaqtini saqlash' })
   async logStudyTime(
     @CurrentUser('id') userId: string,
-    @Body() body: { minutes?: number },
+    @Body() body: LogStudyTimeDto,
   ) {
     return this.coursesService.logStudyTime(userId, body?.minutes || 1);
   }
@@ -69,13 +69,7 @@ export class CoursesController {
   @ApiOperation({ summary: 'Foydalanuvchining shaxsiy oʻrganish rejasini saqlash yoki yangilash' })
   async saveStudyPlan(
     @CurrentUser('id') userId: string,
-    @Body()
-    body: {
-      targetLevel?: string;
-      weeklyGoalHours?: number;
-      dailyMinutes?: number;
-      targetMonths?: number;
-    },
+    @Body() body: SaveStudyPlanDto,
   ) {
     return this.coursesService.saveUserStudyPlan(userId, body);
   }

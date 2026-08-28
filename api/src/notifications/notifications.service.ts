@@ -1,22 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateNotificationDto } from './dto/notification.dto';
 
-export class CreateNotificationDto {
-  title: string;
-  message: string;
-  content?: string;
-  imageUrl?: string;
-  videoUrl?: string;
-  actionUrl?: string;
-  actionText?: string;
-  audience?: 'ALL' | 'USER' | 'TEACHER' | 'INDIVIDUAL';
-  targetUserId?: string;
-  type?: 'INFO' | 'ANNOUNCEMENT' | 'SYSTEM' | 'UPDATE' | 'PROMO';
-  isPublished?: boolean;
-  createBanner?: boolean;
-  bannerTag?: string;
-  bannerImage?: string;
-}
+export { CreateNotificationDto };
 
 @Injectable()
 export class NotificationsService {

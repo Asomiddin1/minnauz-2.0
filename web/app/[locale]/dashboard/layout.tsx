@@ -7,6 +7,8 @@ import { DashboardHeader } from '@/components/dashboard/header';
 import { useAuth } from '@/lib/auth-context';
 import { useLang } from '@/lib/i18n';
 
+import { DashboardTabProvider } from '@/components/dashboard/tab-context';
+
 export default function DashboardLayout({
   children,
 }: {
@@ -39,25 +41,27 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar (Desktop persistent + Mobile slide drawer) */}
-      <DashboardSidebar
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={() => setMobileSidebarOpen(false)}
-      />
+    <DashboardTabProvider>
+      <div className="flex min-h-screen bg-background">
+        {/* Sidebar (Desktop persistent + Mobile slide drawer) */}
+        <DashboardSidebar
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={() => setMobileSidebarOpen(false)}
+        />
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 flex-col min-w-0">
-        {/* Sticky Header with Hamburger trigger */}
-        <DashboardHeader onMenuClick={() => setMobileSidebarOpen(true)} />
+        {/* Main Content Area */}
+        <div className="flex flex-1 flex-col min-w-0">
+          {/* Sticky Header with Hamburger trigger */}
+          <DashboardHeader onMenuClick={() => setMobileSidebarOpen(true)} />
 
-        {/* Page Content */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8">
-          <div className="mx-auto max-w-[1240px]">
-            {children}
-          </div>
-        </main>
+          {/* Page Content */}
+          <main className="flex-1 p-3.5 sm:p-6 lg:p-8">
+            <div className="mx-auto max-w-[1240px]">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </DashboardTabProvider>
   );
 }
