@@ -18,6 +18,7 @@ import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import type { JwtPayload } from './strategies/jwt.strategy';
 import { randomUUID } from 'crypto';
+import { Role, User } from '@prisma/client';
 
 const MAX_DEVICES = 3;
 const MAX_OTP_ATTEMPTS = 5;
@@ -73,6 +74,25 @@ export class AuthService {
     };
   }
 
+  // ADMIN_EMAIL env'da ko'rsatilgan email SUPER_ADMIN rolini oladi
+  private resolveRole(email: string): Role {
+    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
+    return adminEmail && adminEmail === email ? Role.SUPER_ADMIN : Role.USER;
+  }
+
+  private async ensureAdminRole(user: User): Promise<User> {
+    if (
+      this.resolveRole(user.email) === Role.SUPER_ADMIN &&
+      user.role !== Role.SUPER_ADMIN
+    ) {
+      return this.prisma.user.update({
+        where: { id: user.id },
+        data: { role: Role.SUPER_ADMIN },
+      });
+    }
+    return user;
+  }
+
   // 2. Verify OTP & Register/Login with Device Session
   async verifyOtp(dto: VerifyOtpDto, req: Request) {
     const email = dto.email.toLowerCase().trim();
@@ -117,13 +137,17 @@ export class AuthService {
         data: {
           email,
           isVerified: true,
+          role: this.resolveRole(email),
         },
       });
-    } else if (!user.isVerified) {
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: { isVerified: true },
-      });
+    } else {
+      if (!user.isVerified) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: { isVerified: true },
+        });
+      }
+      user = await this.ensureAdminRole(user);
     }
 
     return this.createDeviceSession(user, dto.deviceName, req);
@@ -228,6 +252,7 @@ export class AuthService {
           fullName,
           avatarUrl,
           isVerified: true,
+          role: this.resolveRole(email),
         },
       });
     } else {
@@ -239,6 +264,7 @@ export class AuthService {
           isVerified: true,
         },
       });
+      user = await this.ensureAdminRole(user);
     }
 
     return this.createDeviceSession(user, dto.deviceName, req);
