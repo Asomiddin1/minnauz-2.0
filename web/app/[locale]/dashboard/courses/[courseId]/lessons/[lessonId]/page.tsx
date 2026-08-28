@@ -30,7 +30,7 @@ import {
   Menu,
   Lock,
 } from 'lucide-react';
-import { api, LessonDetailsResponse } from '@/lib/api';
+import { api, API_ORIGIN, LessonDetailsResponse } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
 
 type TabKey = 'video' | 'kotoba' | 'bunpou' | 'kanji' | 'renshuu' | 'kaiwa';
@@ -169,9 +169,7 @@ export default function LessonPlayerPage() {
   const getResolvedVideoUrl = (url?: string | null) => {
     if (!url) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    const baseUrl = rawApiUrl.replace(/\/api\/?$/, '');
-    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+    return `${API_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   const [completing, setCompleting] = React.useState(false);

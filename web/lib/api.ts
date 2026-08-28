@@ -2,6 +2,9 @@ const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 const cleanBaseUrl = rawApiUrl.replace(/\/+$/, '');
 const API_URL = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/api`;
 
+// Statik fayllar (masalan, yuklangan videolar) uchun /api siz asosiy manzil
+export const API_ORIGIN = API_URL.replace(/\/api$/, '');
+
 export interface User {
   id: string;
   email: string;
