@@ -18,7 +18,7 @@ export class CreateUserDto {
   @IsEnum(Role, { message: "Noto'g'ri rol tanlandi" })
   role?: Role;
 
-  @ApiPropertyOptional({ default: true, description: 'Email tasdiqlanganmi' })
+  @ApiPropertyOptional({ default: false, description: 'Email tasdiqlanganmi' })
   @IsOptional()
   @IsBoolean()
   isVerified?: boolean;

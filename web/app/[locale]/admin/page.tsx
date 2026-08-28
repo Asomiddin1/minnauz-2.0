@@ -17,6 +17,7 @@ import {
 import { api, AdminUserStats, AdminUserItem } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminOverviewPage() {
   const { lang } = useLang();
@@ -231,11 +232,7 @@ export default function AdminOverviewPage() {
                   <tr key={u.id} className="hover:bg-secondary/40 transition-colors">
                     <td className="py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="grid h-8 w-8 place-items-center rounded-full bg-[#0071e3] font-bold text-white text-[11px]">
-                          {u.fullName
-                            ? u.fullName.slice(0, 2).toUpperCase()
-                            : u.email.slice(0, 2).toUpperCase()}
-                        </div>
+                        <UserAvatar user={u} size="sm" />
                         <div>
                           <p className="font-semibold text-foreground">
                             {u.fullName || 'Nomsiz'}
@@ -246,17 +243,22 @@ export default function AdminOverviewPage() {
                     </td>
                     <td className="py-3.5">{getRoleBadge(u.role)}</td>
                     <td className="py-3.5">
-                      {u.isVerified ? (
-                        <span className="inline-flex items-center gap-1 text-[12px] text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          <span>Tasdiqlangan</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[12px] text-amber-600 dark:text-amber-400">
-                          <AlertCircle className="h-3.5 w-3.5" />
-                          <span>Kutilmoqda</span>
-                        </span>
-                      )}
+                      <div className="space-y-0.5">
+                        {u.isVerified ? (
+                          <span className="inline-flex items-center gap-1 text-[12px] text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            <span>Tasdiqlangan</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[12px] text-amber-600 dark:text-amber-400">
+                            <AlertCircle className="h-3.5 w-3.5" />
+                            <span>Kutilmoqda</span>
+                          </span>
+                        )}
+                        <p className="text-[11px] text-muted-foreground">
+                          {u.activeDevicesCount > 0 ? 'Tizimda faol' : 'Hali kirmagan'}
+                        </p>
+                      </div>
                     </td>
                     <td className="py-3.5 text-muted-foreground">
                       {u.activeDevicesCount} ta qurilma

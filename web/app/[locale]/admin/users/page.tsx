@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { api, AdminUserItem, DeviceSession } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
@@ -46,8 +47,9 @@ export default function AdminUsersPage() {
   // Form states
   const [formEmail, setFormEmail] = React.useState('');
   const [formName, setFormName] = React.useState('');
+  const [formAvatarUrl, setFormAvatarUrl] = React.useState('');
   const [formRole, setFormRole] = React.useState('USER');
-  const [formVerified, setFormVerified] = React.useState(true);
+  const [formVerified, setFormVerified] = React.useState(false);
   const [formBusy, setFormBusy] = React.useState(false);
   const [formError, setFormError] = React.useState<string | null>(null);
 
@@ -85,7 +87,7 @@ export default function AdminUsersPage() {
     setFormEmail('');
     setFormName('');
     setFormRole('USER');
-    setFormVerified(true);
+    setFormVerified(false);
     setFormError(null);
     setCreateModalOpen(true);
   };
@@ -119,6 +121,7 @@ export default function AdminUsersPage() {
   const openEditModal = (u: AdminUserItem) => {
     setEditUser(u);
     setFormName(u.fullName || '');
+    setFormAvatarUrl(u.avatarUrl || '');
     setFormRole(u.role);
     setFormVerified(u.isVerified ?? false);
     setFormError(null);
@@ -135,6 +138,7 @@ export default function AdminUsersPage() {
         fullName: formName.trim() || undefined,
         role: formRole,
         isVerified: formVerified,
+        avatarUrl: formAvatarUrl.trim() || undefined,
       });
       setEditUser(null);
       fetchUsers();
@@ -319,27 +323,19 @@ export default function AdminUsersPage() {
                     {/* User info */}
                     <td className="py-4 px-5">
                       <div className="flex items-center gap-3">
-                        {u.avatarUrl ? (
-                          <img
-                            src={u.avatarUrl}
-                            alt={u.fullName || 'User'}
-                            className="h-9 w-9 rounded-full object-cover border border-border"
-                          />
-                        ) : (
-                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0071e3] font-bold text-white text-[12px]">
-                            {u.fullName
-                              ? u.fullName.slice(0, 2).toUpperCase()
-                              : u.email.slice(0, 2).toUpperCase()}
-                          </div>
-                        )}
+                        <UserAvatar user={u} size="md" />
                         <div className="overflow-hidden min-w-0">
                           <div className="flex items-center gap-1.5">
                             <p className="font-semibold text-foreground truncate">
                               {u.fullName || u.email.split('@')[0]}
                             </p>
-                            {u.avatarUrl ? (
+                            {u.avatarUrl?.includes('google') ? (
                               <span className="shrink-0 rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
                                 Google
+                              </span>
+                            ) : u.avatarUrl ? (
+                              <span className="shrink-0 rounded bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
+                                Profil rasmi
                               </span>
                             ) : (
                               <span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
@@ -364,17 +360,34 @@ export default function AdminUsersPage() {
 
                     {/* Status */}
                     <td className="py-4 px-4">
-                      {u.isVerified ? (
-                        <span className="inline-flex items-center gap-1 text-[12px] font-medium text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          <span>Tasdiqlangan</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[12px] font-medium text-amber-600 dark:text-amber-400">
-                          <AlertCircle className="h-3.5 w-3.5" />
-                          <span>Kutilmoqda</span>
-                        </span>
-                      )}
+                      <div className="space-y-1">
+                        <div>
+                          {u.isVerified ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              <CheckCircle2 className="h-3 w-3" />
+                              <span>Tasdiqlangan</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                              <AlertCircle className="h-3 w-3" />
+                              <span>Kutilmoqda</span>
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          {u.activeDevicesCount > 0 ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                              Faol ({u.activeDevicesCount})
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
+                              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                              Hali kirmagan
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
 
                     {/* Devices */}
@@ -522,17 +535,22 @@ export default function AdminUsersPage() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="createVerified"
-                  checked={formVerified}
-                  onChange={(e) => setFormVerified(e.target.checked)}
-                  className="h-4 w-4 rounded accent-[#0071e3]"
-                />
-                <label htmlFor="createVerified" className="text-[13px] text-foreground select-none">
-                  Emailni avtomatik tasdiqlangan qilish
-                </label>
+              <div className="pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="createVerified"
+                    checked={formVerified}
+                    onChange={(e) => setFormVerified(e.target.checked)}
+                    className="h-4 w-4 rounded accent-[#0071e3]"
+                  />
+                  <label htmlFor="createVerified" className="text-[13px] text-foreground select-none cursor-pointer">
+                    Emailni avtomatik tasdiqlangan qilish
+                  </label>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1 pl-6">
+                  Belgilanmasa, foydalanuvchi hisobi birinchi marta tizimga kirguncha "Kutilmoqda" boʻladi.
+                </p>
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
@@ -594,6 +612,32 @@ export default function AdminUsersPage() {
                   placeholder="Ali Valiyev"
                   className="h-10 w-full rounded-xl border border-border bg-secondary/30 px-3.5 text-[13px] text-foreground outline-none focus:border-primary focus:bg-card"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  Avatar (Profil rasmi)
+                </label>
+                <div className="flex items-center gap-3">
+                  <UserAvatar
+                    src={formAvatarUrl || undefined}
+                    name={formName}
+                    email={editUser.email}
+                    size="lg"
+                  />
+                  <div className="flex-1">
+                    <input
+                      type="url"
+                      value={formAvatarUrl}
+                      onChange={(e) => setFormAvatarUrl(e.target.value)}
+                      placeholder="https://... yoki /uploads/..."
+                      className="h-10 w-full rounded-xl border border-border bg-secondary/30 px-3.5 text-[13px] text-foreground outline-none focus:border-primary focus:bg-card"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Rasm havolasini kiriting yoki boʻsh qoldiring
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div>

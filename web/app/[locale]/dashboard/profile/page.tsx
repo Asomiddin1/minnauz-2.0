@@ -23,6 +23,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api, UserStudyPlan } from '@/lib/api';
 import { getNextJLPTExamDate } from '@/lib/jlpt';
 import { StudyPlanModal } from '@/components/dashboard/study-plan-modal';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function ProfilePage() {
   const { user, devices, fetchDevices, revokeDevice, logout } = useAuth();
@@ -100,17 +101,7 @@ export default function ProfilePage() {
       <div className="rounded-[28px] border border-border bg-card p-6 sm:p-8 space-y-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-border">
           <div className="flex items-center gap-4">
-            {user?.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={user.fullName || 'User'}
-                className="h-16 w-16 rounded-full object-cover border-2 border-border shadow-sm"
-              />
-            ) : (
-              <div className="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-[#0071e3] to-[#005bb5] font-bold text-white text-[22px] shadow-sm">
-                {initials}
-              </div>
-            )}
+            <UserAvatar user={user} size="2xl" className="border-2 border-border shadow-sm" />
             <div className="space-y-1">
               <h2 className="text-[20px] font-semibold text-foreground">
                 {user?.fullName || 'Foydalanuvchi'}

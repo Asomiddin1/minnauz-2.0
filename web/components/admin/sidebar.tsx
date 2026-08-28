@@ -22,6 +22,7 @@ import {
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
 import { LogoMark } from '@/components/intro/Logo';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 interface NavItem {
   label: string;
@@ -242,9 +243,7 @@ export function AdminSidebar({
         {isMobileDrawer || !isCollapsed ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3 px-2">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-purple-600 font-bold text-white shadow-xs text-[13px]">
-                {initials}
-              </div>
+              <UserAvatar user={user} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <p className="truncate text-[13px] font-semibold text-foreground">
@@ -271,12 +270,7 @@ export function AdminSidebar({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div
-              title={`${user?.fullName || 'Admin'} (${user?.role})`}
-              className="grid h-9 w-9 place-items-center rounded-full bg-purple-600 font-bold text-white shadow-xs text-[12px]"
-            >
-              {initials}
-            </div>
+            <UserAvatar user={user} size="sm" />
             <button
               type="button"
               onClick={logout}

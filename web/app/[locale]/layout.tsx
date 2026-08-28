@@ -19,6 +19,7 @@ import { AuthProvider } from "@/lib/auth-context";
 export const metadata: Metadata = {
   title: "MinnaUz | JLPT",
   description: "Yapon tilini o'rgatuvchi platforma",
+  referrer: 'no-referrer-when-downgrade',
 };
 
 export default async function RootLayout({

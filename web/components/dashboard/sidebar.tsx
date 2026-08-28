@@ -21,60 +21,12 @@ import {
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
 import Logo, { LogoMark } from '@/components/intro/Logo';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-}
-
-function UserAvatar({
-  user,
-  size = 'md',
-  className = '',
-}: {
-  user: any;
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-}) {
-  const [imgError, setImgError] = React.useState(false);
-
-  const initials = user?.fullName
-    ? user.fullName
-        .trim()
-        .split(/\s+/)
-        .map((n: string) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : user?.email
-    ? user.email.slice(0, 2).toUpperCase()
-    : 'MU';
-
-  const sizeClasses = {
-    sm: 'h-8 w-8 text-[11px]',
-    md: 'h-9 w-9 text-[13px]',
-    lg: 'h-14 w-14 text-[20px]',
-  }[size];
-
-  if (user?.avatarUrl && !imgError) {
-    return (
-      <img
-        src={user.avatarUrl}
-        alt={user.fullName || user.email || 'Avatar'}
-        onError={() => setImgError(true)}
-        className={`${sizeClasses} shrink-0 rounded-full object-cover border border-border/80 shadow-xs ${className}`}
-      />
-    );
-  }
-
-  return (
-    <div
-      className={`${sizeClasses} grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#0071e3] to-[#005bb5] font-bold text-white shadow-xs ${className}`}
-    >
-      {initials}
-    </div>
-  );
 }
 
 export function DashboardSidebar({

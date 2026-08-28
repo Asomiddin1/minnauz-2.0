@@ -21,6 +21,7 @@ import {
 import { api } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminCoursesPage() {
   const { lang } = useLang();
@@ -245,17 +246,12 @@ export default function AdminCoursesPage() {
 
                   {/* Author / Teacher Badge */}
                   <div className="flex items-center gap-2 p-2 rounded-xl bg-secondary/50 border border-border/50 text-[12px]">
-                    {author?.avatarUrl ? (
-                      <img
-                        src={author.avatarUrl}
-                        alt={author.fullName || 'Ustoz'}
-                        className="h-6 w-6 rounded-full object-cover border border-border"
-                      />
-                    ) : (
-                      <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/15 text-primary text-[10px] font-bold">
-                        <GraduationCap className="h-3.5 w-3.5" />
-                      </div>
-                    )}
+                    <UserAvatar
+                      src={author?.avatarUrl}
+                      name={author?.fullName}
+                      email={author?.email}
+                      size="xs"
+                    />
                     <div className="truncate flex-1 min-w-0">
                       <span className="font-semibold text-foreground truncate block">
                         {author?.fullName || author?.email || 'MinnaUz Sensei'}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BookOpen, Play, CheckCircle2, Clock, Sparkles, Layers, ArrowRight, Award, Flame } from 'lucide-react';
 import { api, CourseListItem } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function CoursesPage() {
   const { lang } = useLang();
@@ -149,17 +150,11 @@ export default function CoursesPage() {
 
                   {/* Teacher / Author Info */}
                   <div className="flex items-center gap-2.5 pt-1">
-                    {course.author?.avatarUrl ? (
-                      <img
-                        src={course.author.avatarUrl}
-                        alt={course.author.fullName || 'Ustoz'}
-                        className="h-6 w-6 rounded-full object-cover border border-border"
-                      />
-                    ) : (
-                      <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/15 text-primary text-[10px] font-bold">
-                        {course.author?.fullName ? course.author.fullName.charAt(0) : 'M'}
-                      </div>
-                    )}
+                    <UserAvatar
+                      src={course.author?.avatarUrl}
+                      name={course.author?.fullName}
+                      size="xs"
+                    />
                     <div className="text-[12px] truncate">
                       <span className="text-muted-foreground">Muallif: </span>
                       <span className="font-semibold text-foreground">
