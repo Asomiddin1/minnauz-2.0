@@ -152,7 +152,7 @@ export class AdminService {
         email,
         fullName: dto.fullName?.trim(),
         role: dto.role || Role.USER,
-        isVerified: dto.isVerified ?? true,
+        isVerified: dto.isVerified ?? false,
       },
     });
 
