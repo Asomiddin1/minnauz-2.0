@@ -8,10 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  NotificationsService,
-  CreateNotificationDto,
-} from './notifications.service';
+import { NotificationsService } from './notifications.service';
+import { CreateNotificationDto } from './dto/notification.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';

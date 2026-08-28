@@ -7,7 +7,6 @@ import Nav from '@/components/intro/Nav'
 import Hero from '@/components/intro/Hero'
 import Levels from '@/components/intro/Levels'
 import Practice from '@/components/intro/Practice'
-import Kids from '@/components/intro/Kids'
 import Premium from '@/components/intro/Premium'
 import Schools from '@/components/intro/Schools'
 import Footer from '@/components/intro/Footer'
@@ -22,7 +21,6 @@ function Content() {
         <Hero />
         <Levels />
         <Practice />
-        <Kids />
         <Premium />
         <Schools />
       </main>

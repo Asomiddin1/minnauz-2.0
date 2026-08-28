@@ -11,7 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { BannersService, CreateBannerDto, UpdateBannerDto } from './banners.service';
+import { BannersService } from './banners.service';
+import { CreateBannerDto, UpdateBannerDto, ReorderBannersDto } from './dto/banner.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -63,7 +64,7 @@ export class BannersController {
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Bannerlar tartibini oʻzgartirish' })
-  async reorderBanners(@Body() body: { bannerIds: string[] }) {
+  async reorderBanners(@Body() body: ReorderBannersDto) {
     return this.bannersService.reorderBanners(body.bannerIds || []);
   }
 

@@ -13,6 +13,17 @@ export interface JLPTExamInfo {
   year: number;
 }
 
+export interface JLPTCountdown {
+  targetDate: Date;
+  season: string;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  formattedDate: string;
+  isExamDay: boolean;
+}
+
 const MONTH_NAMES_UZ = [
   'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
   'Iyul', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
@@ -73,5 +84,29 @@ export function getNextJLPTExamDate(fromDate: Date = new Date()): JLPTExamInfo {
     formattedDate,
     season,
     year: examYear,
+  };
+}
+
+/**
+ * Returns real-time countdown (days, hours, minutes, seconds) to the next JLPT exam.
+ */
+export function getNextJLPTCountdown(fromDate: Date = new Date()): JLPTCountdown {
+  const examInfo = getNextJLPTExamDate(fromDate);
+  const diffMs = Math.max(0, examInfo.date.getTime() - fromDate.getTime());
+
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+  return {
+    targetDate: examInfo.date,
+    season: `${examInfo.season} ${examInfo.year}`,
+    days,
+    hours,
+    minutes,
+    seconds,
+    formattedDate: examInfo.formattedDate,
+    isExamDay: diffMs === 0,
   };
 }

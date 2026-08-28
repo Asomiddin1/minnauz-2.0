@@ -85,13 +85,7 @@ export class CoursesController {
   })
   async saveStudyPlan(
     @CurrentUser('id') userId: string,
-    @Body()
-    body: {
-      targetLevel?: string;
-      weeklyGoalHours?: number;
-      dailyMinutes?: number;
-      targetMonths?: number;
-    },
+    @Body() body: SaveStudyPlanDto,
   ) {
     return this.coursesService.saveUserStudyPlan(userId, body);
   }
