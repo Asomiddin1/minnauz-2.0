@@ -57,6 +57,148 @@ export interface AuthResponse {
   device: DeviceSession;
 }
 
+export interface ActiveCourseStats {
+  id: string;
+  slug: string;
+  title: string;
+  level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' | 'OTHER';
+  totalLessons: number;
+  completedLessons: number;
+  progressPercent: number;
+  nextLesson?: {
+    id: string;
+    title: string;
+    japaneseTitle?: string;
+    order: number;
+    summary?: string;
+    category?: string;
+    progressPercent: number;
+  } | null;
+}
+
+export interface WeeklyActivityDay {
+  day: string; // 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'
+  date: string;
+  minutes: number;
+  height: string;
+  active: boolean;
+}
+
+export interface UserStudyTimeStats {
+  totalMinutes: number;
+  totalHours: number;
+  totalMinutesRemainder: number;
+  todayMinutes: number;
+  todayHours: number;
+  todayMinutesRemainder: number;
+  weeklyMinutes: number;
+  weeklyGoalMinutes: number;
+  weeklyProgressPercent: number;
+  weeklyActivity: WeeklyActivityDay[];
+}
+
+export interface UserStudyPlan {
+  targetLevel: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' | 'OTHER';
+  weeklyGoalHours: number;
+  dailyMinutes: number;
+  targetMonths: number;
+  isConfigured: boolean;
+}
+
+export interface BannerItem {
+  id: string;
+  title: string;
+  desc: string;
+  tag: string;
+  tagIcon: string;
+  image: string;
+  btnText: string;
+  btnUrl?: string | null;
+  btnIcon: string;
+  actionType: 'LINK' | 'PLAN_MODAL' | 'NOTIFICATION_DETAIL';
+  notificationId?: string | null;
+  order: number;
+  isActive: boolean;
+  isDismissible: boolean;
+  targetAudience: 'ALL' | 'USER' | 'TEACHER';
+  notification?: NotificationItem | null;
+  createdAt: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  content?: string | null;
+  imageUrl?: string | null;
+  videoUrl?: string | null;
+  actionUrl?: string | null;
+  actionText?: string | null;
+  audience: 'ALL' | 'USER' | 'TEACHER' | 'INDIVIDUAL';
+  type: 'INFO' | 'ANNOUNCEMENT' | 'SYSTEM' | 'UPDATE' | 'PROMO';
+  isPublished?: boolean;
+  createdAt: string;
+  isRead?: boolean;
+  readAt?: string | null;
+  readCount?: number;
+  hasBanner?: boolean;
+}
+
+export interface CreateBannerDto {
+  title: string;
+  desc: string;
+  tag?: string;
+  tagIcon?: string;
+  image?: string;
+  btnText?: string;
+  btnUrl?: string;
+  btnIcon?: string;
+  actionType?: 'LINK' | 'PLAN_MODAL' | 'NOTIFICATION_DETAIL';
+  notificationId?: string;
+  order?: number;
+  isActive?: boolean;
+  isDismissible?: boolean;
+  targetAudience?: 'ALL' | 'USER' | 'TEACHER';
+}
+
+export interface CreateNotificationDto {
+  title: string;
+  message: string;
+  content?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  actionUrl?: string;
+  actionText?: string;
+  audience?: 'ALL' | 'USER' | 'TEACHER' | 'INDIVIDUAL';
+  targetUserId?: string;
+  type?: 'INFO' | 'ANNOUNCEMENT' | 'SYSTEM' | 'UPDATE' | 'PROMO';
+  isPublished?: boolean;
+  createBanner?: boolean;
+  bannerTag?: string;
+  bannerImage?: string;
+}
+
+export interface UserDashboardStats {
+  streakDays: number;
+  wordsLearned: number;
+  completedLessons: number;
+  totalLessons: number;
+  n5ProgressPercent: number;
+  recentLessons: {
+    id: string;
+    title: string;
+    japaneseTitle?: string;
+    courseTitle: string;
+    courseSlug: string;
+    isCompleted: boolean;
+    quizScore?: number | null;
+  }[];
+  activeCourse?: ActiveCourseStats | null;
+  studyTime?: UserStudyTimeStats;
+  studyPlan?: UserStudyPlan;
+  activeDates?: number[];
+}
+
 // === COURSES TYPES ===
 
 export interface CourseListItem {
@@ -343,6 +485,108 @@ class ApiClient {
   // === STUDENT COURSES & LESSONS ===
   async getUserDashboardStats() {
     return this.request<UserDashboardStats>('/courses/user/stats');
+  }
+
+  async logStudyTime(minutes: number = 1) {
+    return this.request<{ success: boolean }>('/courses/user/study-time', {
+      method: 'POST',
+      body: JSON.stringify({ minutes }),
+    });
+  }
+
+  async getStudyPlan() {
+    return this.request<UserStudyPlan>('/courses/user/study-plan');
+  }
+
+  async saveStudyPlan(data: Partial<UserStudyPlan>) {
+    return this.request<UserStudyPlan>('/courses/user/study-plan', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // === BANNERS API ===
+  async getBanners() {
+    return this.request<BannerItem[]>('/banners');
+  }
+
+  async getAllBannersAdmin() {
+    return this.request<BannerItem[]>('/banners/admin');
+  }
+
+  async createBanner(data: CreateBannerDto) {
+    return this.request<BannerItem>('/banners/admin', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateBanner(id: string, data: Partial<CreateBannerDto>) {
+    return this.request<BannerItem>(`/banners/admin/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async toggleBannerActive(id: string) {
+    return this.request<BannerItem>(`/banners/admin/${id}/toggle`, {
+      method: 'PATCH',
+    });
+  }
+
+  async reorderBanners(bannerIds: string[]) {
+    return this.request<{ success: boolean; message: string }>('/banners/admin/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ bannerIds }),
+    });
+  }
+
+  async deleteBanner(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/banners/admin/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // === NOTIFICATIONS API ===
+  async getUserNotifications() {
+    return this.request<NotificationItem[]>('/notifications');
+  }
+
+  async getNotificationById(id: string) {
+    return this.request<NotificationItem>(`/notifications/${id}`);
+  }
+
+  async getUnreadNotificationCount() {
+    return this.request<{ unreadCount: number }>('/notifications/unread-count');
+  }
+
+  async markNotificationRead(id: string) {
+    return this.request<{ success: boolean }>(`/notifications/${id}/read`, {
+      method: 'POST',
+    });
+  }
+
+  async markAllNotificationsRead() {
+    return this.request<{ success: boolean }>('/notifications/read-all', {
+      method: 'POST',
+    });
+  }
+
+  async getAllNotificationsAdmin() {
+    return this.request<NotificationItem[]>('/notifications/admin');
+  }
+
+  async createNotification(data: CreateNotificationDto) {
+    return this.request<NotificationItem>('/notifications/admin', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteNotification(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/notifications/admin/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   async getCourses() {

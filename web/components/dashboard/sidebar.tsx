@@ -233,37 +233,6 @@ export function DashboardSidebar({
             );
           })}
         </nav>
-
-        {/* Goal Card in Sidebar */}
-        {(isMobileDrawer || !isCollapsed) && (
-          <div className="rounded-2xl border border-border/80 bg-secondary/30 p-3.5 space-y-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="space-y-0.5">
-                <p className="text-[13px] font-semibold text-foreground leading-snug">
-                  Maqsadingizga yaqinlashyapsiz!
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Daraja: <span className="font-medium text-foreground">JLPT N5</span>
-                </p>
-              </div>
-
-              {/* Mini circular progress */}
-              <div className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
-                <span>72%</span>
-              </div>
-            </div>
-
-            <Link href={`/${lang}/dashboard/courses`} onClick={onMobileClose} className="block">
-              <button
-                type="button"
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-foreground text-background text-[12px] font-semibold hover:bg-[#0071e3] hover:text-white transition-colors"
-              >
-                <span>Darslarni davom ettirish</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* Bottom: User Profile & Logout */}

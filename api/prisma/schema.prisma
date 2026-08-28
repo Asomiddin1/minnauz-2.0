@@ -30,6 +30,33 @@ enum ExerciseType {
   MATCHING
 }
 
+enum BannerAudience {
+  ALL
+  USER
+  TEACHER
+}
+
+enum BannerActionType {
+  LINK
+  PLAN_MODAL
+  NOTIFICATION_DETAIL
+}
+
+enum NotificationAudience {
+  ALL
+  USER
+  TEACHER
+  INDIVIDUAL
+}
+
+enum NotificationType {
+  INFO
+  ANNOUNCEMENT
+  SYSTEM
+  UPDATE
+  PROMO
+}
+
 model User {
   id            String          @id @default(uuid())
   email         String          @unique
@@ -52,8 +79,103 @@ model User {
   // Teacher / Group relations
   teachingGroups  Group[]       @relation("TeacherGroups")
   groupMemberships GroupMember[]
+  studyActivities UserStudyActivity[]
+  studyPlan       UserStudyPlan?
+  notifications   UserNotification[]
 
   @@map("users")
+}
+
+model Banner {
+  id             String           @id @default(uuid())
+  title          String
+  desc           String
+  tag            String           @default("Yangilik")
+  tagIcon        String           @default("Sparkles")
+  image          String           @default("/banner_art.png")
+  btnText        String           @default("Batafsil")
+  btnUrl         String?
+  btnIcon        String           @default("ArrowRight")
+  actionType     BannerActionType @default(LINK)
+  notificationId String?
+  order          Int              @default(0)
+  isActive       Boolean          @default(true)
+  isDismissible  Boolean          @default(false)
+  targetAudience BannerAudience   @default(ALL)
+  isDefault      Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  notification   Notification?    @relation(fields: [notificationId], references: [id], onDelete: SetNull)
+
+  @@map("banners")
+}
+
+model Notification {
+  id           String               @id @default(uuid())
+  title        String
+  message      String
+  content      String?
+  imageUrl     String?
+  videoUrl     String?
+  actionUrl    String?
+  actionText   String?
+  audience     NotificationAudience @default(ALL)
+  targetUserId String?
+  type         NotificationType     @default(ANNOUNCEMENT)
+  isPublished  Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  banners      Banner[]
+  userReceipts UserNotification[]
+
+  @@map("notifications")
+}
+
+model UserNotification {
+  id             String       @id @default(uuid())
+  userId         String
+  notificationId String
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notificationId])
+  @@map("user_notifications")
+}
+
+model UserStudyPlan {
+  id              String      @id @default(uuid())
+  userId          String      @unique
+  targetLevel     CourseLevel @default(N5)
+  weeklyGoalHours Int         @default(4)
+  dailyMinutes    Int         @default(35)
+  targetMonths    Int         @default(6)
+  isConfigured    Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_study_plans")
+}
+
+model UserStudyActivity {
+  id           String   @id @default(uuid())
+  userId       String
+  date         String   // e.g. "2026-08-28"
+  minutesSpent Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("user_study_activities")
 }
 
 model DeviceSession {

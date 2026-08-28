@@ -41,7 +41,7 @@ function GoogleIcon() {
 function LoginForm() {
   const { t, lang } = useLang()
   const { theme, toggle } = useThemeCtx()
-  const { sendOtp, loginWithOtp, loginWithGoogle } = useAuth()
+  const { isAuthenticated, user, sendOtp, loginWithOtp, loginWithGoogle } = useAuth()
   const router = useRouter()
 
   const [step, setStep] = useState<Step>('email')
@@ -59,9 +59,15 @@ function LoginForm() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('revoked') === 'true') {
         setError('Sessiyangiz admin tomonidan yoki boshqa qurilmadan bekor qilingan. Iltimos, qaytadan kiring.');
+      } else if (isAuthenticated) {
+        router.replace(
+          user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
+            ? `/${lang}/admin`
+            : `/${lang}/dashboard`
+        );
       }
     }
-  }, []);
+  }, [isAuthenticated, user, lang, router]);
 
   useEffect(() => {
     if (cooldown <= 0) return

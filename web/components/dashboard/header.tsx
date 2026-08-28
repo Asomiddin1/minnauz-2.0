@@ -8,6 +8,7 @@ import { useLang, type Lang } from '@/lib/i18n';
 import { useThemeCtx } from '@/lib/theme';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { LogoMark } from '@/components/intro/Logo';
+import { NotificationPopover } from './notification-popover';
 
 export function DashboardHeader({
   activeTab,
@@ -91,6 +92,8 @@ export function DashboardHeader({
         {/* Right Tools */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <LanguageSwitcher />
+
+          <NotificationPopover />
 
           <button
             type="button"

@@ -44,6 +44,42 @@ export class CoursesController {
     return this.coursesService.getUserStats(userId);
   }
 
+  @Post('user/study-time')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Foydalanuvchi platformada oʻtkazgan oʻrganish vaqtini saqlash' })
+  async logStudyTime(
+    @CurrentUser('id') userId: string,
+    @Body() body: { minutes?: number },
+  ) {
+    return this.coursesService.logStudyTime(userId, body?.minutes || 1);
+  }
+
+  @Get('user/study-plan')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Foydalanuvchining shaxsiy oʻrganish rejasini olish' })
+  async getStudyPlan(@CurrentUser('id') userId: string) {
+    return this.coursesService.getUserStudyPlan(userId);
+  }
+
+  @Post('user/study-plan')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Foydalanuvchining shaxsiy oʻrganish rejasini saqlash yoki yangilash' })
+  async saveStudyPlan(
+    @CurrentUser('id') userId: string,
+    @Body()
+    body: {
+      targetLevel?: string;
+      weeklyGoalHours?: number;
+      dailyMinutes?: number;
+      targetMonths?: number;
+    },
+  ) {
+    return this.coursesService.saveUserStudyPlan(userId, body);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Barcha kurslar roʻyxatini olish (oʻzlashtirish progressi bilan)' })
   async getCourses(@Req() req: any) {
