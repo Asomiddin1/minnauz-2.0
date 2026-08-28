@@ -3,11 +3,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  app.set('trust proxy', 1);
 
   // Ensure uploads directory exists and serve statically
   const uploadsDir = join(process.cwd(), 'uploads');
@@ -18,9 +22,13 @@ async function bootstrap() {
     prefix: '/uploads',
   });
 
-  // Enable CORS
+  // Enable CORS (allowlist from env, comma-separated)
+  const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: true,
+    origin: corsOrigins,
     credentials: true,
   });
 
