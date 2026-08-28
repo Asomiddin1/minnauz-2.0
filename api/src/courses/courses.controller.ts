@@ -15,7 +15,11 @@ import {
 } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 import { CoursesService } from './courses.service';
-import { UpdateProgressDto, LogStudyTimeDto } from './dto/course.dto';
+import {
+  UpdateProgressDto,
+  LogStudyTimeDto,
+  SaveStudyPlanDto,
+} from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';

@@ -145,13 +145,6 @@ export class CreateLessonDto {
   order?: number;
 }
 
-export class LogStudyTimeDto {
-  @ApiPropertyOptional({ description: 'Oʻrganish vaqti (daqiqalarda)', example: 5 })
-  @IsOptional()
-  @IsNumber()
-  minutes?: number;
-}
-
 export class SaveStudyPlanDto {
   @ApiPropertyOptional({ description: 'Maqsad darajasi', example: 'N5' })
   @IsOptional()
@@ -163,7 +156,10 @@ export class SaveStudyPlanDto {
   @IsNumber()
   weeklyGoalHours?: number;
 
-  @ApiPropertyOptional({ description: 'Kunlik maqsad daqiqalarda', example: 30 })
+  @ApiPropertyOptional({
+    description: 'Kunlik maqsad daqiqalarda',
+    example: 30,
+  })
   @IsOptional()
   @IsNumber()
   dailyMinutes?: number;
@@ -173,4 +169,3 @@ export class SaveStudyPlanDto {
   @IsNumber()
   targetMonths?: number;
 }
-
