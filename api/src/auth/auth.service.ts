@@ -5,7 +5,7 @@ import {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import type { Request } from 'express';
 import * as bcrypt from 'bcrypt';
 import { UAParser } from 'ua-parser-js';
@@ -15,10 +15,16 @@ import { MailService } from '../mail/mail.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
-import { Role } from './roles.enum';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import type { JwtPayload } from './strategies/jwt.strategy';
 import { randomUUID } from 'crypto';
 
 const MAX_DEVICES = 3;
+const MAX_OTP_ATTEMPTS = 5;
+const ACCESS_TOKEN_EXPIRES_IN = (process.env.JWT_ACCESS_EXPIRES_IN ||
+  '1d') as JwtSignOptions['expiresIn'];
+const REFRESH_TOKEN_EXPIRES_IN = (process.env.JWT_REFRESH_EXPIRES_IN ||
+  '30d') as JwtSignOptions['expiresIn'];
 
 @Injectable()
 export class AuthService {
@@ -63,7 +69,7 @@ export class AuthService {
       message: 'Tasdiqlash kodi emailga yuborildi',
       expiresInSeconds: 300,
       // For development testing ease, code can be inspected in terminal/logs
-      devCode: process.env.NODE_ENV !== 'production' ? code : undefined,
+      devCode: process.env.NODE_ENV === 'development' ? code : undefined,
     };
   }
 
@@ -76,13 +82,22 @@ export class AuthService {
     const otp = await this.prisma.otpCode.findFirst({
       where: {
         email,
-        code,
         used: false,
         expiresAt: { gt: new Date() },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!otp) {
+      throw new BadRequestException("Noto'g'ri yoki eskirgan tasdiqlash kodi");
+    }
+
+    if (otp.code !== code) {
+      const attempts = otp.attempts + 1;
+      await this.prisma.otpCode.update({
+        where: { id: otp.id },
+        data: { attempts, used: attempts >= MAX_OTP_ATTEMPTS },
+      });
       throw new BadRequestException("Noto'g'ri yoki eskirgan tasdiqlash kodi");
     }
 
@@ -98,14 +113,9 @@ export class AuthService {
     });
 
     if (!user) {
-      // First user registered can optionally be made SUPER_ADMIN if needed, otherwise default USER
-      const count = await this.prisma.user.count();
-      const role = count === 0 ? Role.SUPER_ADMIN : Role.USER;
-
       user = await this.prisma.user.create({
         data: {
           email,
-          role,
           isVerified: true,
         },
       });
@@ -126,8 +136,11 @@ export class AuthService {
     let avatarUrl: string | undefined;
 
     try {
-      if (dto.token === 'google-mock-token' || dto.token.startsWith('dev-')) {
-        // Fallback for dev testing
+      if (
+        process.env.NODE_ENV === 'development' &&
+        (dto.token === 'google-mock-token' || dto.token.startsWith('dev-'))
+      ) {
+        // Fallback for local dev testing only
         email = 'google.user@example.com';
         fullName = 'Google Test User';
         avatarUrl = undefined;
@@ -146,16 +159,21 @@ export class AuthService {
               avatarUrl = payload.picture;
             }
           } catch (idErr: any) {
-            this.logger.warn(`ID Token xatosi (${idErr.message}), UserInfo API orqali tekshirilmoqda...`);
+            this.logger.warn(
+              `ID Token xatosi (${idErr.message}), UserInfo API orqali tekshirilmoqda...`,
+            );
           }
         }
 
         // 2. Try Google UserInfo API (supports access_token)
         if (!email) {
           try {
-            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-              headers: { Authorization: `Bearer ${dto.token}` },
-            });
+            const res = await fetch(
+              'https://www.googleapis.com/oauth2/v3/userinfo',
+              {
+                headers: { Authorization: `Bearer ${dto.token}` },
+              },
+            );
             if (res.ok) {
               const userInfo = await res.json();
               if (userInfo?.email) {
@@ -172,7 +190,9 @@ export class AuthService {
         // 3. Try TokenInfo endpoint
         if (!email) {
           try {
-            const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${dto.token}`);
+            const res = await fetch(
+              `https://oauth2.googleapis.com/tokeninfo?id_token=${dto.token}`,
+            );
             if (res.ok) {
               const tokenInfo = await res.json();
               if (tokenInfo?.email) {
@@ -185,12 +205,16 @@ export class AuthService {
         }
 
         if (!email) {
-          throw new UnauthorizedException("Google ma'lumotlari yaroqsiz yoki eskirgan");
+          throw new UnauthorizedException(
+            "Google ma'lumotlari yaroqsiz yoki eskirgan",
+          );
         }
       }
     } catch (err: any) {
       this.logger.error(`Google autentifikatsiyasida xatolik: ${err.message}`);
-      throw new UnauthorizedException("Google orqali autentifikatsiya muvaffaqiyatsiz bo'ldi");
+      throw new UnauthorizedException(
+        "Google orqali autentifikatsiya muvaffaqiyatsiz bo'ldi",
+      );
     }
 
     let user = await this.prisma.user.findUnique({
@@ -198,15 +222,11 @@ export class AuthService {
     });
 
     if (!user) {
-      const count = await this.prisma.user.count();
-      const role = count === 0 ? Role.SUPER_ADMIN : Role.USER;
-
       user = await this.prisma.user.create({
         data: {
           email,
           fullName,
           avatarUrl,
-          role,
           isVerified: true,
         },
       });
@@ -225,33 +245,28 @@ export class AuthService {
   }
 
   // 4. Device Manager: Create / Enforce Max 3 Active Devices
-  private async createDeviceSession(user: any, customDeviceName: string | undefined, req: Request) {
+  private async createDeviceSession(
+    user: any,
+    customDeviceName: string | undefined,
+    req: Request,
+  ) {
     const uaHeader = req.headers['user-agent'] || '';
     const parser = new UAParser(uaHeader);
     const uaResult = parser.getResult();
 
-    const os = uaResult.os.name ? `${uaResult.os.name} ${uaResult.os.version || ''}`.trim() : 'Nomaʼlum OS';
-    const browser = uaResult.browser.name ? `${uaResult.browser.name} ${uaResult.browser.version || ''}`.trim() : 'Nomaʼlum Brauzer';
-    const ipAddress = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
-    
+    const os = uaResult.os.name
+      ? `${uaResult.os.name} ${uaResult.os.version || ''}`.trim()
+      : 'Nomaʼlum OS';
+    const browser = uaResult.browser.name
+      ? `${uaResult.browser.name} ${uaResult.browser.version || ''}`.trim()
+      : 'Nomaʼlum Brauzer';
+    const ipAddress =
+      (req.headers['x-forwarded-for'] as string) ||
+      req.socket.remoteAddress ||
+      '127.0.0.1';
+
     const deviceName = customDeviceName || `${browser} on ${os}`;
     const deviceId = randomUUID();
-
-    // Check active sessions count for user
-    const existingSessions = await this.prisma.deviceSession.findMany({
-      where: { userId: user.id },
-      orderBy: { lastActiveAt: 'asc' },
-    });
-
-    // If max device limit reached (>= 3), remove oldest session(s)
-    if (existingSessions.length >= MAX_DEVICES) {
-      const sessionIdsToRemove = existingSessions
-        .slice(0, existingSessions.length - MAX_DEVICES + 1)
-        .map((s) => s.id);
-      await this.prisma.deviceSession.deleteMany({
-        where: { id: { in: sessionIdsToRemove } },
-      });
-    }
 
     // Generate Tokens
     const payload = {
@@ -262,27 +277,44 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '1d') as any,
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '30d') as any,
+      expiresIn: REFRESH_TOKEN_EXPIRES_IN,
     });
 
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-    // Save new device session
-    const session = await this.prisma.deviceSession.create({
-      data: {
-        userId: user.id,
-        deviceId,
-        deviceName,
-        os,
-        browser,
-        ipAddress,
-        refreshToken: hashedRefreshToken,
-        lastActiveAt: new Date(),
-      },
+    // Enforce device limit and save new session atomically
+    const session = await this.prisma.$transaction(async (tx) => {
+      const existingSessions = await tx.deviceSession.findMany({
+        where: { userId: user.id },
+        orderBy: { lastActiveAt: 'asc' },
+      });
+
+      // If max device limit reached (>= 3), remove oldest session(s)
+      if (existingSessions.length >= MAX_DEVICES) {
+        const sessionIdsToRemove = existingSessions
+          .slice(0, existingSessions.length - MAX_DEVICES + 1)
+          .map((s) => s.id);
+        await tx.deviceSession.deleteMany({
+          where: { id: { in: sessionIdsToRemove } },
+        });
+      }
+
+      return tx.deviceSession.create({
+        data: {
+          userId: user.id,
+          deviceId,
+          deviceName,
+          os,
+          browser,
+          ipAddress,
+          refreshToken: hashedRefreshToken,
+          lastActiveAt: new Date(),
+        },
+      });
     });
 
     return {
@@ -306,7 +338,74 @@ export class AuthService {
     };
   }
 
-  // 5. Get User's Active Devices List (Device Manager)
+  // 5. Refresh tokens (rotate refresh token for the device session)
+  async refreshTokens(dto: RefreshTokenDto) {
+    let payload: JwtPayload;
+    try {
+      payload = this.jwtService.verify<JwtPayload>(dto.refreshToken);
+    } catch {
+      throw new UnauthorizedException(
+        "Refresh token yaroqsiz yoki muddati o'tgan",
+      );
+    }
+
+    if (!payload.deviceId) {
+      throw new UnauthorizedException('Refresh token yaroqsiz');
+    }
+
+    const session = await this.prisma.deviceSession.findUnique({
+      where: { deviceId: payload.deviceId },
+    });
+
+    if (!session || session.userId !== payload.sub) {
+      throw new UnauthorizedException('Sessiya topilmadi yoki bekor qilingan');
+    }
+
+    const tokenMatches = await bcrypt.compare(
+      dto.refreshToken,
+      session.refreshToken,
+    );
+    if (!tokenMatches) {
+      // Possible token reuse — revoke the session
+      await this.prisma.deviceSession.delete({ where: { id: session.id } });
+      throw new UnauthorizedException(
+        'Sessiya xavfsizlik sababli bekor qilindi. Qaytadan kiring.',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Foydalanuvchi topilmadi');
+    }
+
+    const newPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      deviceId: session.deviceId,
+    };
+
+    const accessToken = this.jwtService.sign(newPayload, {
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+    });
+    const refreshToken = this.jwtService.sign(newPayload, {
+      expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+    });
+
+    await this.prisma.deviceSession.update({
+      where: { id: session.id },
+      data: {
+        refreshToken: await bcrypt.hash(refreshToken, 10),
+        lastActiveAt: new Date(),
+      },
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  // 6. Get User's Active Devices List (Device Manager)
   async getUserDevices(userId: string, currentDeviceId?: string) {
     const sessions = await this.prisma.deviceSession.findMany({
       where: { userId },

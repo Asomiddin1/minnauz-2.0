@@ -378,20 +378,55 @@ export interface LessonDetailsResponse {
 }
 
 class ApiClient {
+  private refreshPromise: Promise<boolean> | null = null;
+
   private getAuthHeader(): Record<string, string> {
     if (typeof window === 'undefined') return {};
     const token = localStorage.getItem('minna_access_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async tryRefreshTokens(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    const refreshToken = localStorage.getItem('minna_refresh_token');
+    if (!refreshToken) return false;
+
+    if (!this.refreshPromise) {
+      this.refreshPromise = (async () => {
+        try {
+          const res = await fetch(`${API_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken }),
+          });
+          if (!res.ok) return false;
+          const data = (await res.json()) as {
+            accessToken?: string;
+            refreshToken?: string;
+          };
+          if (!data.accessToken || !data.refreshToken) return false;
+          localStorage.setItem('minna_access_token', data.accessToken);
+          localStorage.setItem('minna_refresh_token', data.refreshToken);
+          return true;
+        } catch {
+          return false;
+        } finally {
+          this.refreshPromise = null;
+        }
+      })();
+    }
+
+    return this.refreshPromise;
+  }
+
+  async request<T>(endpoint: string, options: RequestInit = {}, isRetry = false): Promise<T> {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${API_URL}${cleanEndpoint}`;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...this.getAuthHeader(),
       ...((options.headers as Record<string, string>) || {}),
+      ...this.getAuthHeader(),
     };
 
     const res = await fetch(url, {
@@ -404,7 +439,14 @@ class ApiClient {
     if (!res.ok) {
       if (res.status === 401 && typeof window !== 'undefined') {
         const hadToken = !!localStorage.getItem('minna_access_token');
-        if (hadToken && !cleanEndpoint.includes('/auth/otp') && !cleanEndpoint.includes('/auth/google')) {
+        const isAuthEndpoint =
+          cleanEndpoint.includes('/auth/otp') ||
+          cleanEndpoint.includes('/auth/google') ||
+          cleanEndpoint.includes('/auth/refresh');
+        if (hadToken && !isAuthEndpoint) {
+          if (!isRetry && (await this.tryRefreshTokens())) {
+            return this.request<T>(endpoint, options, true);
+          }
           localStorage.removeItem('minna_access_token');
           localStorage.removeItem('minna_refresh_token');
           localStorage.removeItem('minna_user');

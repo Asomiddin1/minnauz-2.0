@@ -7,7 +7,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
@@ -37,17 +42,32 @@ export class UploadController {
           cb(null, uploadDir);
         },
         filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname).toLowerCase();
           cb(null, `video-${uniqueSuffix}${ext}`);
         },
       }),
       fileFilter: (req, file, cb) => {
-        const allowedMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska'];
-        if (allowedMimes.includes(file.mimetype) || file.originalname.match(/\.(mp4|webm|mov|mkv)$/i)) {
+        const allowedMimes = [
+          'video/mp4',
+          'video/webm',
+          'video/quicktime',
+          'video/x-matroska',
+        ];
+        const allowedExt = /\.(mp4|webm|mov|mkv)$/i;
+        if (
+          allowedMimes.includes(file.mimetype) &&
+          allowedExt.test(file.originalname)
+        ) {
           cb(null, true);
         } else {
-          cb(new BadRequestException('Faqat video formatdagi fayllar (MP4, WebM, MOV) qabul qilinadi'), false);
+          cb(
+            new BadRequestException(
+              'Faqat video formatdagi fayllar (MP4, WebM, MOV) qabul qilinadi',
+            ),
+            false,
+          );
         }
       },
       limits: {

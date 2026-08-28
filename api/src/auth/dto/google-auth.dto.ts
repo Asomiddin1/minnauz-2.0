@@ -7,7 +7,10 @@ export class GoogleAuthDto {
   @IsNotEmpty({ message: 'Google token kiritilishi shart' })
   token: string;
 
-  @ApiPropertyOptional({ example: 'iPhone 15 Pro', description: 'Qurilma nomi' })
+  @ApiPropertyOptional({
+    example: 'iPhone 15 Pro',
+    description: 'Qurilma nomi',
+  })
   @IsOptional()
   @IsString()
   deviceName?: string;

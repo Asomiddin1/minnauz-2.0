@@ -1,18 +1,48 @@
-import { IsString, IsOptional, IsEnum, IsBoolean, IsNumber, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsArray,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+export class LogStudyTimeDto {
+  @ApiPropertyOptional({
+    description: 'Oʻrganishga sarflangan daqiqalar (1-120)',
+    example: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(120)
+  minutes?: number;
+}
+
 export class UpdateProgressDto {
-  @ApiPropertyOptional({ description: 'Tugatilgan boʻlimlar roʻyxati', example: ['kotoba', 'bunpou', 'kanji'] })
+  @ApiPropertyOptional({
+    description: 'Tugatilgan boʻlimlar roʻyxati',
+    example: ['kotoba', 'bunpou', 'kanji'],
+  })
   @IsOptional()
   @IsArray()
   completedSections?: string[];
 
-  @ApiPropertyOptional({ description: 'Renshuu test bali (0-100)', example: 100 })
+  @ApiPropertyOptional({
+    description: 'Renshuu test bali (0-100)',
+    example: 100,
+  })
   @IsOptional()
   @IsNumber()
   quizScore?: number;
 
-  @ApiPropertyOptional({ description: 'Dars toʻliq tugatilganmi', example: true })
+  @ApiPropertyOptional({
+    description: 'Dars toʻliq tugatilganmi',
+    example: true,
+  })
   @IsOptional()
   @IsBoolean()
   isCompleted?: boolean;
@@ -59,7 +89,10 @@ export class CreateCourseDto {
 }
 
 export class CreateModuleDto {
-  @ApiProperty({ description: 'Modul nomi', example: '1-5 darslar: Tanishtiruv va asoslar' })
+  @ApiProperty({
+    description: 'Modul nomi',
+    example: '1-5 darslar: Tanishtiruv va asoslar',
+  })
   @IsString()
   title: string;
 
@@ -75,7 +108,10 @@ export class CreateModuleDto {
 }
 
 export class CreateLessonDto {
-  @ApiProperty({ description: 'Dars nomi', example: '1-dars: Oʻzini tanishtirish' })
+  @ApiProperty({
+    description: 'Dars nomi',
+    example: '1-dars: Oʻzini tanishtirish',
+  })
   @IsString()
   title: string;
 
