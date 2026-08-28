@@ -103,12 +103,12 @@ export default function Premium() {
 
                   <div className="mt-8 pt-2">
                     {plan.featured ? (
-                      <Link
-                        href="/login"
-                        className="inline-flex w-full items-center justify-center rounded-full bg-background px-6 py-2.5 text-[15px] font-medium text-foreground transition-opacity duration-300 hover:opacity-85"
+                      <CTA
+                        to="/login"
+                        className="w-full bg-background text-foreground hover:bg-background/90"
                       >
                         {t.premium.trial}
-                      </Link>
+                      </CTA>
                     ) : (
                       <CTA to="/login" variant="ghost">
                         {t.premium.choose} {plan.name}

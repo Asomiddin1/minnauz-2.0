@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { CoursesModule } from './courses/courses.module';
 import { UploadModule } from './upload/upload.module';
+import { BannersModule } from './banners/banners.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -19,6 +21,8 @@ import { AppService } from './app.service';
     AdminModule,
     CoursesModule,
     UploadModule,
+    BannersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

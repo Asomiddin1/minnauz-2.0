@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { useReveal } from '../../lib/hooks'
 import { useLang } from '../../lib/i18n'
+import { useAuth } from '../../lib/auth-context'
 
 export function Reveal({
   children,
@@ -33,36 +34,43 @@ export function CTA({
   href = '#',
   to,
   variant = 'solid',
+  className = '',
 }: {
   children: ReactNode
   href?: string
   /** Internal route — renders a router Link instead of an anchor. */
   to?: string
   variant?: 'solid' | 'ghost'
+  className?: string
 }) {
   const { lang } = useLang()
+  const { isAuthenticated, user } = useAuth()
   const base =
     'inline-flex items-center justify-center rounded-full px-6 py-2.5 text-[15px] font-medium transition-all duration-300 active:scale-[0.97]'
   const styles =
     variant === 'solid'
       ? 'bg-primary text-primary-foreground hover:brightness-110 hover:shadow-[0_8px_30px_-8px_var(--primary)]'
       : 'border border-border text-foreground hover:bg-secondary'
-  const className = `${base} ${styles}`
+  const combinedClassName = `${base} ${styles} ${className}`.trim()
 
   if (to) {
-    const cleanTo = to === '/login' ? '/auth/login' : to
+    let cleanTo = to === '/login' ? '/auth/login' : to
+    if (isAuthenticated && (cleanTo === '/auth/login' || cleanTo === '/login' || cleanTo === '/register')) {
+      cleanTo = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? '/admin' : '/dashboard'
+    }
+
     const target = cleanTo.startsWith(`/${lang}`)
       ? cleanTo
       : `/${lang}${cleanTo.startsWith('/') ? cleanTo : `/${cleanTo}`}`
 
     return (
-      <Link href={target} className={className}>
+      <Link href={target} className={combinedClassName}>
         {children}
       </Link>
     )
   }
   return (
-    <a href={href} className={className}>
+    <a href={href} className={combinedClassName}>
       {children}
     </a>
   )

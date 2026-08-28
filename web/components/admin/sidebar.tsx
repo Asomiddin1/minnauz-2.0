@@ -16,6 +16,8 @@ import {
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
+  Sliders,
+  Bell,
 } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
@@ -60,6 +62,16 @@ export function AdminSidebar({
       label: 'Boshqaruv paneli',
       href: `/${lang}/admin`,
       icon: LayoutDashboard,
+    },
+    {
+      label: 'Bannerlar',
+      href: `/${lang}/admin/banners`,
+      icon: Sliders,
+    },
+    {
+      label: 'Xabarnomalar',
+      href: `/${lang}/admin/notifications`,
+      icon: Bell,
     },
     {
       label: 'Foydalanuvchilar',
