@@ -18,6 +18,8 @@ import {
   ShieldAlert,
   Sliders,
   Bell,
+  ShoppingBag,
+  Crown,
 } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
@@ -58,6 +60,7 @@ export function AdminSidebar({
     });
   };
 
+  // LINKLAR MANTIQIY TARTIBDA JOYLASHTIRILDI
   const navItems: NavItem[] = [
     {
       label: 'Boshqaruv paneli',
@@ -70,16 +73,6 @@ export function AdminSidebar({
       icon: Sliders,
     },
     {
-      label: 'Xabarnomalar',
-      href: `/${lang}/admin/notifications`,
-      icon: Bell,
-    },
-    {
-      label: 'Foydalanuvchilar',
-      href: `/${lang}/admin/users`,
-      icon: Users,
-    },
-    {
       label: 'Kurslar & Darslar',
       href: `/${lang}/admin/courses`,
       icon: BookOpen,
@@ -88,7 +81,26 @@ export function AdminSidebar({
       label: 'JLPT Testlar',
       href: `/${lang}/admin/tests`,
       icon: FileCheck2,
-      badge: 'Tez kunda',
+    },
+    {
+      label: 'Raqamli Doʻkon',
+      href: `/${lang}/admin/shop`,
+      icon: ShoppingBag,
+    },
+    {
+      label: 'Obunalar & VIP',
+      href: `/${lang}/admin/subscriptions`,
+      icon: Crown,
+    },
+    {
+      label: 'Foydalanuvchilar',
+      href: `/${lang}/admin/users`,
+      icon: Users,
+    },
+    {
+      label: 'Xabarnomalar',
+      href: `/${lang}/admin/notifications`,
+      icon: Bell,
     },
   ];
 
@@ -249,9 +261,16 @@ export function AdminSidebar({
                   <p className="truncate text-[13px] font-semibold text-foreground">
                     {user?.fullName || 'Admin'}
                   </p>
-                  <span className="shrink-0 rounded-md bg-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wide uppercase text-purple-600 dark:text-purple-400">
-                    {user?.role === 'SUPER_ADMIN' ? 'Super' : 'Admin'}
-                  </span>
+                  {user?.isPro ? (
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-md bg-yellow-500/20 px-1.5 py-0.5 text-[9px] font-black tracking-wide text-yellow-600 dark:text-yellow-400">
+                      <Crown className="h-3 w-3" />
+                      <span>PRO</span>
+                    </span>
+                  ) : (
+                    <span className="shrink-0 inline-flex items-center rounded-md bg-secondary px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground">
+                      FREE
+                    </span>
+                  )}
                 </div>
                 <p className="truncate text-[11px] text-muted-foreground">
                   {user?.email || 'admin@minna.uz'}

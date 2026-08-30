@@ -55,15 +55,22 @@ export class AdminController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Yangi foydalanuvchi yaratish' })
   @ApiResponse({ status: 201, description: 'Foydalanuvchi muvaffaqiyatli yaratildi' })
-  async createUser(@Body() dto: CreateUserDto) {
-    return this.adminService.createUser(dto);
+  async createUser(
+    @Body() dto: CreateUserDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    return this.adminService.createUser(dto, currentUser);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Foydalanuvchi maʼlumotlarini tahrirlash' })
   @ApiResponse({ status: 200, description: 'Foydalanuvchi muvaffaqiyatli yangilandi' })
-  async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return this.adminService.updateUser(id, dto);
+  async updateUser(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    return this.adminService.updateUser(id, dto, currentUser);
   }
 
   @Delete(':id')

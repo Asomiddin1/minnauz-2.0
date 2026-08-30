@@ -1,354 +1,1002 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Search,
   Volume2,
   BookA,
   Sparkles,
-  Bookmark,
   ChevronRight,
+  ChevronLeft,
   RotateCw,
   Layers,
   Filter,
-  CheckCircle,
+  CheckCircle2,
+  XCircle,
+  Crown,
+  Lock,
+  Plus,
+  Trash2,
+  Shuffle,
+  ChevronDown,
+  ChevronUp,
+  BookmarkCheck,
+  GraduationCap,
+  Loader2,
+  Check,
 } from 'lucide-react';
-
-interface WordItem {
-  id: string;
-  word: string;
-  furigana: string;
-  romaji: string;
-  meaningUz: string;
-  meaningRu: string;
-  level: 'N5' | 'N4' | 'N3' | 'N2';
-  partOfSpeech: string;
-  sampleSentence: string;
-  sampleSentenceUz: string;
-}
-
-const SAMPLE_WORDS: WordItem[] = [
-  {
-    id: '1',
-    word: 'わたし',
-    furigana: 'わたし',
-    romaji: 'watashi',
-    meaningUz: 'Men',
-    meaningRu: 'Я',
-    level: 'N5',
-    partOfSpeech: 'Olmosh',
-    sampleSentence: 'わたしは がくせいです。',
-    sampleSentenceUz: 'Men talabaman.',
-  },
-  {
-    id: '2',
-    word: 'せんせい',
-    furigana: 'せんせい',
-    romaji: 'sensei',
-    meaningUz: "O'qituvchi, ustoz",
-    meaningRu: 'Учитель',
-    level: 'N5',
-    partOfSpeech: 'Ot',
-    sampleSentence: 'たなかさんは にほんごの せんせいです。',
-    sampleSentenceUz: 'Tanaka janoblari yapon tili oʻqituvchisi.',
-  },
-  {
-    id: '3',
-    word: 'にほんご',
-    furigana: 'にほんご',
-    romaji: 'nihongo',
-    meaningUz: 'Yapon tili',
-    meaningRu: 'Японский язык',
-    level: 'N5',
-    partOfSpeech: 'Ot',
-    sampleSentence: 'にほんごを べんきょうします。',
-    sampleSentenceUz: 'Yapon tilini oʻrganaman.',
-  },
-  {
-    id: '4',
-    word: 'ともだち',
-    furigana: 'ともだち',
-    romaji: 'tomodachi',
-    meaningUz: "Do'st",
-    meaningRu: 'Друг',
-    level: 'N5',
-    partOfSpeech: 'Ot',
-    sampleSentence: 'あした ともだちに あいます。',
-    sampleSentenceUz: "Ertaga do'stim bilan uchrashaman.",
-  },
-  {
-    id: '5',
-    word: 'べんきょう',
-    furigana: 'べんきょう',
-    romaji: 'benkyou',
-    meaningUz: "O'qish, ta'lim",
-    meaningRu: 'Учёба',
-    level: 'N5',
-    partOfSpeech: 'Ot / Feʻl',
-    sampleSentence: 'まいあさ にほんごを べんきょうします。',
-    sampleSentenceUz: 'Har tong yapon tilini oʻrganaman.',
-  },
-  {
-    id: '6',
-    word: 'がんばる',
-    furigana: 'がんばる',
-    romaji: 'ganbaru',
-    meaningUz: "Qattiq harakat qilmoq, g'ayrat qilmoq",
-    meaningRu: 'Стараться',
-    level: 'N4',
-    partOfSpeech: "Fe'l",
-    sampleSentence: 'しけんのために いっしょうけんめい がんばります。',
-    sampleSentenceUz: 'Imtihon uchun bor kuchim bilan harakat qilaman.',
-  },
-  {
-    id: '7',
-    word: 'やくそく',
-    furigana: 'やくそく',
-    romaji: 'yakusoku',
-    meaningUz: "Va'da, kelishuv",
-    meaningRu: 'Обещание',
-    level: 'N4',
-    partOfSpeech: 'Ot',
-    sampleSentence: 'ともだちと やくそくが あります。',
-    sampleSentenceUz: "Do'stim bilan va'dalashuvim bor.",
-  },
-  {
-    id: '8',
-    word: 'けいけん',
-    furigana: 'けいけん',
-    romaji: 'keiken',
-    meaningUz: 'Tajriba',
-    meaningRu: 'Опыт',
-    level: 'N3',
-    partOfSpeech: 'Ot',
-    sampleSentence: 'にほんで たくさんの けいけんを つみました。',
-    sampleSentenceUz: 'Yaponiyada koʻplab tajriba orttirdim.',
-  },
-];
+import {
+  api,
+  getMediaUrl,
+  UserKotobaWordItem,
+  FlashcardStatus,
+  VocabStatsResponse,
+} from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 export function VocabTab() {
+  const { lang } = useLang();
+
+  // Mode: 'CATALOG' (Lug'atlar ro'yxati) or 'FLASHCARDS' (Yodlash xonasi)
+  const [activeMode, setActiveMode] = React.useState<'CATALOG' | 'FLASHCARDS'>('CATALOG');
+
+  // Server Data
+  const [words, setWords] = React.useState<UserKotobaWordItem[]>([]);
+  const [stats, setStats] = React.useState<VocabStatsResponse>({
+    totalLearning: 0,
+    totalMastered: 0,
+    totalSaved: 0,
+  });
+  const [lockedWordCount, setLockedWordCount] = React.useState(0);
+  const [isPro, setIsPro] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+
+  // Filters
   const [search, setSearch] = React.useState('');
   const [selectedLevel, setSelectedLevel] = React.useState<string>('ALL');
-  const [savedWordIds, setSavedWordIds] = React.useState<string[]>([]);
-  const [flashcardIndex, setFlashcardIndex] = React.useState(0);
-  const [isFlipped, setIsFlipped] = React.useState(false);
+  const [selectedStatusFilter, setSelectedStatusFilter] = React.useState<string>('ALL');
 
-  const levels = ['ALL', 'N5', 'N4', 'N3', 'N2'];
+  // Expand row for example sentence in catalog
+  const [expandedWordId, setExpandedWordId] = React.useState<string | null>(null);
 
-  const filteredWords = SAMPLE_WORDS.filter((w) => {
-    const matchLevel = selectedLevel === 'ALL' || w.level === selectedLevel;
-    const q = search.toLowerCase().trim();
-    const matchSearch =
-      !q ||
-      w.word.toLowerCase().includes(q) ||
-      w.furigana.toLowerCase().includes(q) ||
-      w.romaji.toLowerCase().includes(q) ||
-      w.meaningUz.toLowerCase().includes(q);
-    return matchLevel && matchSearch;
-  });
+  // Action loading states
+  const [updatingWordId, setUpdatingWordId] = React.useState<string | null>(null);
+  const [batchAdding, setBatchAdding] = React.useState(false);
+  const [batchRemoving, setBatchRemoving] = React.useState(false);
 
-  const toggleSave = (id: string) => {
-    setSavedWordIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+  // Flashcards state
+  const [flashcardFilter, setFlashcardFilter] = React.useState<'ALL' | 'LEARNING' | 'MASTERED'>('ALL');
+  const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
+  const [isCardFlipped, setIsCardFlipped] = React.useState(false);
+  const [cardAnimation, setCardAnimation] = React.useState<'none' | 'success' | 'retry'>('none');
+
+  // Load vocabulary from backend
+  const loadVocabData = async () => {
+    try {
+      setLoading(true);
+      const [vocabRes, statsRes] = await Promise.all([
+        api.getAllVocab(),
+        api.getVocabStats().catch(() => ({ totalLearning: 0, totalMastered: 0, totalSaved: 0 })),
+      ]);
+      setWords(vocabRes.words || []);
+      setLockedWordCount(vocabRes.lockedWordCount || 0);
+      setIsPro(vocabRes.isPro);
+      setStats(statsRes);
+    } catch (err) {
+      console.error('Failed to load vocab:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const playWordAudio = (word: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(word);
+  React.useEffect(() => {
+    loadVocabData();
+  }, []);
+
+  // Audio Player
+  const playWordAudio = (word: UserKotobaWordItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (word.audioUrl) {
+      const audio = new Audio(getMediaUrl(word.audioUrl));
+      audio.play().catch(() => {
+        speechFallback(word.word);
+      });
+    } else {
+      speechFallback(word.word);
+    }
+  };
+
+  const speechFallback = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'ja-JP';
-      utterance.rate = 0.9;
+      utterance.rate = 0.85;
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const currentFlashcard = filteredWords[flashcardIndex % (filteredWords.length || 1)];
+  // Toggle or Update Flashcard status
+  const handleSetFlashcardStatus = async (
+    word: UserKotobaWordItem,
+    status?: FlashcardStatus,
+    e?: React.MouseEvent,
+  ) => {
+    if (e) e.stopPropagation();
+    try {
+      setUpdatingWordId(word.id);
+      const targetStatus = status || (word.flashcardStatus === 'LEARNING' ? 'MASTERED' : 'LEARNING');
+      await api.toggleVocabFlashcard(word.id, targetStatus);
+
+      // Optimistic update
+      setWords((prev) =>
+        prev.map((w) => (w.id === word.id ? { ...w, flashcardStatus: targetStatus } : w)),
+      );
+
+      // Re-fetch stats in background
+      api.getVocabStats().then(setStats).catch(() => {});
+    } catch (err) {
+      console.error('Failed to update flashcard:', err);
+    } finally {
+      setUpdatingWordId(null);
+    }
+  };
+
+  const handleRemoveFlashcard = async (word: UserKotobaWordItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      setUpdatingWordId(word.id);
+      await api.removeVocabFlashcard(word.id);
+      setWords((prev) =>
+        prev.map((w) => (w.id === word.id ? { ...w, flashcardStatus: null } : w)),
+      );
+      api.getVocabStats().then(setStats).catch(() => {});
+    } catch (err) {
+      console.error('Failed to remove flashcard:', err);
+    } finally {
+      setUpdatingWordId(null);
+    }
+  };
+
+  // Batch add filtered words to flashcards
+  const handleBatchAddFiltered = async () => {
+    const unaddedIds = filteredWords.filter((w) => !w.flashcardStatus).map((w) => w.id);
+    if (unaddedIds.length === 0) return;
+    try {
+      setBatchAdding(true);
+      await api.batchAddVocabFlashcards(unaddedIds, 'LEARNING');
+      setWords((prev) =>
+        prev.map((w) => (unaddedIds.includes(w.id) ? { ...w, flashcardStatus: 'LEARNING' } : w)),
+      );
+      api.getVocabStats().then(setStats).catch(() => {});
+    } catch (err) {
+      console.error('Failed to batch add:', err);
+    } finally {
+      setBatchAdding(false);
+    }
+  };
+
+  // Batch remove filtered words from flashcards
+  const handleBatchRemoveFiltered = async () => {
+    const savedIds = filteredWords.filter((w) => !!w.flashcardStatus).map((w) => w.id);
+    if (savedIds.length === 0) return;
+    try {
+      setBatchRemoving(true);
+      await api.batchRemoveVocabFlashcards(savedIds);
+      setWords((prev) =>
+        prev.map((w) => (savedIds.includes(w.id) ? { ...w, flashcardStatus: null } : w)),
+      );
+      api.getVocabStats().then(setStats).catch(() => {});
+    } catch (err) {
+      console.error('Failed to batch remove:', err);
+    } finally {
+      setBatchRemoving(false);
+    }
+  };
+
+  // Filter words for catalog
+  const filteredWords = React.useMemo(() => {
+    return words.filter((w) => {
+      const matchLevel = selectedLevel === 'ALL' || w.courseLevel === selectedLevel;
+      const matchStatus =
+        selectedStatusFilter === 'ALL' ||
+        (selectedStatusFilter === 'SAVED' && !!w.flashcardStatus) ||
+        (selectedStatusFilter === 'LEARNING' && w.flashcardStatus === 'LEARNING') ||
+        (selectedStatusFilter === 'MASTERED' && w.flashcardStatus === 'MASTERED') ||
+        (selectedStatusFilter === 'UNSAVED' && !w.flashcardStatus);
+
+      const q = search.toLowerCase().trim();
+      const matchSearch =
+        !q ||
+        w.word.toLowerCase().includes(q) ||
+        w.furigana.toLowerCase().includes(q) ||
+        w.romaji.toLowerCase().includes(q) ||
+        w.meaningUz.toLowerCase().includes(q) ||
+        (w.meaningRu && w.meaningRu.toLowerCase().includes(q));
+
+      return matchLevel && matchStatus && matchSearch;
+    });
+  }, [words, selectedLevel, selectedStatusFilter, search]);
+
+  // Flashcards collection
+  const flashcardWords = React.useMemo(() => {
+    return words.filter((w) => {
+      if (flashcardFilter === 'ALL') return !!w.flashcardStatus;
+      if (flashcardFilter === 'LEARNING') return w.flashcardStatus === 'LEARNING';
+      if (flashcardFilter === 'MASTERED') return w.flashcardStatus === 'MASTERED';
+      return false;
+    });
+  }, [words, flashcardFilter]);
+
+  const currentFlashcard = flashcardWords[currentCardIndex] || null;
+
+  // Flashcard controls
+  const handleCardNext = () => {
+    setIsCardFlipped(false);
+    if (currentCardIndex < flashcardWords.length - 1) {
+      setCurrentCardIndex((prev) => prev + 1);
+    } else {
+      setCurrentCardIndex(0);
+    }
+  };
+
+  const handleCardPrev = () => {
+    setIsCardFlipped(false);
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex((prev) => prev - 1);
+    } else {
+      setCurrentCardIndex(flashcardWords.length - 1);
+    }
+  };
+
+  const handleMarkMastered = async () => {
+    if (!currentFlashcard) return;
+    setCardAnimation('success');
+    await handleSetFlashcardStatus(currentFlashcard, 'MASTERED');
+    setTimeout(() => {
+      setCardAnimation('none');
+      handleCardNext();
+    }, 250);
+  };
+
+  const handleMarkLearning = async () => {
+    if (!currentFlashcard) return;
+    setCardAnimation('retry');
+    await handleSetFlashcardStatus(currentFlashcard, 'LEARNING');
+    setTimeout(() => {
+      setCardAnimation('none');
+      handleCardNext();
+    }, 250);
+  };
+
+  const handleShuffleCards = () => {
+    setIsCardFlipped(false);
+    setCurrentCardIndex(Math.floor(Math.random() * Math.max(1, flashcardWords.length)));
+  };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300 pb-12">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-card via-card to-primary/5 p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <BookA className="h-3.5 w-3.5" />
-              <span>Interaktiv Lugʻat Bazasi</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Yapon tili lugʻati & Flashkartalar
+    <div className="space-y-5 animate-in fade-in duration-200">
+      {/* Header & Mode Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-5">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-black text-foreground">
+              Yapon Tili Lugʻati
             </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              JLPT N5 dan N1 gacha boʻlgan 5000+ dan ziyod soʻzlarni audiolari, misol gaplari va
-              furigana oʻqilishlari bilan oson yod oling.
+            <span className="text-xs font-bold text-muted-foreground px-2 py-0.5 rounded-lg bg-secondary/80">
+              {words.length} ta ochiq soʻz
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Kurslardagi barcha yangi soʻzlarni oʻrganing va Flashcard orqali mustahkamlang.
+          </p>
+        </div>
+
+        {/* Mode Switch Buttons */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-secondary/60 border border-border/60 self-start md:self-auto shrink-0 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setActiveMode('CATALOG')}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMode === 'CATALOG'
+                ? 'bg-card text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <BookA className="h-4 w-4 text-primary" />
+            <span>Lugʻat Qomusi</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMode('FLASHCARDS');
+              setIsCardFlipped(false);
+              setCurrentCardIndex(0);
+            }}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMode === 'FLASHCARDS'
+                ? 'bg-card text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Layers className="h-4 w-4 text-amber-500" />
+            <span>Flashcard Yodlash</span>
+            {stats.totalSaved > 0 && (
+              <span className="px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-black">
+                {stats.totalSaved}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mini Stats Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+            <BookA className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Ochiq soʻzlar
+            </p>
+            <p className="text-base font-black text-foreground">{words.length} ta</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center font-bold text-sm shrink-0">
+            <RotateCw className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Yodlanayotgan
+            </p>
+            <p className="text-base font-black text-yellow-600 dark:text-yellow-400">
+              {stats.totalLearning} ta
             </p>
           </div>
+        </div>
 
-          {/* Quick Flashcard Mini Widget */}
-          {currentFlashcard && (
-            <div className="shrink-0 w-full md:w-80 rounded-2xl border border-border bg-card p-4 shadow-sm">
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                <span className="font-semibold text-primary flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" /> Kun soʻzi
-                </span>
-                <span className="px-2 py-0.5 rounded-md bg-secondary text-[11px] font-bold">
-                  {currentFlashcard.level}
-                </span>
-              </div>
-              <div
-                onClick={() => setIsFlipped(!isFlipped)}
-                className="cursor-pointer rounded-xl bg-secondary/50 p-4 text-center transition-all hover:bg-secondary/70 min-h-[90px] flex flex-col items-center justify-center"
-              >
-                {!isFlipped ? (
-                  <>
-                    <span className="text-2xl font-bold text-foreground">
-                      {currentFlashcard.word}
-                    </span>
-                    <span className="text-xs text-muted-foreground mt-0.5 font-mono">
-                      {currentFlashcard.romaji}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-base font-bold text-primary">
-                      {currentFlashcard.meaningUz}
-                    </span>
-                    <span className="text-xs text-muted-foreground mt-0.5">
-                      {currentFlashcard.sampleSentenceUz}
-                    </span>
-                  </>
+        <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm shrink-0">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Yodlangan
+            </p>
+            <p className="text-base font-black text-emerald-600 dark:text-emerald-400">
+              {stats.totalMastered} ta
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm shrink-0">
+            <BookmarkCheck className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Toʻplamda jami
+            </p>
+            <p className="text-base font-black text-foreground">{stats.totalSaved} ta</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Pro Lock Notification Banner */}
+      {!isPro && lockedWordCount > 0 && (
+        <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-9 w-9 rounded-xl bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 flex items-center justify-center shrink-0">
+              <Crown className="h-5 w-5" />
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs sm:text-sm font-bold text-foreground truncate">
+                Yana {lockedWordCount} ta yuqori bosqich darslaridagi soʻzlar mavjud
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Minna no Nihongo va yuqori bosqich barcha kurs lugʻatlarini toʻliq ochish uchun Pro obunani faollashtiring.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href={`/${lang}/dashboard/premium`}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
+          >
+            <Crown className="h-3.5 w-3.5" />
+            <span>Pro Obuna</span>
+          </Link>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading ? (
+        <div className="py-16 text-center space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-xs font-semibold text-muted-foreground">Lugʻatlar yuklanmoqda...</p>
+        </div>
+      ) : activeMode === 'CATALOG' ? (
+        /* ========================================================
+           MODE 1: LUG'ATLAR QOMUSI (Apple/Jisho Compact Rows)
+        ======================================================== */
+        <div className="space-y-3.5">
+          {/* Search and Filters Bar */}
+          <div className="rounded-2xl border border-border/70 bg-card p-3 sm:p-4 space-y-3 shadow-2xs">
+            <div className="flex flex-col sm:flex-row items-center gap-2.5">
+              {/* Search input */}
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Yaponcha soʻz, furigana, romaji yoki oʻzbekcha maʼno qidirish..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border/60 bg-secondary/30 text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/70"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs font-bold"
+                  >
+                    Tozalash
+                  </button>
                 )}
               </div>
-              <div className="flex items-center justify-between mt-3 text-xs">
+
+              {/* Batch Add Button */}
+              {filteredWords.some((w) => !w.flashcardStatus) && (
                 <button
-                  onClick={() => playWordAudio(currentFlashcard.word)}
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                  type="button"
+                  onClick={handleBatchAddFiltered}
+                  disabled={batchAdding || batchRemoving}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                  title="Ushbu ro'yxatdagi barcha so'zlarni Flashcard to'plamiga qo'shish"
                 >
-                  <Volume2 className="h-3.5 w-3.5" /> Eshitish
+                  {batchAdding ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Plus className="h-3.5 w-3.5" />
+                  )}
+                  <span>Barchasini qoʻshish</span>
                 </button>
+              )}
+
+              {/* Batch Remove Button */}
+              {filteredWords.some((w) => !!w.flashcardStatus) && (
                 <button
-                  onClick={() => {
-                    setIsFlipped(false);
-                    setFlashcardIndex((prev) => (prev + 1) % filteredWords.length);
-                  }}
-                  className="flex items-center gap-1 font-medium text-primary hover:underline cursor-pointer"
+                  type="button"
+                  onClick={handleBatchRemoveFiltered}
+                  disabled={batchAdding || batchRemoving}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-secondary/80 hover:bg-destructive/15 text-muted-foreground hover:text-destructive border border-border/60 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+                  title="Ushbu ro'yxatdagi barcha so'zlarni Flashcard to'plamidan chiqarish"
                 >
-                  Keyingisi <RotateCw className="h-3 w-3" />
+                  {batchRemoving ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Barchasini chiqarish</span>
                 </button>
+              )}
+            </div>
+
+            {/* Level and Flashcard Status Pills */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40">
+              {/* JLPT Levels */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+                <span className="text-[11px] font-bold text-muted-foreground mr-1">Daraja:</span>
+                {['ALL', 'N5', 'N4', 'N3', 'N2', 'N1'].map((lvl) => (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => setSelectedLevel(lvl)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      selectedLevel === lvl
+                        ? 'bg-foreground text-background font-black shadow-xs'
+                        : 'bg-secondary/40 text-muted-foreground hover:text-foreground hover:bg-secondary'
+                    }`}
+                  >
+                    {lvl === 'ALL' ? 'Barchasi' : lvl}
+                  </button>
+                ))}
+              </div>
+
+              {/* Flashcard Status Filter */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+                <span className="text-[11px] font-bold text-muted-foreground mr-1">Toʻplam:</span>
+                {[
+                  { id: 'ALL', label: 'Barchasi' },
+                  { id: 'SAVED', label: 'Toʻplamdagi' },
+                  { id: 'LEARNING', label: '🟡 Yodlanmoqda' },
+                  { id: 'MASTERED', label: '🟢 Yodlangan' },
+                  { id: 'UNSAVED', label: '➕ Qoʻshilmagan' },
+                ].map((st) => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => setSelectedStatusFilter(st.id)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      selectedStatusFilter === st.id
+                        ? 'bg-primary text-primary-foreground shadow-xs'
+                        : 'bg-secondary/40 text-muted-foreground hover:text-foreground hover:bg-secondary'
+                    }`}
+                  >
+                    {st.label}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Filters & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Level Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto no-scrollbar py-1">
-          {levels.map((lvl) => (
+          {/* Words Count Indicator */}
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-1">
+            <span>
+              Topilgan soʻzlar: <strong className="text-foreground font-bold">{filteredWords.length} ta</strong>
+            </span>
+            <span>Jisho minimalist koʻrinishida</span>
+          </div>
+
+          {/* Compact Rows List (Apple Dictionary Style) */}
+          <div className="rounded-2xl border border-border/70 bg-card divide-y divide-border/50 shadow-2xs overflow-hidden">
+            {filteredWords.length === 0 ? (
+              <div className="py-12 text-center space-y-2">
+                <BookA className="h-8 w-8 mx-auto text-muted-foreground/60" />
+                <p className="text-sm font-bold text-foreground">Hech qanday soʻz topilmadi</p>
+                <p className="text-xs text-muted-foreground">
+                  Qidiruv soʻzini oʻzgartirib yoki filtrlarni tozalab koʻring.
+                </p>
+              </div>
+            ) : (
+              filteredWords.map((word) => {
+                const isExpanded = expandedWordId === word.id;
+                const hasSentence = !!word.sampleSentence;
+
+                return (
+                  <div
+                    key={word.id}
+                    className="group hover:bg-secondary/25 transition-colors duration-150"
+                  >
+                    {/* Compact Main Row (~48px height) */}
+                    <div
+                      onClick={() => {
+                        if (hasSentence) {
+                          setExpandedWordId(isExpanded ? null : word.id);
+                        }
+                      }}
+                      className="px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-3 cursor-pointer select-none"
+                    >
+                      {/* Left: Speaker + Japanese Word + Furigana/Romaji + Level/Lesson Pill */}
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {/* Audio speaker button */}
+                        <button
+                          type="button"
+                          onClick={(e) => playWordAudio(word, e)}
+                          className="h-8 w-8 rounded-lg bg-secondary/60 hover:bg-primary hover:text-white text-muted-foreground flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-2xs active:scale-90"
+                          title="Talaffuzni tinglash"
+                        >
+                          <Volume2 className="h-4 w-4" />
+                        </button>
+
+                        {/* Word Details */}
+                        <div className="flex items-baseline gap-2.5 min-w-0 flex-wrap">
+                          <span className="text-base sm:text-lg font-black text-foreground font-japanese tracking-wide group-hover:text-primary transition-colors">
+                            {word.word}
+                          </span>
+
+                          {word.furigana && word.furigana !== word.word && (
+                            <span className="text-xs font-semibold text-muted-foreground font-japanese">
+                              [{word.furigana}]
+                            </span>
+                          )}
+
+                          {word.romaji && (
+                            <span className="text-xs text-muted-foreground font-mono hidden md:inline">
+                              {word.romaji}
+                            </span>
+                          )}
+
+                          {/* Lesson badge */}
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-secondary/80 text-muted-foreground hidden sm:inline">
+                            {word.courseLevel} • {word.lessonOrder}-dars
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Middle / Right: Uzbek meaning */}
+                      <div className="text-right sm:text-left sm:flex-1 min-w-0 pr-2">
+                        <span className="text-xs sm:text-sm font-bold text-foreground truncate block">
+                          {word.meaningUz}
+                        </span>
+                      </div>
+
+                      {/* Right: Actions & Flashcard Toggle */}
+                      <div
+                        className="flex items-center gap-1.5 shrink-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Example sentence expand indicator */}
+                        {hasSentence && (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedWordId(isExpanded ? null : word.id)}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-all hidden sm:flex"
+                            title={isExpanded ? 'Misolni yopish' : 'Misol gapni koʻrish'}
+                          >
+                            {isExpanded ? (
+                              <ChevronUp className="h-3.5 w-3.5" />
+                            ) : (
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        )}
+
+                        {/* Flashcard Action Button */}
+                        {word.flashcardStatus === 'MASTERED' ? (
+                          <button
+                            type="button"
+                            onClick={(e) => handleSetFlashcardStatus(word, 'LEARNING', e)}
+                            disabled={updatingWordId === word.id}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            title="Yodlangan deb belgilangan. Qaytarishga o'tkazish uchun bosing."
+                          >
+                            {updatingWordId === word.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="h-3 w-3" />
+                            )}
+                            <span className="hidden sm:inline">Yodlandi</span>
+                          </button>
+                        ) : word.flashcardStatus === 'LEARNING' ? (
+                          <button
+                            type="button"
+                            onClick={(e) => handleSetFlashcardStatus(word, 'MASTERED', e)}
+                            disabled={updatingWordId === word.id}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/25 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            title="Yodlanmoqda. Yodladim deb belgilash uchun bosing."
+                          >
+                            {updatingWordId === word.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <RotateCw className="h-3 w-3 text-yellow-500" />
+                            )}
+                            <span className="hidden sm:inline">Yodlanmoqda</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => handleSetFlashcardStatus(word, 'LEARNING', e)}
+                            disabled={updatingWordId === word.id}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground border border-border/60 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            title="Flashcard to'plamiga qo'shish"
+                          >
+                            {updatingWordId === word.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Plus className="h-3 w-3 text-primary" />
+                            )}
+                            <span className="hidden sm:inline">Flashcard</span>
+                          </button>
+                        )}
+
+                        {/* Remove from Flashcards if already saved */}
+                        {word.flashcardStatus && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleRemoveFlashcard(word, e)}
+                            disabled={updatingWordId === word.id}
+                            className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                            title="To'plamdan olib tashlash"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Expandable Example Sentence Accordion */}
+                    {isExpanded && hasSentence && (
+                      <div className="px-4 py-3 bg-secondary/15 border-t border-border/40 text-xs space-y-1.5 animate-in fade-in-50 duration-150">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                            Misol gap:
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => speechFallback(word.sampleSentence!)}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                          >
+                            <Volume2 className="h-3 w-3" />
+                            <span>Misolni tinglash</span>
+                          </button>
+                        </div>
+                        <p className="font-bold text-foreground font-japanese text-[13px] leading-relaxed">
+                          {word.sampleSentence}
+                        </p>
+                        {word.sampleSentenceUz && (
+                          <p className="text-muted-foreground leading-relaxed">
+                            {word.sampleSentenceUz}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      ) : (
+        /* ========================================================
+           MODE 2: FLASHCARD YODLASH XONASI (Interactive 3D Flip)
+        ======================================================== */
+        <div className="space-y-6 max-w-xl mx-auto py-2">
+          {/* Flashcard Category Filter Pills */}
+          <div className="flex items-center justify-center gap-1.5 p-1 rounded-2xl bg-secondary/50 border border-border/60">
             <button
-              key={lvl}
-              onClick={() => setSelectedLevel(lvl)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                selectedLevel === lvl
-                  ? 'bg-foreground text-background shadow-xs'
-                  : 'bg-card border border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
+              type="button"
+              onClick={() => {
+                setFlashcardFilter('ALL');
+                setCurrentCardIndex(0);
+                setIsCardFlipped(false);
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                flashcardFilter === 'ALL'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {lvl === 'ALL' ? 'Barchasi' : lvl}
+              Barchasi ({stats.totalSaved})
             </button>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="So'z, furigana yoki tarjima qidiring..."
-            className="h-10 w-full rounded-xl border border-border bg-card pl-10 pr-4 text-xs sm:text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
-      </div>
-
-      {/* Words Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredWords.map((item) => {
-          const isSaved = savedWordIds.includes(item.id);
-          return (
-            <div
-              key={item.id}
-              className="group relative flex flex-col justify-between rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:border-primary/40 hover:shadow-md"
+            <button
+              type="button"
+              onClick={() => {
+                setFlashcardFilter('LEARNING');
+                setCurrentCardIndex(0);
+                setIsCardFlipped(false);
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                flashcardFilter === 'LEARNING'
+                  ? 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 shadow-xs border border-yellow-500/30'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
-              <div>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-foreground tracking-wide">
-                        {item.word}
-                      </span>
-                      {item.furigana !== item.word && (
-                        <span className="text-xs text-muted-foreground">({item.furigana})</span>
-                      )}
-                    </div>
-                    <span className="text-xs font-mono text-muted-foreground">{item.romaji}</span>
+              🔄 Yodlanayotgan ({stats.totalLearning})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFlashcardFilter('MASTERED');
+                setCurrentCardIndex(0);
+                setIsCardFlipped(false);
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                flashcardFilter === 'MASTERED'
+                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-xs border border-emerald-500/30'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              ✅ Yodlangan ({stats.totalMastered})
+            </button>
+          </div>
+
+          {/* Flashcard Body */}
+          {flashcardWords.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-border/80 bg-card p-10 text-center space-y-4 shadow-xs">
+              <div className="h-14 w-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
+                <Layers className="h-7 w-7" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-foreground">
+                  Ushbu toifada hozircha soʻzlar yoʻq
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                  Lugʻatlar qomusiga oʻtib, xohlagan soʻzlaringizni <strong>«➕ Flashcard»</strong> tugmasi orqali toʻplamga qoʻshing va bu yerda yodlang.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveMode('CATALOG')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
+              >
+                <BookA className="h-4 w-4" />
+                <span>Lugʻatlar qomusiga oʻtish</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Progress and Counter */}
+              <div className="flex items-center justify-between text-xs font-bold text-muted-foreground px-1">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-foreground">
+                    {currentCardIndex + 1} / {flashcardWords.length}
+                  </span>
+                  <span>ta soʻz</span>
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleShuffleCards}
+                    className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    title="Tasodifiy tartibda aralashtirish"
+                  >
+                    <Shuffle className="h-3 w-3" />
+                    <span>Aralashtirish</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-1.5 rounded-full bg-secondary overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300 rounded-full"
+                  style={{
+                    width: `${((currentCardIndex + 1) / flashcardWords.length) * 100}%`,
+                  }}
+                />
+              </div>
+
+              {/* 3D Flip Card */}
+              <div
+                onClick={() => setIsCardFlipped(!isCardFlipped)}
+                className={`relative min-h-[300px] sm:min-h-[330px] rounded-[32px] border transition-all duration-300 p-7 flex flex-col justify-between cursor-pointer select-none shadow-md hover:shadow-lg ${
+                  cardAnimation === 'success'
+                    ? 'border-emerald-500 bg-emerald-500/10 scale-98'
+                    : cardAnimation === 'retry'
+                    ? 'border-yellow-500 bg-yellow-500/10 scale-98'
+                    : isCardFlipped
+                    ? 'border-primary/50 bg-secondary/30'
+                    : 'border-border/80 bg-card hover:border-primary/40'
+                }`}
+              >
+                {/* Top Card Info */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-lg text-xs font-black bg-primary/10 text-primary border border-primary/20">
+                      {currentFlashcard?.courseLevel}
+                    </span>
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {currentFlashcard?.lessonOrder}-dars
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded-md bg-primary/10 text-[11px] font-bold text-primary">
-                      {item.level}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-secondary/80 text-muted-foreground">
+                      {currentFlashcard?.flashcardStatus === 'MASTERED'
+                        ? '🟢 Yodlangan'
+                        : '🟡 Yodlanmoqda'}
                     </span>
                     <button
-                      onClick={() => toggleSave(item.id)}
-                      className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                        isSaved
-                          ? 'border-amber-500/30 bg-amber-500/10 text-amber-500'
-                          : 'border-border text-muted-foreground hover:bg-secondary'
-                      }`}
-                      title={isSaved ? "Saqlanganlardan o'chirish" : 'Lugʻatga saqlash'}
+                      type="button"
+                      onClick={(e) => playWordAudio(currentFlashcard!, e)}
+                      className="h-8 w-8 rounded-xl bg-secondary hover:bg-primary hover:text-white text-foreground flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                      title="Talaffuzni tinglash"
                     >
-                      <Bookmark className="h-3.5 w-3.5" />
+                      <Volume2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-3.5 space-y-1.5">
-                  <div className="text-sm font-semibold text-foreground">{item.meaningUz}</div>
-                  {item.meaningRu && (
-                    <div className="text-xs text-muted-foreground">{item.meaningRu}</div>
+                {/* Card Center Content */}
+                <div className="my-auto py-6 text-center space-y-3">
+                  {!isCardFlipped ? (
+                    /* FRONT: Japanese Word & Furigana */
+                    <div className="space-y-2 animate-in zoom-in-95 duration-150">
+                      <h2 className="text-3xl sm:text-4xl font-black text-foreground font-japanese tracking-wide">
+                        {currentFlashcard?.word}
+                      </h2>
+                      {currentFlashcard?.furigana && currentFlashcard.furigana !== currentFlashcard.word && (
+                        <p className="text-base sm:text-lg font-semibold text-primary font-japanese">
+                          {currentFlashcard.furigana}
+                        </p>
+                      )}
+                      {currentFlashcard?.romaji && (
+                        <p className="text-xs font-mono text-muted-foreground">
+                          {currentFlashcard.romaji}
+                        </p>
+                      )}
+                      <p className="text-[11px] text-muted-foreground pt-4 animate-pulse">
+                        Maʼnosini koʻrish uchun bosing 👆
+                      </p>
+                    </div>
+                  ) : (
+                    /* BACK: Uzbek Meaning & Example Sentence */
+                    <div className="space-y-3 animate-in zoom-in-95 duration-150">
+                      <span className="text-[11px] font-bold uppercase text-primary tracking-wider px-2 py-0.5 rounded-md bg-primary/10">
+                        {currentFlashcard?.partOfSpeech}
+                      </span>
+                      <h3 className="text-2xl sm:text-3xl font-black text-foreground">
+                        {currentFlashcard?.meaningUz}
+                      </h3>
+                      {currentFlashcard?.meaningRu && (
+                        <p className="text-xs text-muted-foreground font-medium">
+                          {currentFlashcard.meaningRu}
+                        </p>
+                      )}
+
+                      {currentFlashcard?.sampleSentence && (
+                        <div className="rounded-2xl bg-card border border-border/60 p-3 text-left space-y-1 mt-4 text-xs">
+                          <p className="font-bold text-foreground font-japanese">
+                            {currentFlashcard.sampleSentence}
+                          </p>
+                          {currentFlashcard.sampleSentenceUz && (
+                            <p className="text-muted-foreground text-[11px]">
+                              {currentFlashcard.sampleSentenceUz}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {/* Example sentence */}
-                <div className="mt-4 rounded-xl bg-secondary/40 p-3 text-xs space-y-1">
-                  <div className="font-medium text-foreground">{item.sampleSentence}</div>
-                  <div className="text-muted-foreground">{item.sampleSentenceUz}</div>
+                {/* Card Footer Hint */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/40 text-[11px] text-muted-foreground font-medium">
+                  <span>
+                    {isCardFlipped ? 'Yodlaganingizni tasdiqlang 👇' : 'Old tomoni'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (currentFlashcard) handleRemoveFlashcard(currentFlashcard);
+                    }}
+                    className="hover:text-destructive flex items-center gap-1 transition-colors"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    <span>Toʻplamdan chiqarish</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-between pt-3 border-t border-border/60 text-xs">
-                <span className="text-muted-foreground text-[11px]">{item.partOfSpeech}</span>
+              {/* Bottom Evaluation Controls */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <button
-                  onClick={() => playWordAudio(item.word)}
-                  className="flex items-center gap-1.5 font-medium text-primary hover:text-primary/80 cursor-pointer"
+                  type="button"
+                  onClick={handleMarkLearning}
+                  className="py-3 px-4 rounded-2xl bg-card hover:bg-secondary text-yellow-600 dark:text-yellow-400 border border-yellow-500/30 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
                 >
-                  <Volume2 className="h-3.5 w-3.5" />
-                  <span>Talaffuz</span>
+                  <RotateCw className="h-4 w-4" />
+                  <span>Hali yodlanmadi</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleMarkMastered}
+                  className="py-3 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md active:scale-95"
+                >
+                  <Check className="h-4 w-4 stroke-[3]" />
+                  <span>Yodladim!</span>
+                </button>
+              </div>
+
+              {/* Navigation Arrows */}
+              <div className="flex items-center justify-between pt-2 px-2">
+                <button
+                  type="button"
+                  onClick={handleCardPrev}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Oldingisi</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCardNext}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <span>Keyingisi</span>
+                  <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {filteredWords.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-          <BookA className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-          <p className="text-sm font-medium text-foreground">Hech qanday soʻz topilmadi</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Qidiruv soʻzini oʻzgartirib yoki filtrni tozalab koʻring.
-          </p>
+          )}
         </div>
       )}
     </div>

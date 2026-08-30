@@ -7,6 +7,8 @@ import helmet from 'helmet';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 
+import * as express from 'express';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -14,12 +16,25 @@ async function bootstrap() {
   app.set('trust proxy', 1);
 
   // Ensure uploads directory exists and serve statically
-  const uploadsDir = join(process.cwd(), 'uploads');
+  const uploadsDir = existsSync(join(__dirname, '..', 'uploads'))
+    ? join(__dirname, '..', 'uploads')
+    : join(process.cwd(), 'uploads');
   if (!existsSync(uploadsDir)) {
     mkdirSync(uploadsDir, { recursive: true });
   }
+
+  // Explicit express static middleware with permissive CORS
+  const staticUploads = express.static(uploadsDir, {
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  });
+  app.use('/uploads', staticUploads);
+  app.use('/api/uploads', staticUploads);
+
   app.useStaticAssets(uploadsDir, {
-    prefix: '/uploads',
+    prefix: '/uploads/',
   });
 
   // Enable CORS (allowlist from env, comma-separated)

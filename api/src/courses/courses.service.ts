@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProgressDto } from './dto/course.dto';
 
 @Injectable()
 export class CoursesService {
+  private readonly logger = new Logger(CoursesService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async getUserStats(userId?: string) {
@@ -504,16 +506,31 @@ export class CoursesService {
       };
     });
   }
+  private async checkUserIsPro(userId?: string): Promise<boolean> {
+    if (!userId) return false;
+    const activeSub = await this.prisma.userSubscription.findFirst({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        endDate: { gt: new Date() },
+      },
+    });
+    return !!activeSub;
+  }
 
-  async getCourseDetails(courseIdOrSlug: string, userId?: string) {
+  async getCourseDetails(idOrSlug: string, userId?: string) {
     const course = await this.prisma.course.findFirst({
       where: {
-        OR: [{ id: courseIdOrSlug }, { slug: courseIdOrSlug }],
-        isPublished: true,
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
       },
       include: {
         author: {
-          select: { id: true, fullName: true, avatarUrl: true, role: true },
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+            role: true,
+          },
         },
         modules: {
           orderBy: { order: 'asc' },
@@ -521,13 +538,7 @@ export class CoursesService {
             lessons: {
               where: { isPublished: true },
               orderBy: { order: 'asc' },
-              select: {
-                id: true,
-                title: true,
-                japaneseTitle: true,
-                slug: true,
-                order: true,
-                summary: true,
+              include: {
                 _count: {
                   select: {
                     kotobaItems: true,
@@ -546,6 +557,8 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException('Kurs topilmadi');
     }
+
+    const isPro = await this.checkUserIsPro(userId);
 
     // Get user progress for all lessons in this course
     let progressMap: Record<string, { isCompleted: boolean; quizScore?: number; completedSections?: string[] }> = {};
@@ -566,14 +579,16 @@ export class CoursesService {
       });
     }
 
-    // Determine lock state: first lesson is always unlocked; subsequent lessons unlock if previous is completed
+    // Determine lock state: N5 lessons 1-5 are free; subsequent lessons or N4+ require Pro
     let previousLessonCompleted = true;
     const modulesWithState = course.modules.map((mod) => {
       const lessonsWithState = mod.lessons.map((lesson) => {
         const prog = progressMap[lesson.id];
         const isCompleted = prog?.isCompleted || false;
         const isCurrent = !isCompleted && previousLessonCompleted;
-        const isLocked = !previousLessonCompleted && !isCompleted;
+        const isProRequired = !lesson.isFree;
+        const isLockedBySub = isProRequired && !isPro;
+        const isLocked = (!previousLessonCompleted && !isCompleted) || isLockedBySub;
 
         // update flag for next lesson
         previousLessonCompleted = isCompleted;
@@ -583,6 +598,13 @@ export class CoursesService {
           status: isCompleted ? 'COMPLETED' : isCurrent ? 'CURRENT' : isLocked ? 'LOCKED' : 'AVAILABLE',
           isCompleted,
           isLocked,
+          isFree: lesson.isFree,
+          isProRequired,
+          lockReason: isLockedBySub
+            ? 'PRO_REQUIRED'
+            : !previousLessonCompleted && !isCompleted
+              ? 'PREVIOUS_INCOMPLETE'
+              : null,
           quizScore: prog?.quizScore || null,
           completedSections: prog?.completedSections || [],
           counts: lesson._count,
@@ -652,6 +674,9 @@ export class CoursesService {
       throw new NotFoundException('Dars topilmadi');
     }
 
+    const isPro = await this.checkUserIsPro(userId);
+    const isProRequired = !lesson.isFree;
+
     // Flatten all course lessons in chronological order
     const allCourseLessons = lesson.module.course.modules.flatMap((m) => m.lessons);
     const currentIndex = allCourseLessons.findIndex((l) => l.id === lesson.id);
@@ -660,6 +685,7 @@ export class CoursesService {
 
     let userProgress: any = null;
     let isLocked = false;
+    let lockReason: string | null = null;
 
     if (userId) {
       userProgress = await this.prisma.userLessonProgress.findUnique({
@@ -671,8 +697,10 @@ export class CoursesService {
         },
       });
 
-      // Check if previous lesson is completed (if this is not the 1st lesson)
-      if (prevLesson && !userProgress?.isCompleted) {
+      if (isProRequired && !isPro) {
+        isLocked = true;
+        lockReason = 'PRO_REQUIRED';
+      } else if (prevLesson && !userProgress?.isCompleted) {
         const prevProgress = await this.prisma.userLessonProgress.findUnique({
           where: {
             userId_lessonId: {
@@ -683,11 +711,16 @@ export class CoursesService {
         });
         if (!prevProgress || !prevProgress.isCompleted) {
           isLocked = true;
+          lockReason = 'PREVIOUS_INCOMPLETE';
         }
       }
-    } else if (currentIndex > 0) {
-      // Unauthenticated users can only preview Lesson 1 for free
-      isLocked = false;
+    } else {
+      if (isProRequired) {
+        isLocked = true;
+        lockReason = 'PRO_REQUIRED';
+      } else if (currentIndex > 0) {
+        isLocked = false;
+      }
     }
 
     return {
@@ -700,6 +733,9 @@ export class CoursesService {
       summary: lesson.summary,
       kaiwaScenario: lesson.kaiwaScenario,
       isLocked,
+      lockReason,
+      isFree: lesson.isFree,
+      isProRequired,
       module: {
         id: lesson.module.id,
         title: lesson.module.title,
@@ -784,13 +820,351 @@ export class CoursesService {
       // ignore
     }
 
+    // Award real coins on completing a lesson (10 coins + 5 extra if 100% quiz)
+    let earnedCoins = 0;
+    if (isCompleted && !existing?.isCompleted) {
+      earnedCoins = 10;
+      if (dto.quizScore === 100) {
+        earnedCoins += 5;
+      }
+
+      try {
+        await this.prisma.$transaction([
+          this.prisma.user.update({
+            where: { id: userId },
+            data: { coins: { increment: earnedCoins } },
+          }),
+          this.prisma.coinTransaction.create({
+            data: {
+              userId,
+              amount: earnedCoins,
+              type: 'LESSON_COMPLETED',
+              description: `Darsni yakunlaganingiz uchun (${
+                dto.quizScore === 100 ? '100% aʼlo natija bilan! ' : ''
+              })mukofot tangalari`,
+            },
+          }),
+        ]);
+      } catch (err) {
+        this.logger.warn(`Failed to award lesson coins: ${err}`);
+      }
+    }
+
     return {
       success: true,
+      earnedCoins,
       progress: {
         completedSections: progress.completedSections,
         quizScore: progress.quizScore,
         isCompleted: progress.isCompleted,
       },
+    };
+  }
+
+  // === VOCABULARY & FLASHCARDS ===
+  async getAllUserVocab(userId?: string) {
+    const isPro = await this.checkUserIsPro(userId);
+
+    const lessons = await this.prisma.lesson.findMany({
+      where: {
+        isPublished: true,
+        module: { course: { isPublished: true } },
+        ...(isPro ? {} : { isFree: true }),
+      },
+      include: {
+        module: {
+          include: {
+            course: { select: { id: true, title: true, slug: true, level: true } },
+          },
+        },
+        kotobaItems: {
+          orderBy: { order: 'asc' },
+        },
+      },
+      orderBy: [{ module: { order: 'asc' } }, { order: 'asc' }],
+    });
+
+    let lockedWordCount = 0;
+    if (!isPro) {
+      lockedWordCount = await this.prisma.kotobaItem.count({
+        where: {
+          lesson: {
+            isPublished: true,
+            isFree: false,
+            module: { course: { isPublished: true } },
+          },
+        },
+      });
+    }
+
+    const userProgress = userId
+      ? await (this.prisma as any).userKotobaProgress.findMany({
+          where: { userId },
+        })
+      : [];
+    const progressMap = new Map(userProgress.map((p: any) => [p.kotobaId, p]));
+
+    const words = lessons.flatMap((l) =>
+      l.kotobaItems.map((k) => {
+        const prog: any = progressMap.get(k.id);
+        return {
+          id: k.id,
+          word: k.word,
+          furigana: k.furigana || k.word,
+          romaji: k.romaji || '',
+          meaningUz: k.meaningUz,
+          meaningRu: k.meaningRu || '',
+          meaningEn: k.meaningEn || '',
+          partOfSpeech: k.partOfSpeech || 'Ot',
+          audioUrl: k.audioUrl,
+          sampleSentence: k.sampleSentence,
+          sampleSentenceUz: k.sampleSentenceUz,
+          order: k.order,
+          lessonId: l.id,
+          lessonTitle: l.title,
+          lessonJapaneseTitle: l.japaneseTitle,
+          lessonOrder: l.order,
+          courseId: l.module.course.id,
+          courseTitle: l.module.course.title,
+          courseLevel: l.module.course.level,
+          flashcardStatus: prog ? prog.status : null,
+          reviewCount: prog ? prog.reviewCount : 0,
+        };
+      }),
+    );
+
+    return {
+      words,
+      totalCount: words.length,
+      lockedWordCount,
+      isPro,
+    };
+  }
+
+  async setFlashcardStatus(userId: string, kotobaId: string, status?: 'LEARNING' | 'MASTERED') {
+    const targetStatus = status || 'LEARNING';
+    return (this.prisma as any).userKotobaProgress.upsert({
+      where: { userId_kotobaId: { userId, kotobaId } },
+      update: {
+        status: targetStatus,
+        reviewCount: { increment: 1 },
+        lastReviewedAt: new Date(),
+      },
+      create: {
+        userId,
+        kotobaId,
+        status: targetStatus,
+        reviewCount: 1,
+        lastReviewedAt: new Date(),
+      },
+    });
+  }
+
+  async batchAddFlashcards(userId: string, kotobaIds: string[], status?: 'LEARNING' | 'MASTERED') {
+    const targetStatus = status || 'LEARNING';
+    const operations = kotobaIds.map((kotobaId) =>
+      (this.prisma as any).userKotobaProgress.upsert({
+        where: { userId_kotobaId: { userId, kotobaId } },
+        update: {
+          status: targetStatus,
+          lastReviewedAt: new Date(),
+        },
+        create: {
+          userId,
+          kotobaId,
+          status: targetStatus,
+          reviewCount: 1,
+          lastReviewedAt: new Date(),
+        },
+      }),
+    );
+    await this.prisma.$transaction(operations);
+    return { success: true, count: kotobaIds.length };
+  }
+
+  async removeFlashcard(userId: string, kotobaId: string) {
+    await (this.prisma as any).userKotobaProgress.deleteMany({
+      where: { userId, kotobaId },
+    });
+    return { success: true };
+  }
+
+  async batchRemoveFlashcards(userId: string, kotobaIds: string[]) {
+    await (this.prisma as any).userKotobaProgress.deleteMany({
+      where: {
+        userId,
+        kotobaId: { in: kotobaIds },
+      },
+    });
+    return { success: true, count: kotobaIds.length };
+  }
+
+  async getVocabStats(userId: string) {
+    const items = await (this.prisma as any).userKotobaProgress.findMany({
+      where: { userId },
+      select: { status: true },
+    });
+
+    const totalLearning = items.filter((i: any) => i.status === 'LEARNING').length;
+    const totalMastered = items.filter((i: any) => i.status === 'MASTERED').length;
+
+    return {
+      totalLearning,
+      totalMastered,
+      totalSaved: items.length,
+    };
+  }
+
+  // === KANJI & FLASHCARDS ===
+  async getAllUserKanji(userId?: string) {
+    const isPro = await this.checkUserIsPro(userId);
+
+    const lessons = await this.prisma.lesson.findMany({
+      where: {
+        isPublished: true,
+        module: { course: { isPublished: true } },
+        ...(isPro ? {} : { isFree: true }),
+      },
+      include: {
+        module: {
+          include: {
+            course: { select: { id: true, title: true, slug: true, level: true } },
+          },
+        },
+        kanjiItems: {
+          orderBy: { order: 'asc' },
+        },
+      },
+      orderBy: [{ module: { order: 'asc' } }, { order: 'asc' }],
+    });
+
+    let lockedKanjiCount = 0;
+    if (!isPro) {
+      lockedKanjiCount = await this.prisma.kanjiItem.count({
+        where: {
+          lesson: {
+            isPublished: true,
+            isFree: false,
+            module: { course: { isPublished: true } },
+          },
+        },
+      });
+    }
+
+    const userProgress = userId
+      ? await (this.prisma as any).userKanjiProgress.findMany({
+          where: { userId },
+        })
+      : [];
+    const progressMap = new Map(userProgress.map((p: any) => [p.kanjiId, p]));
+
+    const kanji = lessons.flatMap((l) =>
+      l.kanjiItems.map((k) => {
+        const prog: any = progressMap.get(k.id);
+        return {
+          id: k.id,
+          character: k.character,
+          onyomi: k.onyomi || '',
+          kunyomi: k.kunyomi || '',
+          meaningUz: k.meaningUz,
+          meaningRu: k.meaningRu || '',
+          strokeCount: k.strokeCount || 1,
+          strokeOrderData: k.strokeOrderData,
+          radical: k.radical || '',
+          examples: (k.examples as any) || [],
+          order: k.order,
+          lessonId: l.id,
+          lessonTitle: l.title,
+          lessonJapaneseTitle: l.japaneseTitle,
+          lessonOrder: l.order,
+          courseId: l.module.course.id,
+          courseTitle: l.module.course.title,
+          courseLevel: l.module.course.level,
+          flashcardStatus: prog ? prog.status : null,
+          reviewCount: prog ? prog.reviewCount : 0,
+        };
+      }),
+    );
+
+    return {
+      kanji,
+      totalCount: kanji.length,
+      lockedKanjiCount,
+      isPro,
+    };
+  }
+
+  async setKanjiFlashcardStatus(userId: string, kanjiId: string, status?: 'LEARNING' | 'MASTERED') {
+    const targetStatus = status || 'LEARNING';
+    return (this.prisma as any).userKanjiProgress.upsert({
+      where: { userId_kanjiId: { userId, kanjiId } },
+      update: {
+        status: targetStatus,
+        reviewCount: { increment: 1 },
+        lastReviewedAt: new Date(),
+      },
+      create: {
+        userId,
+        kanjiId,
+        status: targetStatus,
+        reviewCount: 1,
+        lastReviewedAt: new Date(),
+      },
+    });
+  }
+
+  async batchAddKanjiFlashcards(userId: string, kanjiIds: string[], status?: 'LEARNING' | 'MASTERED') {
+    const targetStatus = status || 'LEARNING';
+    const operations = kanjiIds.map((kanjiId) =>
+      (this.prisma as any).userKanjiProgress.upsert({
+        where: { userId_kanjiId: { userId, kanjiId } },
+        update: {
+          status: targetStatus,
+          lastReviewedAt: new Date(),
+        },
+        create: {
+          userId,
+          kanjiId,
+          status: targetStatus,
+          reviewCount: 1,
+          lastReviewedAt: new Date(),
+        },
+      }),
+    );
+    await this.prisma.$transaction(operations);
+    return { success: true, count: kanjiIds.length };
+  }
+
+  async removeKanjiFlashcard(userId: string, kanjiId: string) {
+    await (this.prisma as any).userKanjiProgress.deleteMany({
+      where: { userId, kanjiId },
+    });
+    return { success: true };
+  }
+
+  async batchRemoveKanjiFlashcards(userId: string, kanjiIds: string[]) {
+    await (this.prisma as any).userKanjiProgress.deleteMany({
+      where: {
+        userId,
+        kanjiId: { in: kanjiIds },
+      },
+    });
+    return { success: true, count: kanjiIds.length };
+  }
+
+  async getKanjiStats(userId: string) {
+    const items = await (this.prisma as any).userKanjiProgress.findMany({
+      where: { userId },
+      select: { status: true },
+    });
+
+    const totalLearning = items.filter((i: any) => i.status === 'LEARNING').length;
+    const totalMastered = items.filter((i: any) => i.status === 'MASTERED').length;
+
+    return {
+      totalLearning,
+      totalMastered,
+      totalSaved: items.length,
     };
   }
 }

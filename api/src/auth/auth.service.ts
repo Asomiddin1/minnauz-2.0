@@ -16,9 +16,39 @@ import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { JwtPayload } from './strategies/jwt.strategy';
 import { randomUUID } from 'crypto';
+import { existsSync, unlinkSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import { Role, User } from '@prisma/client';
+
+const avatarsDir = join(process.cwd(), 'uploads', 'avatars');
+if (!existsSync(avatarsDir)) {
+  mkdirSync(avatarsDir, { recursive: true });
+}
+
+export function safeDeleteAvatarFile(avatarUrl?: string | null) {
+  if (!avatarUrl) return;
+  if (avatarUrl.includes('/uploads/avatars/')) {
+    const filename = avatarUrl.split('/uploads/avatars/')[1];
+    if (
+      filename &&
+      !filename.includes('..') &&
+      !filename.includes('/') &&
+      !filename.includes('\\')
+    ) {
+      const fullPath = join(process.cwd(), 'uploads', 'avatars', filename);
+      if (existsSync(fullPath)) {
+        try {
+          unlinkSync(fullPath);
+        } catch (err) {
+          console.error('Failed to delete old avatar file:', err);
+        }
+      }
+    }
+  }
+}
 
 const MAX_DEVICES = 3;
 const MAX_OTP_ATTEMPTS = 5;
@@ -251,6 +281,7 @@ export class AuthService {
           email,
           fullName,
           avatarUrl,
+          googleAvatarUrl: avatarUrl || null,
           isVerified: true,
           role: this.resolveRole(email),
         },
@@ -261,6 +292,7 @@ export class AuthService {
         data: {
           fullName: fullName || user.fullName,
           avatarUrl: avatarUrl || user.avatarUrl,
+          googleAvatarUrl: avatarUrl || user.googleAvatarUrl,
           isVerified: true,
         },
       });
@@ -485,5 +517,162 @@ export class AuthService {
       success: true,
       message: 'Tizimdan muvaffaqiyatli chiqildi',
     };
+  }
+
+  // 8. Upload Profile Avatar (Single image, deletes old local avatar)
+  async uploadAvatar(userId: string, file: any) {
+    if (!file) {
+      throw new BadRequestException('Rasm fayli tanlanmadi');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    // Delete old uploaded avatar if it was a local file
+    safeDeleteAvatarFile(user.avatarUrl);
+
+    // Retain existing google url if not set
+    const googleAvatarUrl =
+      user.googleAvatarUrl ||
+      (user.avatarUrl?.includes('googleusercontent.com') ? user.avatarUrl : null);
+
+    const relativeUrl = `/uploads/avatars/${file.filename}`;
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        avatarUrl: relativeUrl,
+        googleAvatarUrl,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        avatarUrl: true,
+        googleAvatarUrl: true,
+        avatarFrame: true,
+        coins: true,
+        role: true,
+        isVerified: true,
+      },
+    });
+
+    return updated;
+  }
+
+  // 9. Select Google Avatar as default
+  async selectGoogleAvatar(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    const googlePic =
+      user.googleAvatarUrl ||
+      (user.avatarUrl?.includes('googleusercontent.com') ? user.avatarUrl : null);
+
+    if (!googlePic) {
+      throw new BadRequestException('Google hisobi rasmi mavjud emas');
+    }
+
+    // Delete previous custom avatar file if present
+    safeDeleteAvatarFile(user.avatarUrl);
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        avatarUrl: googlePic,
+        googleAvatarUrl: googlePic,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        avatarUrl: true,
+        googleAvatarUrl: true,
+        avatarFrame: true,
+        coins: true,
+        role: true,
+        isVerified: true,
+      },
+    });
+
+    return updated;
+  }
+
+  // 10. Remove avatar (Revert to default initials)
+  async removeAvatar(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    // Delete previous custom avatar file if present
+    safeDeleteAvatarFile(user.avatarUrl);
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        avatarUrl: null,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        avatarUrl: true,
+        googleAvatarUrl: true,
+        avatarFrame: true,
+        coins: true,
+        role: true,
+        isVerified: true,
+      },
+    });
+
+    return updated;
+  }
+
+  // 11. Update Profile (Name)
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        fullName:
+          dto.fullName !== undefined
+            ? dto.fullName.trim() || null
+            : user.fullName,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        avatarUrl: true,
+        googleAvatarUrl: true,
+        avatarFrame: true,
+        coins: true,
+        role: true,
+        isVerified: true,
+      },
+    });
+
+    return updated;
   }
 }

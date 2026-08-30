@@ -16,15 +16,16 @@ import {
   Languages,
   ShoppingBag,
   Sparkles,
-  Crown,
   Type,
 } from 'lucide-react';
-import { useLang, type Lang } from '@/lib/i18n';
+import { useLang } from '@/lib/i18n';
 import { useThemeCtx } from '@/lib/theme';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { LogoMark } from '@/components/intro/Logo';
 import { NotificationPopover } from './notification-popover';
 import { useDashboardTab, type DashboardTabId } from './tab-context';
+import { api } from '@/lib/api';
+import { GlobalSearchModal } from './global-search-modal';
 
 export function DashboardHeader({
   activeTab: externalActiveTab,
@@ -40,7 +41,48 @@ export function DashboardHeader({
   const { theme, toggle } = useThemeCtx();
   const { activeTab, setActiveTab } = useDashboardTab();
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [isSearchModalOpen, setIsSearchModalOpen] = React.useState(false);
   const [isFocusMode, setIsFocusMode] = React.useState(false);
+  const [headerCoins, setHeaderCoins] = React.useState<number | null>(null);
+  const [dailyRewardToast, setDailyRewardToast] = React.useState<{
+    message: string;
+    coins: number;
+  } | null>(null);
+
+  // Global Cmd+K / Ctrl+K listener
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  React.useEffect(() => {
+    api
+      .getUserCoins()
+      .then((res) => setHeaderCoins(res.coins))
+      .catch(() => {});
+
+    // Automatically trigger daily streak check-in once per session
+    const checkedToday = sessionStorage.getItem('minna_daily_checked');
+    if (!checkedToday) {
+      api
+        .dailyCheckin()
+        .then((res) => {
+          sessionStorage.setItem('minna_daily_checked', 'true');
+          if (!res.alreadyClaimed && res.earnedCoins) {
+            setHeaderCoins(res.coins);
+            setDailyRewardToast({ message: res.message, coins: res.earnedCoins });
+            setTimeout(() => setDailyRewardToast(null), 5000);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [activeTab]);
 
   const isDashboardHome = pathname ? /^\/([a-z]{2}\/)?dashboard\/?$/.test(pathname) : false;
 
@@ -53,7 +95,6 @@ export function DashboardHeader({
     { id: 'store', label: "Do'kon", icon: ShoppingBag },
     { id: 'translate', label: 'Tarjimon', icon: Languages },
     { id: 'ai', label: 'AI ustoz', icon: Sparkles },
-    { id: 'premium', label: 'Premium', icon: Crown },
   ];
 
   const handleTabClick = (tabId: DashboardTabId) => {
@@ -71,95 +112,143 @@ export function DashboardHeader({
   };
 
   return (
-    <header className="sticky top-0 z-40 flex flex-col border-b border-border bg-card/90 backdrop-blur-xl transition-all duration-300 shadow-xs w-full">
-      {/* Top Search & Actions Bar */}
-      <div className="flex h-14 items-center justify-between gap-2.5 sm:gap-4 px-3.5 sm:px-6">
-        {/* Mobile Hamburger & Logo */}
-        <div className="flex items-center gap-2 md:hidden shrink-0">
-          <button
-            type="button"
-            onClick={onMenuClick}
-            aria-label="Menyu"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer"
-          >
-            <Menu className="h-4 w-4" />
-          </button>
-          <Link href={`/${lang}/dashboard`} className="flex items-center">
-            <LogoMark className="h-6 w-6" />
-          </Link>
-        </div>
+    <>
+      <header className="sticky top-0 z-40 flex flex-col border-b border-border/80 bg-background/80 backdrop-blur-xl transition-all duration-300 shadow-xs w-full">
+        {/* Daily Reward Toast Notification */}
+        {dailyRewardToast && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300 max-w-md w-[90%] sm:w-auto">
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-amber-500 text-black font-bold text-xs shadow-2xl border border-amber-300">
+              <div className="flex items-center gap-2">
+                <span className="text-base animate-bounce">🪙</span>
+                <span>{dailyRewardToast.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDailyRewardToast(null)}
+                className="hover:opacity-70 text-black font-black cursor-pointer text-sm shrink-0 ml-1"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md min-w-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Qidiruv..."
-            className="h-8.5 sm:h-9 w-full rounded-full border border-border bg-secondary/40 pl-8.5 sm:pl-9 pr-8 sm:pr-12 text-[12px] sm:text-[13px] text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/10"
-          />
-          <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-card px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-            ⌘K
-          </kbd>
-        </div>
+        {/* Top Search & Actions Bar */}
+        <div className="flex h-14 items-center justify-between gap-2.5 sm:gap-4 px-3.5 sm:px-6">
+          {/* Mobile Hamburger & Logo */}
+          <div className="flex items-center gap-2 md:hidden shrink-0">
+            <button
+              type="button"
+              onClick={onMenuClick}
+              aria-label="Menyu"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-border/70 text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <Link href={`/${lang}/dashboard`} className="flex items-center">
+              <LogoMark className="h-6 w-6" />
+            </Link>
+          </div>
 
-        {/* Right Tools */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <LanguageSwitcher />
+          {/* Yangilangan Zamonaviy Search Trigger Tugmasi */}
+          <div className="relative flex-1 max-w-md min-w-0">
+            <button
+              type="button"
+              onClick={() => setIsSearchModalOpen(true)}
+              className="group relative flex h-9 w-full items-center justify-between rounded-xl border border-border/70 bg-secondary/35 px-3 text-left transition-all duration-200 hover:border-border hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.99] shadow-2xs"
+              title="Universal qidiruv (Cmd+K / Ctrl+K)"
+            >
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                <span className="truncate text-[12px] sm:text-[13px] font-normal text-muted-foreground/80 group-hover:text-foreground/90 transition-colors">
+                  Lug'at, kanji, bo'limlarni qidirish...
+                </span>
+              </div>
 
-          <NotificationPopover />
+              <div className="hidden sm:flex items-center gap-1 pl-2 shrink-0">
+                <kbd className="inline-flex h-5 items-center gap-0.5 rounded-md border border-border/80 bg-background/80 px-1.5 font-mono text-[10px] font-medium text-muted-foreground shadow-2xs group-hover:border-foreground/20 group-hover:text-foreground transition-colors">
+                  <span>⌘</span>
+                  <span>K</span>
+                </kbd>
+              </div>
+            </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label="Toggle theme"
-            className="grid h-8.5 w-8.5 sm:h-9 sm:w-9 place-items-center rounded-full border border-border text-foreground transition-colors hover:bg-secondary cursor-pointer"
-          >
-            {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-          </button>
+          {/* Right Tools */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {headerCoins !== null && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('store')}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 transition-colors text-xs font-bold cursor-pointer shadow-2xs active:scale-95"
+                title="Minna Coin Balansi — Doʻkonga oʻtish"
+              >
+                <span className="text-sm">🪙</span>
+                <span>{headerCoins}</span>
+              </button>
+            )}
 
-          <button
-            type="button"
-            onClick={toggleFocusMode}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 h-9 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer"
-          >
-            <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
-            <span>Diqqat rejimi</span>
-          </button>
-        </div>
-      </div>
+            <LanguageSwitcher />
 
-      {/* Sub Navigation Tabs */}
-      {isDashboardHome && (
-        <div className="w-full overflow-x-auto no-scrollbar border-t border-border/50 animate-in fade-in duration-200">
-          <div className="flex w-full min-w-full items-center gap-1.5 px-3.5 sm:px-6 py-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleTabClick(tab.id)}
-                  className={`flex-1 min-w-max inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] sm:text-[13px] font-medium transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? 'bg-foreground text-background shadow-xs font-semibold'
-                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                  }`}
-                >
-                  <Icon
-                    className={`h-3.5 w-3.5 shrink-0 ${
-                      tab.id === 'ai' && !isActive ? 'text-amber-500' : ''
-                    } ${tab.id === 'premium' && !isActive ? 'text-yellow-500' : ''}`}
-                  />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+            <NotificationPopover />
+
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label="Toggle theme"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-border/70 text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95"
+            >
+              {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleFocusMode}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-card px-3.5 h-9 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95"
+            >
+              <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>Diqqat rejimi</span>
+            </button>
           </div>
         </div>
-      )}
-    </header>
+
+        {/* Sub Navigation Tabs */}
+        {isDashboardHome && (
+          <div className="w-full overflow-x-auto no-scrollbar border-t border-border/50 animate-in fade-in duration-200">
+            <div className="flex w-full min-w-full items-center gap-1.5 px-3.5 sm:px-6 py-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => handleTabClick(tab.id)}
+                    className={`flex-1 min-w-max inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-1.5 text-[12px] sm:text-[13px] font-medium transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'bg-foreground text-background shadow-xs font-semibold'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    }`}
+                  >
+                    <Icon
+                      className={`h-3.5 w-3.5 shrink-0 ${
+                        tab.id === 'ai' && !isActive ? 'text-amber-500' : ''
+                      }`}
+                    />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Global Universal Search Modal */}
+      <GlobalSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+      />
+    </>
   );
 }

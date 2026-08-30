@@ -11,7 +11,6 @@ This document outlines the subscription lifecycles, billing frequencies, and pla
 | **Monthly (Oylik)** | 1 Month | Learners testing the platform | Flexible, cancel anytime |
 | **Quarterly (3 Oylik)** | 3 Months | Intermediate learners targeting single JLPT level | 15% discount |
 | **Annual (Yillik)** | 12 Months | Serious students targeting N5 to N3 progression | 35% discount + AI bonus tokens |
-| **Lifetime (Cheksiz)** | Lifetime | Dedicated long-term Japanese scholars | One-time payment |
 
 ---
 

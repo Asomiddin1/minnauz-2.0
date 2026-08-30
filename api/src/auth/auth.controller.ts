@@ -3,26 +3,41 @@ import {
   Post,
   Get,
   Delete,
+  Patch,
   Body,
   Param,
   Req,
   UseGuards,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
+
+const avatarsUploadDir = join(process.cwd(), 'uploads', 'avatars');
+if (!existsSync(avatarsUploadDir)) {
+  mkdirSync(avatarsUploadDir, { recursive: true });
+}
 import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -130,5 +145,94 @@ export class AuthController {
       role: user.role,
       message: 'Admin panelga kirish ruxsat etildi',
     };
+  }
+
+  @Post('avatar')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Profilga bitta rasm yuklash (JPEG, PNG, WEBP, maks. 5MB)',
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          cb(null, avatarsUploadDir);
+        },
+        filename: (req: any, file, cb) => {
+          const userId = req.user?.id || 'user';
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e6);
+          const ext = extname(file.originalname).toLowerCase();
+          cb(null, `avatar-${userId}-${uniqueSuffix}${ext}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        const allowedMimes = [
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+          'image/jpg',
+        ];
+        const allowedExt = /\.(jpg|jpeg|png|webp)$/i;
+        if (
+          allowedMimes.includes(file.mimetype) &&
+          allowedExt.test(file.originalname)
+        ) {
+          cb(null, true);
+        } else {
+          cb(
+            new BadRequestException(
+              "Faqat rasm formatidagi fayllar (JPEG, PNG, WEBP) qabul qilinadi",
+            ),
+            false,
+          );
+        }
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB max
+      },
+    }),
+  )
+  async uploadAvatar(
+    @CurrentUser('id') userId: string,
+    @UploadedFile() file: any,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Rasm fayli tanlanmadi');
+    }
+    return this.authService.uploadAvatar(userId, file);
+  }
+
+  @Post('avatar/google')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Google hisobidagi rasmni tanlash' })
+  async selectGoogleAvatar(@CurrentUser('id') userId: string) {
+    return this.authService.selectGoogleAvatar(userId);
+  }
+
+  @Delete('avatar')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Profil rasmini oʻchirish va boshlangʻich holatga qaytarish',
+  })
+  async removeAvatar(@CurrentUser('id') userId: string) {
+    return this.authService.removeAvatar(userId);
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Foydalanuvchi profil maʼlumotlarini (ism/familiya) yangilash',
+  })
+  async updateProfile(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(userId, dto);
   }
 }

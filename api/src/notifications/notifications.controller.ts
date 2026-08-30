@@ -43,39 +43,7 @@ export class NotificationsController {
     return this.notificationsService.getUnreadCount(userId, role);
   }
 
-  @Post(':id/read')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Xabarnomani oʻqildi deb belgilash' })
-  async markAsRead(
-    @CurrentUser('id') userId: string,
-    @Param('id') notificationId: string,
-  ) {
-    return this.notificationsService.markAsRead(userId, notificationId);
-  }
-
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Bitta xabarnoma toʻliq maʼlumotlarini olish' })
-  async getNotificationById(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
-    return this.notificationsService.getNotificationById(id, userId);
-  }
-
-  @Post('read-all')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Barcha xabarnomalarni oʻqildi deb belgilash' })
-  async markAllAsRead(
-    @CurrentUser('id') userId: string,
-    @CurrentUser('role') role: string,
-  ) {
-    return this.notificationsService.markAllAsRead(userId, role);
-  }
-
+  // === ADMIN NOTIFICATIONS CRUD ===
   @Get('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
@@ -101,5 +69,39 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Xabarnomani oʻchirish' })
   async deleteNotification(@Param('id') id: string) {
     return this.notificationsService.deleteNotification(id);
+  }
+
+  // === USER NOTIFICATIONS SPECIFIC ===
+  @Post(':id/read')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Xabarnomani oʻqildi deb belgilash' })
+  async markAsRead(
+    @CurrentUser('id') userId: string,
+    @Param('id') notificationId: string,
+  ) {
+    return this.notificationsService.markAsRead(userId, notificationId);
+  }
+
+  @Post('read-all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Barcha xabarnomalarni oʻqildi deb belgilash' })
+  async markAllAsRead(
+    @CurrentUser('id') userId: string,
+    @CurrentUser('role') role: string,
+  ) {
+    return this.notificationsService.markAllAsRead(userId, role);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bitta xabarnoma toʻliq maʼlumotlarini olish' })
+  async getNotificationById(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.notificationsService.getNotificationById(id, userId);
   }
 }

@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Sparkles,
   BookOpen,
+  Crown,
 } from 'lucide-react';
 import { api, CourseDetailsResponse, CourseLessonSummary } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
@@ -231,6 +232,11 @@ export default function CourseRoadmapPage() {
                                 <Sparkles className="h-3 w-3" />
                                 <span>Faol</span>
                               </span>
+                            ) : lesson.lockReason === 'PRO_REQUIRED' ? (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-yellow-500/10 px-2 py-0.5 text-[11px] font-bold text-yellow-600 dark:text-yellow-400">
+                                <Crown className="h-3 w-3" />
+                                <span>Pro Obuna</span>
+                              </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                                 <Lock className="h-3 w-3" />
@@ -241,7 +247,15 @@ export default function CourseRoadmapPage() {
 
                           {/* Action Button */}
                           <td className="py-3.5 px-4 text-right">
-                            {isLocked ? (
+                            {lesson.lockReason === 'PRO_REQUIRED' ? (
+                              <Link
+                                href={`/${lang}/dashboard/premium`}
+                                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold bg-yellow-500/10 hover:bg-yellow-500 text-yellow-600 dark:text-yellow-400 hover:text-black transition-all border border-yellow-500/30 shadow-xs"
+                              >
+                                <Crown className="h-3 w-3" />
+                                <span>Pro ochish</span>
+                              </Link>
+                            ) : isLocked ? (
                               <button
                                 type="button"
                                 disabled

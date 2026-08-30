@@ -530,8 +530,12 @@ export default function AdminUsersPage() {
                 >
                   <option value="USER">Oʻquvchi (USER)</option>
                   <option value="TEACHER">Ustoz (TEACHER)</option>
-                  <option value="ADMIN">Admin (ADMIN)</option>
-                  <option value="SUPER_ADMIN">Super Admin (SUPER_ADMIN)</option>
+                  {currentUser?.role === 'SUPER_ADMIN' && (
+                    <>
+                      <option value="ADMIN">Admin (ADMIN)</option>
+                      <option value="SUPER_ADMIN">Super Admin (SUPER_ADMIN)</option>
+                    </>
+                  )}
                 </select>
               </div>
 
@@ -651,8 +655,12 @@ export default function AdminUsersPage() {
                 >
                   <option value="USER">Oʻquvchi (USER)</option>
                   <option value="TEACHER">Ustoz (TEACHER)</option>
-                  <option value="ADMIN">Admin (ADMIN)</option>
-                  <option value="SUPER_ADMIN">Super Admin (SUPER_ADMIN)</option>
+                  {currentUser?.role === 'SUPER_ADMIN' && (
+                    <>
+                      <option value="ADMIN">Admin (ADMIN)</option>
+                      <option value="SUPER_ADMIN">Super Admin (SUPER_ADMIN)</option>
+                    </>
+                  )}
                 </select>
               </div>
 

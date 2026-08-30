@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsArray,
   IsInt,
+  IsEnum,
   Min,
   Max,
 } from 'class-validator';
@@ -143,6 +144,16 @@ export class CreateLessonDto {
   @IsOptional()
   @IsNumber()
   order?: number;
+
+  @ApiPropertyOptional({ description: 'Dars bepulmi (hamma uchun)', example: false })
+  @IsOptional()
+  @IsBoolean()
+  isFree?: boolean;
+
+  @ApiPropertyOptional({ description: 'Nashr qilinganmi', example: true })
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
 }
 
 export class SaveStudyPlanDto {
@@ -168,4 +179,71 @@ export class SaveStudyPlanDto {
   @IsOptional()
   @IsNumber()
   targetMonths?: number;
+
+  @ApiPropertyOptional({ description: 'Reja sozlanganligi', example: true })
+  @IsOptional()
+  @IsBoolean()
+  isConfigured?: boolean;
+}
+
+export class ToggleFlashcardDto {
+  @ApiProperty({ description: 'Kotoba (Lugʻat) ID', example: 'uuid' })
+  @IsString()
+  kotobaId: string;
+
+  @ApiPropertyOptional({
+    description: 'Flashcard holati: LEARNING (yodlanayotgan) yoki MASTERED (yodlangan)',
+    enum: ['LEARNING', 'MASTERED'],
+    example: 'LEARNING',
+  })
+  @IsOptional()
+  @IsEnum(['LEARNING', 'MASTERED'])
+  status?: 'LEARNING' | 'MASTERED';
+}
+
+export class BatchFlashcardDto {
+  @ApiProperty({ description: 'Kotoba ID lari roʻyxati' })
+  @IsArray()
+  @IsString({ each: true })
+  kotobaIds: string[];
+
+  @ApiPropertyOptional({
+    description: 'Holat: LEARNING yoki MASTERED',
+    enum: ['LEARNING', 'MASTERED'],
+    example: 'LEARNING',
+  })
+  @IsOptional()
+  @IsEnum(['LEARNING', 'MASTERED'])
+  status?: 'LEARNING' | 'MASTERED';
+}
+
+export class ToggleKanjiFlashcardDto {
+  @ApiProperty({ description: 'Kanji ID' })
+  @IsString()
+  kanjiId: string;
+
+  @ApiPropertyOptional({
+    description: 'Flashcard holati: LEARNING yoki MASTERED',
+    enum: ['LEARNING', 'MASTERED'],
+    example: 'LEARNING',
+  })
+  @IsOptional()
+  @IsEnum(['LEARNING', 'MASTERED'])
+  status?: 'LEARNING' | 'MASTERED';
+}
+
+export class BatchKanjiFlashcardDto {
+  @ApiProperty({ description: 'Kanji ID lari roʻyxati' })
+  @IsArray()
+  @IsString({ each: true })
+  kanjiIds: string[];
+
+  @ApiPropertyOptional({
+    description: 'Holat: LEARNING yoki MASTERED',
+    enum: ['LEARNING', 'MASTERED'],
+    example: 'LEARNING',
+  })
+  @IsOptional()
+  @IsEnum(['LEARNING', 'MASTERED'])
+  status?: 'LEARNING' | 'MASTERED';
 }

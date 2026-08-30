@@ -10,8 +10,7 @@ import { DokkayTab } from '@/components/dashboard/tabs/dokkay-tab';
 import { KanjiTab } from '@/components/dashboard/tabs/kanji-tab';
 import { StoreTab } from '@/components/dashboard/tabs/store-tab';
 import { TranslateTab } from '@/components/dashboard/tabs/translate-tab';
-import { AiTab } from '@/components/dashboard/tabs/ai-tab';
-import { PremiumTab } from '@/components/dashboard/tabs/premium-tab';
+import { AiLiveCallTab } from '@/components/dashboard/tabs/ai-tab';
 
 export default function DashboardPage() {
   const { activeTab } = useDashboardTab();
@@ -25,8 +24,7 @@ export default function DashboardPage() {
       {activeTab === 'kanji' && <KanjiTab />}
       {activeTab === 'store' && <StoreTab />}
       {activeTab === 'translate' && <TranslateTab />}
-      {activeTab === 'ai' && <AiTab />}
-      {activeTab === 'premium' && <PremiumTab />}
+      {activeTab === 'ai' && <AiLiveCallTab />}
     </div>
   );
 }

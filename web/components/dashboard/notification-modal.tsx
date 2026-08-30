@@ -109,6 +109,7 @@ export function NotificationModal({
                 src={notification.imageUrl}
                 alt={notification.title}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </div>

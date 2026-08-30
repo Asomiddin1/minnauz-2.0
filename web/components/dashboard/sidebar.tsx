@@ -16,6 +16,7 @@ import {
   PanelLeft,
   ArrowRight,
   Shield,
+  Crown,
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
@@ -217,15 +218,16 @@ export function DashboardSidebar({
                   <p className="truncate text-[13px] font-semibold text-foreground group-hover:text-[#0071e3] transition-colors">
                     {user?.fullName || user?.email?.split('@')[0] || 'Foydalanuvchi'}
                   </p>
-                  {user?.role === 'SUPER_ADMIN' ? (
-                    <span className="shrink-0 rounded-md bg-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wide uppercase text-purple-600 dark:text-purple-400">
-                      Super
+                  {user?.isPro ? (
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-md bg-yellow-500/20 px-1.5 py-0.5 text-[9px] font-black tracking-wide text-yellow-600 dark:text-yellow-400">
+                      <Crown className="h-3 w-3" />
+                      <span>PRO</span>
                     </span>
-                  ) : user?.role === 'ADMIN' ? (
-                    <span className="shrink-0 rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wide uppercase text-amber-600 dark:text-amber-400">
-                      Admin
+                  ) : (
+                    <span className="shrink-0 inline-flex items-center rounded-md bg-secondary px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground">
+                      FREE
                     </span>
-                  ) : null}
+                  )}
                 </div>
                 <p className="truncate text-[11px] text-muted-foreground">
                   {user?.email || 'user@example.com'}
