@@ -181,12 +181,13 @@ export class AdminCoursesService {
         summary: dto.summary,
         kaiwaScenario: dto.kaiwaScenario,
         order: dto.order || 1,
-        isPublished: true,
+        isPublished: dto.isPublished ?? true,
+        isFree: dto.isFree ?? false,
       },
     });
   }
 
-  async updateLesson(lessonId: string, dto: Partial<CreateLessonDto> & { isPublished?: boolean }) {
+  async updateLesson(lessonId: string, dto: Partial<CreateLessonDto> & { isPublished?: boolean; isFree?: boolean }) {
     return this.prisma.lesson.update({
       where: { id: lessonId },
       data: dto,

@@ -57,11 +57,17 @@ enum NotificationType {
   PROMO
 }
 
+enum FlashcardStatus {
+  LEARNING
+  MASTERED
+}
+
 model User {
   id            String          @id @default(uuid())
   email         String          @unique
   fullName      String?
   avatarUrl     String?
+  googleAvatarUrl String?
   role          Role            @default(USER)
   isVerified    Boolean         @default(false)
   createdAt     DateTime        @default(now())
@@ -75,6 +81,8 @@ model User {
   
   // Progress relations
   lessonProgress  UserLessonProgress[]
+  kotobaProgress  UserKotobaProgress[]
+  kanjiProgress   UserKanjiProgress[]
   
   // Teacher / Group relations
   teachingGroups  Group[]       @relation("TeacherGroups")
@@ -82,6 +90,15 @@ model User {
   studyActivities UserStudyActivity[]
   studyPlan       UserStudyPlan?
   notifications   UserNotification[]
+  testResults     UserTestResult[]
+  coins           Int                  @default(100)
+  streakDays      Int                  @default(0)
+  streakFrozen    Boolean              @default(false)
+  avatarFrame     String?
+  coinTransactions CoinTransaction[]
+  inventory       UserInventoryItem[]
+  subscriptions   UserSubscription[]
+  paymentTransactions PaymentTransaction[]
 
   @@map("users")
 }
@@ -255,6 +272,7 @@ model Lesson {
   summary       String?
   kaiwaScenario Json?        // AI conversational prompt and guidelines
   isPublished   Boolean      @default(true)
+  isFree        Boolean      @default(false)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -284,8 +302,26 @@ model KotobaItem {
   order               Int      @default(1)
 
   lesson              Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userProgress        UserKotobaProgress[]
 
   @@map("kotoba_items")
+}
+
+model UserKotobaProgress {
+  id             String           @id @default(uuid())
+  userId         String
+  kotobaId       String
+  status         FlashcardStatus  @default(LEARNING)
+  reviewCount    Int              @default(0)
+  lastReviewedAt DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kotoba         KotobaItem       @relation(fields: [kotobaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kotobaId])
+  @@map("user_kotoba_progress")
 }
 
 model BunpouItem {
@@ -318,8 +354,26 @@ model KanjiItem {
   order           Int      @default(1)
 
   lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userProgress    UserKanjiProgress[]
 
   @@map("kanji_items")
+}
+
+model UserKanjiProgress {
+  id             String           @id @default(uuid())
+  userId         String
+  kanjiId        String
+  status         FlashcardStatus  @default(LEARNING)
+  reviewCount    Int              @default(0)
+  lastReviewedAt DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kanji          KanjiItem        @relation(fields: [kanjiId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kanjiId])
+  @@map("user_kanji_progress")
 }
 
 model RenshuuItem {
@@ -383,3 +437,228 @@ model GroupMember {
   @@unique([groupId, userId])
   @@map("group_members")
 }
+
+enum TestCategory {
+  MOCK_EXAM
+  VOCABULARY_KANJI
+  GRAMMAR_READING
+  LISTENING
+}
+
+model JlptTest {
+  id              String         @id @default(uuid())
+  title           String
+  slug            String         @unique
+  description     String?
+  level           CourseLevel    @default(N5)
+  category        TestCategory   @default(MOCK_EXAM)
+  durationMinutes Int            @default(105)
+  passingScore    Int            @default(60) // Foizda (masalan, 60%)
+  totalScore      Int            @default(180)
+  audioUrl        String?        // Choukai bo'limi uchun yagona doimiy audio trek
+  order           Int            @default(1)
+  isPublished     Boolean        @default(true)
+  isPremium       Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  questions       JlptQuestion[]
+  userResults     UserTestResult[]
+
+  @@map("jlpt_tests")
+}
+
+model JlptQuestion {
+  id             String      @id @default(uuid())
+  testId         String
+  section        String      @default("KOTOBA") // KOTOBA, BUNPOU, DOKKAI, CHOUKAI
+  mondaiTitle    String?     // Masalan: "問題1: つぎの ぶんの の ことばは どう かきますか"
+  questionNumber Int         @default(1)
+  questionText   String
+  contextText    String?     // O'qish matni, dialog yoki kontekst
+  imageUrl       String?     // Rasmli savollar uchun
+  options        Json        // 4 ta variant (string[])
+  correctAnswer  String      // To'g'ri variant matni
+  explanation    String?     // O'zbek tilidagi batafsil tushuntirish
+  points         Int         @default(2)
+  order          Int         @default(1)
+
+  test           JlptTest    @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@map("jlpt_questions")
+}
+
+model UserTestResult {
+  id               String      @id @default(uuid())
+  userId           String
+  testId           String
+  score            Int         // Olingan ball (masalan 152)
+  percentage       Int         // Foiz (masalan 84%)
+  isPassed         Boolean     @default(false)
+  timeSpentSeconds Int         @default(0)
+  answers          Json        // [{ questionId, selectedAnswer, isCorrect }]
+  completedAt      DateTime    @default(now())
+
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test             JlptTest    @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@map("user_test_results")
+}
+
+// ==========================================
+// STORE (DO'KON) VA GAMIFIKATSIYA COIN TIZIMI
+// ==========================================
+
+enum StoreItemCategory {
+  DISCOUNT
+  POWERUP
+  AI_PERK
+  COSMETIC
+}
+
+model StoreItem {
+  id              String            @id @default(uuid())
+  title           String
+  description     String
+  category        StoreItemCategory
+  costCoins       Int
+  icon            String            // "Percent", "Shield", "Zap", "Bot", "Sparkles", "Crown"
+  badge           String?           // "Mashhur", "-50%", "Yangi", "VIP"
+  discountPercent Int?
+  durationDays    Int?
+  actionKey       String?           // "PRO_DISCOUNT_10", "STREAK_FREEZE", "AI_KAIWA_WEEK", "FRAME_SAKURA"
+  isAvailable     Boolean           @default(true)
+  order           Int               @default(0)
+  createdAt       DateTime          @default(now())
+
+  inventoryItems  UserInventoryItem[]
+
+  @@map("store_items")
+}
+
+model UserInventoryItem {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        StoreItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  code        String?   // Agar chegirma promokodi bo'lsa (masalan: "MINNA-10-XYZ")
+  isUsed      Boolean   @default(false)
+  expiresAt   DateTime?
+  purchasedAt DateTime  @default(now())
+
+  @@map("user_inventory_items")
+}
+
+model CoinTransaction {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int      // Musbat (+10) yoki Manfiy (-150)
+  type        String   // "LESSON_COMPLETED", "MOCK_PASSED", "STORE_PURCHASE", "WELCOME_BONUS", "STREAK_BONUS"
+  description String
+  createdAt   DateTime @default(now())
+
+  @@map("coin_transactions")
+}
+
+// ==========================================
+// OBUNA VA TO'LOV TIZIMI (SUBSCRIPTIONS)
+// ==========================================
+
+enum SubscriptionTier {
+  FREE
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  LIFETIME
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentProvider {
+  PAYME
+  CLICK
+  UZUM
+  STRIPE
+  ADMIN_MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model SubscriptionPlan {
+  id           String           @id @default(uuid())
+  tier         SubscriptionTier @default(MONTHLY)
+  name         String
+  nameRu       String?
+  priceUzs     Int
+  durationDays Int              // Masalan: 30 oylik, 90 uch oylik, 365 yillik, 36500 cheksiz
+  features     Json             // Imkoniyatlar ro'yxati: string[]
+  popular      Boolean          @default(false)
+  tag          String?          // "Eng tejamkor", "Mashhur"
+  order        Int              @default(0)
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  subscriptions UserSubscription[]
+
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id            String             @id @default(uuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId        String?
+  plan          SubscriptionPlan?  @relation(fields: [planId], references: [id], onDelete: SetNull)
+  tier          SubscriptionTier   @default(MONTHLY)
+  status        SubscriptionStatus @default(ACTIVE)
+  startDate     DateTime           @default(now())
+  endDate       DateTime
+  autoRenew     Boolean            @default(false)
+  cancelledAt   DateTime?
+  paymentMethod PaymentProvider    @default(PAYME)
+  notes         String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  transactions  PaymentTransaction[]
+
+  @@index([userId, status])
+  @@map("user_subscriptions")
+}
+
+model PaymentTransaction {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionId    String?
+  subscription      UserSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  originalAmountUzs Int
+  discountAmountUzs Int               @default(0)
+  finalAmountUzs    Int
+  provider          PaymentProvider   @default(PAYME)
+  status            PaymentStatus     @default(PENDING)
+  externalId        String?           // Payme transaction ID or Click trans_id
+  promoCode         String?           // Do'kondan yoki umumiy chegirma kodi
+  inventoryItemId   String?           // Agar do'kon vaucheri ishlatilgan bo'lsa
+  metadata          Json?
+  paidAt            DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([userId, status])
+  @@map("payment_transactions")
+}
+

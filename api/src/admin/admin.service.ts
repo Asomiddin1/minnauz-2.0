@@ -136,7 +136,16 @@ export class AdminService {
   }
 
   // 4. Create User
-  async createUser(dto: CreateUserDto) {
+  async createUser(dto: CreateUserDto, currentUser: any) {
+    if (
+      (dto.role === Role.ADMIN || dto.role === Role.SUPER_ADMIN) &&
+      currentUser?.role !== Role.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException(
+        'Adminlarni faqat Super Admin yarata oladi yoki tayinlay oladi',
+      );
+    }
+
     const email = dto.email.toLowerCase().trim();
 
     const existing = await this.prisma.user.findUnique({
@@ -162,13 +171,33 @@ export class AdminService {
   }
 
   // 5. Update User
-  async updateUser(id: string, dto: UpdateUserDto) {
+  async updateUser(id: string, dto: UpdateUserDto, currentUser: any) {
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
     if (!user) {
       throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    if (
+      dto.role !== undefined &&
+      (dto.role === Role.ADMIN || dto.role === Role.SUPER_ADMIN) &&
+      currentUser?.role !== Role.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException(
+        'Faqat Super Admin foydalanuvchini Admin qilib tayinlay oladi',
+      );
+    }
+
+    if (
+      (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) &&
+      currentUser?.role !== Role.SUPER_ADMIN &&
+      currentUser?.id !== user.id
+    ) {
+      throw new ForbiddenException(
+        'Admin hisoblarini faqat Super Admin tahrirlashi mumkin',
+      );
     }
 
     const updated = await this.prisma.user.update({
@@ -192,12 +221,20 @@ export class AdminService {
       throw new ForbiddenException('Oʻzingizning hisobingizni oʻchira olmaysiz');
     }
 
+    const currentUser = await this.prisma.user.findUnique({ where: { id: currentUserId } });
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
     if (!user) {
       throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    if (
+      (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) &&
+      currentUser?.role !== Role.SUPER_ADMIN
+    ) {
+      throw new ForbiddenException('Admin hisoblarini faqat Super Admin oʻchira oladi');
     }
 
     if (user.role === Role.SUPER_ADMIN) {

@@ -5,13 +5,32 @@ const API_URL = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/
 // Statik fayllar (masalan, yuklangan videolar) uchun /api siz asosiy manzil
 export const API_ORIGIN = API_URL.replace(/\/api$/, '');
 
+export function getMediaUrl(url?: string | null): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('data:')
+  ) {
+    return trimmed;
+  }
+  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${API_ORIGIN}${cleanPath}`;
+}
+
 export interface User {
   id: string;
   email: string;
   fullName?: string;
   avatarUrl?: string;
+  googleAvatarUrl?: string;
+  avatarFrame?: string | null;
+  coins?: number;
   role: 'USER' | 'TEACHER' | 'ADMIN' | 'SUPER_ADMIN';
   isVerified?: boolean;
+  isPro?: boolean;
 }
 
 export interface AdminUserItem extends User {
@@ -232,6 +251,9 @@ export interface CourseLessonSummary {
   status: 'COMPLETED' | 'CURRENT' | 'LOCKED' | 'AVAILABLE';
   isCompleted: boolean;
   isLocked?: boolean;
+  lockReason?: string;
+  isFree?: boolean;
+  isProRequired?: boolean;
   quizScore?: number | null;
   completedSections: string[];
   counts: {
@@ -267,6 +289,343 @@ export interface CourseDetailsResponse {
   completedLessons: number;
   progressPercent: number;
   modules: CourseModuleDetails[];
+}
+
+export type FlashcardStatus = 'LEARNING' | 'MASTERED';
+
+export interface UserKotobaWordItem {
+  id: string;
+  word: string;
+  furigana: string;
+  romaji: string;
+  meaningUz: string;
+  meaningRu: string;
+  meaningEn: string;
+  partOfSpeech: string;
+  audioUrl?: string | null;
+  sampleSentence?: string | null;
+  sampleSentenceUz?: string | null;
+  order: number;
+  lessonId: string;
+  lessonTitle: string;
+  lessonJapaneseTitle?: string | null;
+  lessonOrder: number;
+  courseId: string;
+  courseTitle: string;
+  courseLevel: string;
+  flashcardStatus: FlashcardStatus | null;
+  reviewCount: number;
+}
+
+export interface UserVocabResponse {
+  words: UserKotobaWordItem[];
+  totalCount: number;
+  lockedWordCount: number;
+  isPro: boolean;
+}
+
+export interface VocabStatsResponse {
+  totalLearning: number;
+  totalMastered: number;
+  totalSaved: number;
+}
+
+export interface UserKanjiItem {
+  id: string;
+  character: string;
+  onyomi: string;
+  kunyomi: string;
+  meaningUz: string;
+  meaningRu: string;
+  strokeCount: number;
+  strokeOrderData?: string | null;
+  radical: string;
+  examples: { word: string; reading: string; meaning: string }[];
+  order: number;
+  lessonId: string;
+  lessonTitle: string;
+  lessonJapaneseTitle?: string | null;
+  lessonOrder: number;
+  courseId: string;
+  courseTitle: string;
+  courseLevel: string;
+  flashcardStatus: FlashcardStatus | null;
+  reviewCount: number;
+}
+
+export interface UserKanjiResponse {
+  kanji: UserKanjiItem[];
+  totalCount: number;
+  lockedKanjiCount: number;
+  isPro: boolean;
+}
+
+export interface KanjiStatsResponse {
+  totalLearning: number;
+  totalMastered: number;
+  totalSaved: number;
+}
+
+export interface GlobalSearchResult {
+  query: string;
+  totalCount: number;
+  results: {
+    courses: {
+      id: string;
+      title: string;
+      slug: string;
+      level: string;
+      description?: string | null;
+      coverImage?: string | null;
+    }[];
+    lessons: {
+      id: string;
+      title: string;
+      japaneseTitle?: string | null;
+      order: number;
+      courseId: string;
+      courseSlug: string;
+      courseTitle: string;
+      courseLevel: string;
+      isFree: boolean;
+    }[];
+    vocab: {
+      id: string;
+      word: string;
+      furigana?: string | null;
+      romaji?: string | null;
+      meaningUz: string;
+      partOfSpeech?: string | null;
+      courseLevel: string;
+      lessonOrder: number;
+    }[];
+    kanji: {
+      id: string;
+      character: string;
+      onyomi?: string | null;
+      kunyomi?: string | null;
+      meaningUz: string;
+      strokeCount?: number | null;
+      courseLevel: string;
+    }[];
+    tests: {
+      id: string;
+      title: string;
+      slug: string;
+      level: string;
+      category: string;
+      isPremium: boolean;
+      durationMinutes: number;
+    }[];
+    pages: {
+      id: string;
+      title: string;
+      subtitle: string;
+      icon: string;
+      url: string;
+    }[];
+  };
+}
+
+export type JlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
+export type JlptCategory = 'MOCK_EXAM' | 'VOCABULARY_KANJI' | 'GRAMMAR_READING' | 'LISTENING';
+
+export interface JlptTestItem {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  level: JlptLevel;
+  category: JlptCategory;
+  durationMinutes: number;
+  passingScore: number;
+  totalScore: number;
+  audioUrl?: string | null;
+  order: number;
+  isPublished: boolean;
+  isPremium: boolean;
+  questionCount: number;
+  latestResult?: {
+    id: string;
+    score: number;
+    percentage: number;
+    isPassed: boolean;
+    timeSpentSeconds: number;
+    completedAt: string;
+  } | null;
+}
+
+export interface JlptQuestionItem {
+  id: string;
+  section: string;
+  mondaiTitle?: string | null;
+  questionNumber: number;
+  questionText: string;
+  contextText?: string | null;
+  imageUrl?: string | null;
+  options: string[];
+  points: number;
+  order: number;
+}
+
+export interface JlptTestDetail extends Omit<JlptTestItem, 'questionCount'> {
+  questions: JlptQuestionItem[];
+}
+
+export interface JlptTestStats {
+  totalTestsTaken: number;
+  passedCount: number;
+  avgPercentage: number;
+  totalQuestionsAnswered: number;
+}
+
+export interface EvaluatedAnswerItem {
+  questionId: string;
+  section: string;
+  questionNumber: number;
+  questionText: string;
+  options: string[];
+  selectedAnswer: string | null;
+  correctAnswer: string;
+  explanation?: string | null;
+  isCorrect: boolean;
+  points: number;
+}
+
+export interface TestSubmitResponse {
+  resultId: string;
+  testTitle: string;
+  score: number;
+  totalScore: number;
+  passingScore?: number;
+  percentage: number;
+  isPassed: boolean;
+  timeSpentSeconds: number;
+  completedAt: string;
+  answers: EvaluatedAnswerItem[];
+}
+
+export interface JlptUserTestHistoryItem {
+  id: string;
+  testId: string;
+  testTitle: string;
+  testSlug: string;
+  level: JlptLevel;
+  category: JlptCategory;
+  score: number;
+  totalScore: number;
+  passingScore: number;
+  percentage: number;
+  isPassed: boolean;
+  timeSpentSeconds: number;
+  completedAt: string;
+}
+
+export interface AdminJlptTestItem extends JlptTestItem {
+  attemptsCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminJlptQuestionItem extends JlptQuestionItem {
+  correctAnswer: string;
+  explanation?: string | null;
+}
+
+export interface AdminJlptTestDetail extends Omit<AdminJlptTestItem, 'questionCount'> {
+  questions: AdminJlptQuestionItem[];
+}
+
+export type StoreCategory = 'DISCOUNT' | 'POWERUP' | 'AI_PERK' | 'COSMETIC';
+
+export interface StoreItem {
+  id: string;
+  title: string;
+  description: string;
+  category: StoreCategory;
+  costCoins: number;
+  icon: string;
+  badge?: string | null;
+  discountPercent?: number | null;
+  durationDays?: number | null;
+  actionKey?: string | null;
+  isAvailable: boolean;
+  order: number;
+}
+
+export interface UserInventoryItem {
+  id: string;
+  userId: string;
+  itemId: string;
+  code?: string | null;
+  isUsed: boolean;
+  expiresAt?: string | null;
+  purchasedAt: string;
+  item: StoreItem;
+}
+
+export interface UserCoinsState {
+  id: string;
+  coins: number;
+  streakDays: number;
+  streakFrozen: boolean;
+  avatarFrame?: string | null;
+}
+
+export interface CoinTransaction {
+  id: string;
+  userId: string;
+  amount: number;
+  type: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface PurchaseResponse {
+  success: boolean;
+  message: string;
+  remainingCoins: number;
+  inventoryItem: UserInventoryItem;
+}
+
+export interface DailyCheckinResponse {
+  alreadyClaimed: boolean;
+  earnedCoins?: number;
+  streakDays: number;
+  coins: number;
+  message: string;
+}
+
+export interface AdminStoreItem extends StoreItem {
+  _count?: {
+    inventoryItems: number;
+  };
+  createdAt: string;
+}
+
+export interface AdminStoreStats {
+  totalItems: number;
+  totalPurchases: number;
+  totalCoinsSpent: number;
+  categories: Record<string, number>;
+}
+
+export interface AdminStorePurchase {
+  id: string;
+  userId: string;
+  itemId: string;
+  code?: string | null;
+  isUsed: boolean;
+  expiresAt?: string | null;
+  purchasedAt: string;
+  item: StoreItem;
+  user: {
+    id: string;
+    email: string;
+    fullName?: string | null;
+    avatarUrl?: string | null;
+    coins: number;
+  };
 }
 
 export interface KotobaItem {
@@ -355,6 +714,8 @@ export interface LessonDetailsResponse {
     sampleDialog?: { speaker: string; text: string; uz: string }[];
   };
   isLocked?: boolean;
+  lockReason?: string;
+  isProRequired?: boolean;
   module: {
     id: string;
     title: string;
@@ -426,11 +787,15 @@ class ApiClient {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${API_URL}${cleanEndpoint}`;
 
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...((options.headers as Record<string, string>) || {}),
       ...this.getAuthHeader(),
     };
+    if (isFormData && headers['Content-Type']) {
+      delete headers['Content-Type'];
+    }
 
     const res = await fetch(url, {
       ...options,
@@ -525,6 +890,35 @@ class ApiClient {
         localStorage.removeItem('minna_user');
       }
     }
+  }
+
+  // === PROFILE AVATAR MANAGEMENT ===
+  async uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request<User>('/auth/avatar', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async selectGoogleAvatar() {
+    return this.request<User>('/auth/avatar/google', {
+      method: 'POST',
+    });
+  }
+
+  async removeAvatar() {
+    return this.request<User>('/auth/avatar', {
+      method: 'DELETE',
+    });
+  }
+
+  async updateProfile(data: { fullName?: string }) {
+    return this.request<User>('/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   }
 
   // === STUDENT COURSES & LESSONS ===
@@ -658,6 +1052,85 @@ class ApiClient {
         body: JSON.stringify(data),
       },
     );
+  }
+
+  // === VOCABULARY & FLASHCARDS APIS ===
+  async getAllVocab() {
+    return this.request<UserVocabResponse>('/courses/vocab/all');
+  }
+
+  async getVocabStats() {
+    return this.request<VocabStatsResponse>('/courses/vocab/stats');
+  }
+
+  async toggleVocabFlashcard(kotobaId: string, status?: FlashcardStatus) {
+    return this.request<any>('/courses/vocab/flashcards', {
+      method: 'POST',
+      body: JSON.stringify({ kotobaId, status }),
+    });
+  }
+
+  async batchAddVocabFlashcards(kotobaIds: string[], status?: FlashcardStatus) {
+    return this.request<{ success: boolean; count: number }>('/courses/vocab/flashcards/batch', {
+      method: 'POST',
+      body: JSON.stringify({ kotobaIds, status }),
+    });
+  }
+
+  async removeVocabFlashcard(kotobaId: string) {
+    return this.request<{ success: boolean }>(`/courses/vocab/flashcards/${kotobaId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async batchRemoveVocabFlashcards(kotobaIds: string[]) {
+    return this.request<{ success: boolean; count: number }>('/courses/vocab/flashcards/batch-remove', {
+      method: 'POST',
+      body: JSON.stringify({ kotobaIds }),
+    });
+  }
+
+  // === KANJI & FLASHCARDS APIS ===
+  async getAllKanji() {
+    return this.request<UserKanjiResponse>('/courses/kanji/all');
+  }
+
+  async getKanjiStats() {
+    return this.request<KanjiStatsResponse>('/courses/kanji/stats');
+  }
+
+  async toggleKanjiFlashcard(kanjiId: string, status?: FlashcardStatus) {
+    return this.request<any>('/courses/kanji/flashcards', {
+      method: 'POST',
+      body: JSON.stringify({ kanjiId, status }),
+    });
+  }
+
+  async batchAddKanjiFlashcards(kanjiIds: string[], status?: FlashcardStatus) {
+    return this.request<{ success: boolean; count: number }>('/courses/kanji/flashcards/batch', {
+      method: 'POST',
+      body: JSON.stringify({ kanjiIds, status }),
+    });
+  }
+
+  async removeKanjiFlashcard(kanjiId: string) {
+    return this.request<{ success: boolean }>(`/courses/kanji/flashcards/${kanjiId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async batchRemoveKanjiFlashcards(kanjiIds: string[]) {
+    return this.request<{ success: boolean; count: number }>('/courses/kanji/flashcards/batch-remove', {
+      method: 'POST',
+      body: JSON.stringify({ kanjiIds }),
+    });
+  }
+
+  // === GLOBAL SEARCH API ===
+  async globalSearch(query: string) {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    return this.request<GlobalSearchResult>(`/search?${params.toString()}`);
   }
 
   // === ADMIN PANEL APIS ===
@@ -886,6 +1359,412 @@ class ApiClient {
     }
     return data as { success: boolean; url: string; originalName: string; size: number; filename: string };
   }
+
+  // === JLPT TESTS & MOCK EXAMS ===
+  async getJlptTests(params?: { level?: JlptLevel; category?: JlptCategory }) {
+    const query = new URLSearchParams();
+    if (params?.level) query.set('level', params.level);
+    if (params?.category) query.set('category', params.category);
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return this.request<JlptTestItem[]>(`/tests${qs}`);
+  }
+
+  async getJlptTestStats() {
+    return this.request<JlptTestStats>('/tests/stats');
+  }
+
+  async getJlptTestHistory(limit?: number) {
+    const qs = limit ? `?limit=${limit}` : '';
+    return this.request<JlptUserTestHistoryItem[]>(`/tests/history${qs}`);
+  }
+
+  async getJlptTestBySlug(slug: string) {
+    return this.request<JlptTestDetail>(`/tests/${slug}`);
+  }
+
+  async submitJlptTest(
+    testId: string,
+    data: { answers: { questionId: string; selectedAnswer: string }[]; timeSpentSeconds: number }
+  ) {
+    return this.request<TestSubmitResponse>(`/tests/${testId}/submit`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getJlptTestResult(resultId: string) {
+    return this.request<TestSubmitResponse>(`/tests/results/${resultId}`);
+  }
+
+  // === ADMIN JLPT TESTS & QUESTIONS ===
+  async adminGetTests() {
+    return this.request<AdminJlptTestItem[]>('/admin/tests');
+  }
+
+  async adminGetTest(id: string) {
+    return this.request<AdminJlptTestDetail>(`/admin/tests/${id}`);
+  }
+
+  async adminCreateTest(data: any) {
+    return this.request<AdminJlptTestItem>('/admin/tests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdateTest(id: string, data: any) {
+    return this.request<AdminJlptTestItem>(`/admin/tests/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeleteTest(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/admin/tests/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async adminAddQuestion(testId: string, data: any) {
+    return this.request<AdminJlptQuestionItem>(`/admin/tests/${testId}/questions`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdateQuestion(questionId: string, data: any) {
+    return this.request<AdminJlptQuestionItem>(`/admin/tests/questions/${questionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeleteQuestion(questionId: string) {
+    return this.request<{ success: boolean; message: string }>(`/admin/tests/questions/${questionId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async uploadAudio(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request<{
+      success: boolean;
+      url: string;
+      originalName: string;
+      size: number;
+      filename: string;
+    }>('/upload/audio', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request<{
+      success: boolean;
+      url: string;
+      originalName: string;
+      size: number;
+      filename: string;
+    }>('/upload/image', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  // === SHOP & COINS ===
+  async getStoreItems() {
+    return this.request<StoreItem[]>('/shop/items');
+  }
+
+  async getUserInventory() {
+    return this.request<UserInventoryItem[]>('/shop/inventory');
+  }
+
+  async purchaseStoreItem(itemId: string) {
+    return this.request<PurchaseResponse>(`/shop/purchase/${itemId}`, {
+      method: 'POST',
+    });
+  }
+
+  async equipAvatarFrame(frameKey: string | null) {
+    return this.request<{ id: string; avatarFrame: string | null }>('/shop/equip-frame', {
+      method: 'POST',
+      body: JSON.stringify({ frameKey }),
+    });
+  }
+
+  async getUserCoins() {
+    return this.request<UserCoinsState>('/coins/balance');
+  }
+
+  async getCoinHistory() {
+    return this.request<CoinTransaction[]>('/coins/history');
+  }
+
+  async dailyCheckin() {
+    return this.request<DailyCheckinResponse>('/coins/daily-checkin', {
+      method: 'POST',
+    });
+  }
+
+  // === ADMIN SHOP API ===
+  async adminGetStoreStats() {
+    return this.request<AdminStoreStats>('/admin/shop/stats');
+  }
+
+  async adminGetStoreItems() {
+    return this.request<AdminStoreItem[]>('/admin/shop/items');
+  }
+
+  async adminCreateStoreItem(data: any) {
+    return this.request<StoreItem>('/admin/shop/items', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdateStoreItem(id: string, data: any) {
+    return this.request<StoreItem>(`/admin/shop/items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeleteStoreItem(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/admin/shop/items/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async adminGetStorePurchases() {
+    return this.request<AdminStorePurchase[]>('/admin/shop/purchases');
+  }
+
+  // === SUBSCRIPTIONS & BILLING API ===
+  async getSubscriptionPlans() {
+    return this.request<SubscriptionPlanItem[]>('/subscriptions/plans');
+  }
+
+  async getMySubscription() {
+    return this.request<MySubscriptionResponse>('/subscriptions/my-status');
+  }
+
+  async validateSubscriptionCode(code: string, tier: SubscriptionTier) {
+    return this.request<ValidateCodeResponse>('/subscriptions/validate-code', {
+      method: 'POST',
+      body: JSON.stringify({ code, tier }),
+    });
+  }
+
+  async checkoutSubscription(data: {
+    tier: SubscriptionTier;
+    provider: PaymentProvider;
+    promoCode?: string;
+  }) {
+    return this.request<CheckoutResponse>('/subscriptions/checkout', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async simulatePayment(transactionId: string) {
+    return this.request<{ success: boolean; message: string; subscription: any }>('/subscriptions/simulate-payment', {
+      method: 'POST',
+      body: JSON.stringify({ transactionId }),
+    });
+  }
+
+  async cancelSubscription() {
+    return this.request<{ success: boolean; message: string }>('/subscriptions/cancel', {
+      method: 'POST',
+    });
+  }
+
+  // === ADMIN SUBSCRIPTIONS API ===
+  async adminGetSubscriptions(page = 1, limit = 20, status?: string) {
+    const q = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (status) q.append('status', status);
+    return this.request<AdminSubscriptionsResponse>(`/admin/subscriptions?${q.toString()}`);
+  }
+
+  async adminGetSubscriptionStats() {
+    return this.request<AdminSubscriptionStats>('/admin/subscriptions/stats');
+  }
+
+  async adminGrantSubscription(data: {
+    userId: string;
+    tier: SubscriptionTier;
+    durationDays: number;
+    notes?: string;
+  }) {
+    return this.request<{ success: boolean; message: string; subscription: any }>('/admin/subscriptions/grant', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // === ADMIN PLANS CRUD ===
+  async adminGetAllPlans() {
+    return this.request<SubscriptionPlanItem[]>('/admin/subscriptions/plans');
+  }
+
+  async adminCreatePlan(data: Partial<SubscriptionPlanItem>) {
+    return this.request<SubscriptionPlanItem>('/admin/subscriptions/plans', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdatePlan(id: string, data: Partial<SubscriptionPlanItem>) {
+    return this.request<SubscriptionPlanItem>(`/admin/subscriptions/plans/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeletePlan(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/admin/subscriptions/plans/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async adminTogglePlan(id: string) {
+    return this.request<SubscriptionPlanItem>(`/admin/subscriptions/plans/${id}/toggle`, {
+      method: 'PATCH',
+    });
+  }
+
+  // === ADMIN USER SUBSCRIPTIONS CRUD ===
+  async adminUpdateUserSubscription(id: string, data: any) {
+    return this.request<AdminSubscriptionItem>(`/admin/subscriptions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminExtendUserSubscription(id: string, days: number) {
+    return this.request<AdminSubscriptionItem>(`/admin/subscriptions/${id}/extend`, {
+      method: 'POST',
+      body: JSON.stringify({ days }),
+    });
+  }
+
+  async adminDeleteUserSubscription(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/admin/subscriptions/${id}`, {
+      method: 'DELETE',
+    });
+  }
+}
+
+// === SUBSCRIPTIONS TYPES ===
+export type SubscriptionTier = 'FREE' | 'MONTHLY' | 'QUARTERLY' | 'ANNUAL' | 'LIFETIME';
+export type SubscriptionStatus = 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED';
+export type PaymentProvider = 'PAYME' | 'CLICK' | 'UZUM' | 'STRIPE' | 'ADMIN_MANUAL';
+
+export interface SubscriptionPlanItem {
+  id: string;
+  tier: SubscriptionTier;
+  name: string;
+  nameRu?: string | null;
+  priceUzs: number;
+  durationDays: number;
+  features: string[];
+  popular: boolean;
+  tag?: string | null;
+  order: number;
+  isActive?: boolean;
+}
+
+export interface UserSubscriptionItem {
+  id: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  startDate: string;
+  endDate: string;
+  autoRenew: boolean;
+  paymentMethod: PaymentProvider;
+  daysRemaining: number;
+  plan?: SubscriptionPlanItem | null;
+}
+
+export interface AvailableDiscountItem {
+  id: string;
+  code: string;
+  title: string;
+  discountPercent: number;
+  expiresAt?: string | null;
+}
+
+export interface MySubscriptionResponse {
+  isPro: boolean;
+  isPrivileged: boolean;
+  subscription: UserSubscriptionItem | null;
+  availableDiscounts: AvailableDiscountItem[];
+}
+
+export interface ValidateCodeResponse {
+  valid: boolean;
+  code: string;
+  discountPercent: number;
+  originalPrice: number;
+  discountAmount: number;
+  finalPrice: number;
+  inventoryItemId?: string | null;
+}
+
+export interface CheckoutResponse {
+  transactionId: string;
+  plan: {
+    tier: SubscriptionTier;
+    name: string;
+    durationDays: number;
+  };
+  originalAmount: number;
+  discountAmount: number;
+  finalAmount: number;
+  promoCode?: string;
+  provider: PaymentProvider;
+  status: string;
+}
+
+export interface AdminSubscriptionItem extends UserSubscriptionItem {
+  user: {
+    id: string;
+    email: string;
+    fullName?: string | null;
+    avatarUrl?: string | null;
+    role: string;
+  };
+  transactions: {
+    id: string;
+    finalAmountUzs: number;
+    provider: PaymentProvider;
+    status: string;
+    createdAt: string;
+  }[];
+  createdAt: string;
+}
+
+export interface AdminSubscriptionsResponse {
+  items: AdminSubscriptionItem[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface AdminSubscriptionStats {
+  activeSubscribers: number;
+  totalSubscriptions: number;
+  totalRevenueUzs: number;
+  plansBreakdown: Record<string, number>;
 }
 
 export const api = new ApiClient();
+

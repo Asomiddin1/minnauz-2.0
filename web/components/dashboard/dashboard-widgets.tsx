@@ -1,7 +1,19 @@
 'use client';
 
+import * as React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Award, Clock } from 'lucide-react';
+import {
+  ArrowRight,
+  Award,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  History,
+  ChevronRight,
+  Play,
+  GraduationCap,
+} from 'lucide-react';
+import { api, JlptUserTestHistoryItem } from '@/lib/api';
 
 export function DashboardStats({ stats }: { stats: any[] }) {
   return (
@@ -75,38 +87,225 @@ export function ActiveCourseWidget({ activeCourse, nextLesson, courseTargetUrl }
   );
 }
 
-export function TestsWidget({ examInfo, targetLevel, lang }: any) {
+function formatTestDate(dateStr: string) {
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Bugun';
+    if (diffDays === 1) return 'Kecha';
+    if (diffDays < 7) return `${diffDays} kun oldin`;
+    return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
+  } catch {
+    return dateStr;
+  }
+}
+
+function getLevelBadgeStyle(level: string) {
+  switch (level) {
+    case 'N5':
+      return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+    case 'N4':
+      return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+    case 'N3':
+      return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+    case 'N2':
+      return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+    case 'N1':
+      return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+    default:
+      return 'bg-secondary text-muted-foreground border-border/60';
+  }
+}
+
+export function TestsWidget({
+  examInfo,
+  targetLevel = 'N5',
+  lang,
+  testHistory: propHistory,
+  loading: propLoading,
+}: {
+  examInfo: any;
+  targetLevel?: string;
+  lang: string;
+  testHistory?: JlptUserTestHistoryItem[];
+  loading?: boolean;
+}) {
+  const [history, setHistory] = React.useState<JlptUserTestHistoryItem[]>(propHistory || []);
+  const [loading, setLoading] = React.useState<boolean>(
+    propLoading !== undefined ? propLoading : propHistory === undefined
+  );
+
+  React.useEffect(() => {
+    if (propHistory !== undefined) {
+      setHistory(propHistory);
+      setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    api
+      .getJlptTestHistory(3)
+      .then((data) => {
+        if (mounted && Array.isArray(data)) {
+          setHistory(data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [propHistory]);
+
   return (
     <div className="space-y-5 rounded-[28px] border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
       <div className="space-y-4">
-        <div>
-          <p className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">Imtihon</p>
-          <h3 className="headline text-[19px] font-semibold text-foreground mt-0.5">JLPT Mock Testlar</h3>
-        </div>
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent p-3 border border-amber-500/30">
-            <div>
-              <p className="text-[13px] font-bold text-foreground">JLPT {examInfo.season} Imtihoni</p>
-              <p className="text-[11px] text-muted-foreground">{examInfo.formattedDate}</p>
-            </div>
-            <span className="text-[12px] font-bold text-amber-500 bg-amber-500/20 px-2.5 py-1 rounded-full">
-              {examInfo.daysRemaining} kun qoldi
-            </span>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
+              <GraduationCap className="h-3.5 w-3.5 text-primary" />
+              <span>Imtihon</span>
+            </p>
+            <h3 className="headline text-[19px] font-semibold text-foreground mt-0.5">
+              JLPT Mock Testlar
+            </h3>
           </div>
-          {/* Mock static results */}
-          {[{ level: `${targetLevel} Mock Test #1`, score: '142 / 180', date: 'Kecha' }].map((item, i) => (
-            <div key={i} className="flex items-center justify-between rounded-xl bg-secondary/40 p-3 border border-border/40">
+          <Link
+            href={`/${lang}/dashboard/tests`}
+            className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-0.5"
+          >
+            <span>Barchasi</span>
+            <ChevronRight className="h-3 w-3" />
+          </Link>
+        </div>
+
+        <div className="space-y-2.5">
+          {/* Countdown Card */}
+          {examInfo && (
+            <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent p-3 border border-amber-500/30">
               <div>
-                <p className="text-[13px] font-medium text-foreground">{item.level}</p>
-                <p className="text-[11px] text-muted-foreground">{item.date}</p>
+                <p className="text-[13px] font-bold text-foreground">
+                  JLPT {examInfo.season} Imtihoni
+                </p>
+                <p className="text-[11px] text-muted-foreground">{examInfo.formattedDate}</p>
               </div>
-              <span className="text-[12px] font-semibold text-[#0071e3]">{item.score}</span>
+              <span className="text-[12px] font-bold text-amber-500 bg-amber-500/20 px-2.5 py-1 rounded-full">
+                {examInfo.daysRemaining} kun qoldi
+              </span>
             </div>
-          ))}
+          )}
+
+          {/* Test History Header */}
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <History className="h-3.5 w-3.5 text-primary" />
+              <span>Topshirilgan testlar tarixi</span>
+            </span>
+            {history.length > 0 && (
+              <span className="text-[11px] text-muted-foreground font-medium">
+                {history.length} ta urinish
+              </span>
+            )}
+          </div>
+
+          {/* Test History List / Skeleton / Empty State */}
+          {loading ? (
+            <div className="space-y-2">
+              <div className="h-14 rounded-xl bg-secondary/40 animate-pulse border border-border/40" />
+              <div className="h-14 rounded-xl bg-secondary/30 animate-pulse border border-border/30" />
+            </div>
+          ) : history.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border/80 bg-secondary/15 p-4 text-center space-y-2">
+              <p className="text-xs font-semibold text-foreground">
+                Hali mock test topshirmadingiz
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Haqiqiy imtihon andozasidagi testni yechib, bilimingizni sinab koʻring.
+              </p>
+              <Link
+                href={`/${lang}/dashboard/tests`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:opacity-90 transition-all active:scale-95 mt-1"
+              >
+                <Play className="h-3 w-3 fill-current" />
+                <span>Test topshirish</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {history.slice(0, 3).map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/${lang}/dashboard/tests/results/${item.id}`}
+                  className="group flex items-center justify-between rounded-xl bg-secondary/35 hover:bg-secondary/70 p-3 border border-border/40 hover:border-primary/40 transition-all cursor-pointer"
+                  title="Natijalar va tahlilni koʻrish"
+                >
+                  <div className="min-w-0 pr-2 space-y-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-black border ${getLevelBadgeStyle(
+                          item.level
+                        )}`}
+                      >
+                        {item.level}
+                      </span>
+                      <p className="text-[13px] font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                        {item.testTitle}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <span>{formatTestDate(item.completedAt)}</span>
+                      <span>•</span>
+                      <span className="font-semibold">{item.percentage}%</span>
+                      {item.timeSpentSeconds > 0 && (
+                        <>
+                          <span>•</span>
+                          <span>{Math.round(item.timeSpentSeconds / 60)} daq</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-right">
+                      <p className="text-[12px] font-extrabold text-foreground">
+                        {item.score} <span className="text-[10px] text-muted-foreground font-normal">/ {item.totalScore}</span>
+                      </p>
+                      <span
+                        className={`inline-flex items-center gap-1 text-[10px] font-bold ${
+                          item.isPassed ? 'text-emerald-500' : 'text-amber-500'
+                        }`}
+                      >
+                        {item.isPassed ? (
+                          <>
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>Oʻtdi</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-3 w-3" />
+                            <span>Oʻtmadi</span>
+                          </>
+                        )}
+                      </span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <Link href={`/${lang}/dashboard/tests`} className="block pt-2">
-        <button type="button" className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors">
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors"
+        >
           <Award className="h-4 w-4 text-[#0071e3]" />
           <span>Barcha testlar</span>
         </button>

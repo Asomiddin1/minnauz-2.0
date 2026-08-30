@@ -25,10 +25,9 @@ import {
   X,
   Bot,
   Lightbulb,
-  PanelRightClose,
-  PanelRightOpen,
   Menu,
   Lock,
+  Crown,
 } from 'lucide-react';
 import { api, API_ORIGIN, LessonDetailsResponse } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
@@ -49,10 +48,7 @@ export default function LessonPlayerPage() {
   // Active view tab state (default: 'video' or 'kotoba')
   const [activeTab, setActiveTab] = React.useState<TabKey>('video');
 
-  // Sidebar toggle state
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
-
-  // Video Player state (Yashirish olib tashlandi, kengaytirish saqlandi)
+  // Video Player state (Sidebar mini rejimini ham boshqaradi)
   const [theaterMode, setTheaterMode] = React.useState(false);
 
   // Kotoba Flashcard state
@@ -119,6 +115,7 @@ export default function LessonPlayerPage() {
 
     if (nextTab) {
       setActiveTab(nextTab);
+      setTheaterMode(false); // Tab almashganda video rejimidan chiqish
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -157,7 +154,6 @@ export default function LessonPlayerPage() {
     }
   };
 
-  // Helper to extract YouTube embed URL
   const getYouTubeEmbedUrl = (url?: string | null) => {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -165,7 +161,6 @@ export default function LessonPlayerPage() {
     return match && match[2].length === 11 ? `https://www.youtube-nocookie.com/embed/${match[2]}` : null;
   };
 
-  // Helper to resolve video source
   const getResolvedVideoUrl = (url?: string | null) => {
     if (!url) return null;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -215,33 +210,110 @@ export default function LessonPlayerPage() {
     );
   }
 
-  // LOCKED LESSON ENFORCEMENT
   if (lesson.isLocked) {
+    const isProLocked = lesson.lockReason === 'PRO_REQUIRED';
+    const courseTitle = lesson.module?.courseTitle || 'Yapon tili kursi';
+    const moduleTitle = lesson.module?.title || 'Modul';
+    const lessonTitle = lesson.title || 'Dars';
+    const lessonNumber = lesson.japaneseTitle || `${lesson.order}-dars`;
+
     return (
-      <div className="max-w-lg mx-auto my-16 text-center space-y-6 animate-in fade-in p-8 rounded-3xl border border-border bg-card shadow-lg">
-        <div className="grid h-16 w-16 mx-auto place-items-center rounded-2xl bg-amber-500/10 text-amber-500">
-          <Lock className="h-8 w-8 stroke-[2.5]" />
+      <div className="max-w-xl mx-auto my-12 text-center space-y-6 animate-in fade-in p-6 sm:p-9 rounded-[32px] border border-border/80 bg-card shadow-xl">
+        {/* Course & Module Context Breadcrumb */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/80 border border-border/60 text-xs font-semibold text-muted-foreground flex-wrap justify-center shadow-2xs">
+          <span className="text-foreground font-bold">{courseTitle}</span>
+          <span>›</span>
+          <span className="text-foreground/80 truncate max-w-[200px]">{moduleTitle}</span>
+          <span>›</span>
+          <span className="text-primary font-black">{lessonNumber}</span>
         </div>
-        <div className="space-y-2">
-          <h2 className="text-[22px] font-bold text-foreground">Ushbu dars hozircha qulflangan</h2>
-          <p className="text-[14px] text-muted-foreground leading-relaxed">
-            Yapon tilini toʻgʻri va bosqichma-bosqich oʻzlashtirish uchun darslar ketma-ketlikda oʻrganiladi. Ushbu darsni ochish uchun avvalgi darsni yakunlashingiz kerak.
+
+        {/* Lock Icon */}
+        <div
+          className={`grid h-16 w-16 mx-auto place-items-center rounded-3xl transition-transform hover:scale-105 ${
+            isProLocked
+              ? 'bg-yellow-500/15 text-yellow-500 ring-2 ring-yellow-500/30 shadow-inner'
+              : 'bg-amber-500/10 text-amber-500 ring-2 ring-amber-500/20'
+          }`}
+        >
+          {isProLocked ? (
+            <Crown className="h-8 w-8 stroke-[2.5]" />
+          ) : (
+            <Lock className="h-8 w-8 stroke-[2.5]" />
+          )}
+        </div>
+
+        {/* Dynamic Title and Description */}
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-black text-foreground">
+              {isProLocked ? 'Ushbu dars Pro aʼzolar uchun ochiq 👑' : 'Ushbu dars hozircha qulflangan 🔒'}
+            </h2>
+            <p className="text-sm font-bold text-primary font-japanese">
+              {lessonNumber}: {lessonTitle}
+            </p>
+          </div>
+
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+            {isProLocked
+              ? `«${courseTitle}» kursidagi ushbu dars muallif tomonidan Pro tarifiga kiritilgan. Ushbu darsning barcha video tushuntirishlari, lugʻat (Kotoba), grammatika (Bunpou), Kanji hamda AI Sensei bilan cheksiz muloqot qilish uchun Pro obunani faollashtiring.`
+              : `Yapon tilini samarali va bosqichma-bosqich oʻzlashtirish uchun darslar ketma-ketlikda oʻrganiladi. Ushbu darsga oʻtishdan oldin ${lesson.navigation?.prevLesson ? `«${lesson.navigation.prevLesson.title}»` : 'oldingi'} darsni yakunlashingiz kerak.`}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          {lesson.navigation.prevLesson && (
+
+        {/* Features Checklist for Pro Locked Lessons */}
+        {isProLocked && (
+          <div className="rounded-2xl border border-border/60 bg-secondary/20 p-4 text-left space-y-2 text-xs">
+            <p className="font-bold text-foreground mb-2 text-center text-[13px]">
+              Pro Obuna bilan ushbu darsda nimalarga ega boʻlasiz?
+            </p>
+            <div className="grid sm:grid-cols-2 gap-2 text-muted-foreground font-medium">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className="text-foreground">Toʻliq video & audio darslik</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className="text-foreground">Kotoba, Bunpou va Kanji</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className="text-foreground">Renshuu interaktiv mashqlari</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className="text-foreground">Cheksiz AI Sensei suhbati</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-2">
+          {isProLocked ? (
             <Link
-              href={`/${lang}/dashboard/courses/${courseId}/lessons/${lesson.navigation.prevLesson.id}`}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-semibold text-white shadow-md hover:bg-primary/90 transition-colors"
+              href={`/${lang}/dashboard/premium`}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 text-xs sm:text-sm font-black shadow-md active:scale-98 transition-all cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4" />
-              <span>Oldingi darsga oʻtish</span>
+              <Crown className="h-4 w-4" />
+              <span>Pro Obunani faollashtirish</span>
             </Link>
+          ) : (
+            lesson.navigation?.prevLesson && (
+              <Link
+                href={`/${lang}/dashboard/courses/${courseId}/lessons/${lesson.navigation.prevLesson.id}`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 text-xs sm:text-sm font-bold shadow-md active:scale-98 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span>Oldingi darsga oʻtish</span>
+              </Link>
+            )
           )}
           <Link
             href={`/${lang}/dashboard/courses/${courseId}`}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-2.5 text-[13px] font-semibold text-foreground hover:bg-secondary/80 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-secondary hover:bg-secondary/80 text-foreground px-5 py-3 text-xs sm:text-sm font-semibold border border-border/60 transition-all cursor-pointer"
           >
+            <ArrowLeft className="h-4 w-4" />
             <span>Kurs xaritasiga qaytish</span>
           </Link>
         </div>
@@ -262,7 +334,6 @@ export default function LessonPlayerPage() {
     { key: 'kaiwa', label: '5. Kaiwa (AI Dialog)', icon: Bot },
   ];
 
-  // Logic for bottom "Keyingisi" button
   const getNextTabKey = (): TabKey | null => {
     const keys: TabKey[] = sidebarTabs.map((t) => t.key);
     const currentIndex = keys.indexOf(activeTab);
@@ -296,7 +367,7 @@ export default function LessonPlayerPage() {
           </div>
         </div>
 
-        {/* Sidebar Toggle & Prev / Next Lesson & Complete Button */}
+        {/* Prev / Next Lesson & Complete Button */}
         <div className="flex items-center gap-2">
           {lesson.navigation.prevLesson && (
             <Link
@@ -308,7 +379,6 @@ export default function LessonPlayerPage() {
             </Link>
           )}
 
-          {/* Darsni tugatish (Mark Completed) Button */}
           <button
             type="button"
             onClick={handleCompleteLesson}
@@ -324,21 +394,23 @@ export default function LessonPlayerPage() {
             <span>{isCompleted ? 'Dars tugatilgan' : completing ? 'Saqlanmoqda...' : 'Darsni tugatish'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
-            title={sidebarOpen ? "Sidebar-ni yopish" : "Sidebar-ni ochish"}
-          >
-            {sidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
-            <span className="hidden sm:inline">{sidebarOpen ? 'Sidebar-ni yopish' : 'Sidebar-ni ochish'}</span>
-          </button>
+          {/* Yangi Qo'shilgan: Keyingi Dars Tugmasi */}
+          {lesson.navigation.nextLesson && (
+            <Link
+              href={`/${lang}/dashboard/courses/${courseId}/lessons/${lesson.navigation.nextLesson.id}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+              title="Keyingi darsga oʻtish"
+            >
+              <span className="hidden sm:inline">Keyingi dars</span>
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          )}
         </div>
       </div>
 
       {/* MAIN CONTAINER: CONTENT AREA + RIGHT SIDEBAR */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* LEFT / CENTER CONTENT AREA (Sohada kontent namoyish etiladi) */}
+        {/* LEFT / CENTER CONTENT AREA */}
         <div className="flex-1 w-full min-w-0 space-y-6">
 
           {/* 1. VIDEODARSLIK CONTAINER */}
@@ -355,11 +427,10 @@ export default function LessonPlayerPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Faqat Kengaytirish (Maximize) tugmasi saqlandi */}
                   <button
                     type="button"
                     onClick={() => setTheaterMode(!theaterMode)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-secondary text-foreground hover:bg-secondary/80 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-secondary text-foreground hover:bg-secondary/80 transition-colors cursor-pointer"
                     title={theaterMode ? 'Kichik ekran' : 'Katta ekran'}
                   >
                     {theaterMode ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
@@ -400,7 +471,7 @@ export default function LessonPlayerPage() {
                   <button
                     type="button"
                     onClick={() => setKotobaViewMode('flashcard')}
-                    className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-colors cursor-pointer ${
                       kotobaViewMode === 'flashcard' ? 'bg-primary text-white' : 'bg-secondary text-muted-foreground'
                     }`}
                   >
@@ -409,7 +480,7 @@ export default function LessonPlayerPage() {
                   <button
                     type="button"
                     onClick={() => setKotobaViewMode('list')}
-                    className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-colors cursor-pointer ${
                       kotobaViewMode === 'list' ? 'bg-primary text-white' : 'bg-secondary text-muted-foreground'
                     }`}
                   >
@@ -420,14 +491,13 @@ export default function LessonPlayerPage() {
                 <button
                   type="button"
                   onClick={() => setShowFurigana(!showFurigana)}
-                  className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground cursor-pointer"
                 >
                   {showFurigana ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
                   <span>Furigana: {showFurigana ? 'Yoqilgan' : 'Oʻchirilgan'}</span>
                 </button>
               </div>
 
-              {/* FLASHCARD REJIMI */}
               {kotobaViewMode === 'flashcard' && lesson.content.kotoba.length > 0 && (
                 <div className="max-w-md mx-auto space-y-6">
                   {(() => {
@@ -487,7 +557,7 @@ export default function LessonPlayerPage() {
                               e.stopPropagation();
                               playJapaneseAudio(item.word);
                             }}
-                            className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors"
+                            className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer"
                             title="Talaffuzni tinglash"
                           >
                             <Volume2 className="h-5 w-5" />
@@ -531,7 +601,6 @@ export default function LessonPlayerPage() {
                 </div>
               )}
 
-              {/* LIST REJIMI */}
               {kotobaViewMode === 'list' && (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {lesson.content.kotoba.map((item) => (
@@ -550,7 +619,7 @@ export default function LessonPlayerPage() {
                         <button
                           type="button"
                           onClick={() => playJapaneseAudio(item.word)}
-                          className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors"
+                          className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer"
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
@@ -629,7 +698,7 @@ export default function LessonPlayerPage() {
                             <button
                               type="button"
                               onClick={() => playJapaneseAudio(ex.japanese)}
-                              className="self-end sm:self-auto grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors"
+                              className="self-end sm:self-auto grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer"
                             >
                               <Volume2 className="h-4 w-4" />
                             </button>
@@ -677,7 +746,7 @@ export default function LessonPlayerPage() {
                       <button
                         type="button"
                         onClick={() => playJapaneseAudio(item.character)}
-                        className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors"
+                        className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer"
                       >
                         <Volume2 className="h-4 w-4" />
                       </button>
@@ -755,7 +824,7 @@ export default function LessonPlayerPage() {
                             <button
                               type="button"
                               onClick={() => playJapaneseAudio(q.question)}
-                              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"
+                              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white cursor-pointer"
                             >
                               <Volume2 className="h-4 w-4" />
                             </button>
@@ -878,7 +947,7 @@ export default function LessonPlayerPage() {
                             <button
                               type="button"
                               onClick={() => playJapaneseAudio(line.text)}
-                              className="grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"
+                              className="grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white cursor-pointer"
                             >
                               <Volume2 className="h-3.5 w-3.5" />
                             </button>
@@ -942,61 +1011,66 @@ export default function LessonPlayerPage() {
 
         </div>
 
-        {/* RIGHT MINI SIDEBAR (OʻNG TARAFIADA MINI SIDEBAR) */}
-        {sidebarOpen && (
-          <aside className="w-full lg:w-72 shrink-0 space-y-4 animate-in slide-in-from-right duration-300">
-            <div className="rounded-3xl border border-border bg-card p-4 space-y-3 sticky top-6 shadow-sm">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                <div className="flex items-center gap-2">
-                  <Menu className="h-4 w-4 text-primary" />
-                  <h3 className="text-[14px] font-bold text-foreground">Dars boʻlimlari</h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(false)}
-                  className="p-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-secondary transition-colors"
-                  title="Sidebar-ni berkitish"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="space-y-1.5">
-                {sidebarTabs.map((t) => {
-                  const Icon = t.icon;
-                  const isActive = activeTab === t.key;
-                  const isTabDone = completedSections.includes(t.key);
-
-                  return (
-                    <button
-                      key={t.key}
-                      type="button"
-                      onClick={() => {
-                        setActiveTab(t.key);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
-                        isActive
-                          ? 'bg-primary text-white shadow-md'
-                          : isTabDone
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
-                          : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Icon className="h-4 w-4 shrink-0" />
-                        <span>{t.label}</span>
-                      </div>
-                      {isTabDone && !isActive && (
-                        <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      )}
-                    </button>
-                  );
-                })}
+        {/* RIGHT SIDEBAR
+          Theater mode bo'lganda kengligi qisqarib (lg:w-[80px]) ikonka formatga tushadi. 
+          Boshqa payt aslo yopilmaydi.
+        */}
+        <aside className={`shrink-0 transition-all duration-300 ${theaterMode ? 'w-full lg:w-[80px]' : 'w-full lg:w-72'}`}>
+          <div className="rounded-3xl border border-border bg-card p-4 space-y-3 sticky top-6 shadow-sm">
+            <div className={`flex items-center ${theaterMode ? 'lg:justify-center justify-between' : 'justify-between'} border-b border-border/60 pb-3`}>
+              <div className="flex items-center gap-2">
+                <Menu className="h-4 w-4 text-primary" />
+                <h3 className={`text-[14px] font-bold text-foreground ${theaterMode ? 'lg:hidden' : ''}`}>
+                  Dars boʻlimlari
+                </h3>
               </div>
             </div>
-          </aside>
-        )}
+
+            <div className="space-y-1.5">
+              {sidebarTabs.map((t) => {
+                const Icon = t.icon;
+                const isActive = activeTab === t.key;
+                const isTabDone = completedSections.includes(t.key);
+
+                return (
+                  <button
+                    key={t.key}
+                    type="button"
+                    title={theaterMode ? t.label : undefined}
+                    onClick={() => {
+                      setActiveTab(t.key);
+                      setTheaterMode(false); // Boshqa bo'limga o'tganda video rejimidan avtomatik chiqish
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`relative flex items-center transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'bg-primary text-white shadow-md'
+                        : isTabDone
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
+                        : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    } ${
+                      theaterMode
+                        ? 'w-full justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-semibold lg:justify-center lg:w-12 lg:h-12 lg:mx-auto lg:rounded-2xl lg:px-0 lg:py-0'
+                        : 'w-full justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-semibold'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className={`h-4 w-4 shrink-0 ${theaterMode ? 'lg:scale-110' : ''}`} />
+                      <span className={theaterMode ? 'lg:hidden' : ''}>{t.label}</span>
+                    </div>
+                    {isTabDone && !isActive && (
+                      <>
+                        <Check className={`h-3.5 w-3.5 stroke-[3] text-emerald-600 dark:text-emerald-400 shrink-0 ${theaterMode ? 'lg:hidden' : ''}`} />
+                        {/* Mini rejimda checkbox o'rniga yashil nuqta */}
+                        <span className={`absolute top-1 right-1 h-2.5 w-2.5 border-2 border-card rounded-full bg-emerald-500 hidden ${theaterMode ? 'lg:block' : ''}`} />
+                      </>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

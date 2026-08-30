@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
-import { api, UserDashboardStats, BannerItem, NotificationItem } from '@/lib/api';
+import { api, UserDashboardStats, BannerItem, NotificationItem, JlptUserTestHistoryItem } from '@/lib/api';
 import { getNextJLPTCountdown, getNextJLPTExamDate, JLPTCountdown } from '@/lib/jlpt';
 import { StudyPlanModal } from '@/components/dashboard/study-plan-modal';
 import { NotificationModal } from '@/components/dashboard/notification-modal';
@@ -45,6 +45,7 @@ export function MainDashboard() {
   const { lang } = useLang();
   const [statsData, setStatsData] = React.useState<UserDashboardStats | null>(null);
   const [customBanners, setCustomBanners] = React.useState<BannerItem[]>([]);
+  const [testHistory, setTestHistory] = React.useState<JlptUserTestHistoryItem[]>([]);
   const [dismissedBannerIds, setDismissedBannerIds] = React.useState<string[]>([]);
   const [selectedNotification, setSelectedNotification] = React.useState<NotificationItem | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -77,9 +78,10 @@ export function MainDashboard() {
 
   const loadData = React.useCallback(async () => {
     try {
-      const [statsRes, bannersRes] = await Promise.all([
+      const [statsRes, bannersRes, testHistoryRes] = await Promise.all([
         api.getUserDashboardStats().catch(() => null),
         api.getBanners().catch(() => []),
+        api.getJlptTestHistory(4).catch(() => []),
       ]);
 
       if (statsRes) {
@@ -90,6 +92,9 @@ export function MainDashboard() {
       }
       if (bannersRes) {
         setCustomBanners(bannersRes);
+      }
+      if (Array.isArray(testHistoryRes)) {
+        setTestHistory(testHistoryRes);
       }
     } catch (err) {
       console.error('Data load error:', err);
@@ -170,12 +175,12 @@ export function MainDashboard() {
         tagIcon: ICON_MAP[b.tagIcon] || Sparkles,
         title: b.title,
         desc: b.desc,
-        btnText: b.btnText || 'Batafsil oʻqish',
+        btnText: b.btnText || '',
         btnUrl: targetUrl,
         btnIcon: ICON_MAP[b.btnIcon] || (isNotifDetail ? PlayCircle : ArrowRight),
         actionType: isNotifDetail && targetUrl ? 'LINK' : b.actionType,
         notification: b.notification || null,
-        image: b.image || '/banner_art.png',
+        image: b.image || '',
         isDismissible: b.isDismissible,
       };
     });
@@ -311,7 +316,13 @@ export function MainDashboard() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <TestsWidget examInfo={examInfo} targetLevel={targetLevel} lang={lang} />
+            <TestsWidget
+              examInfo={examInfo}
+              targetLevel={targetLevel}
+              lang={lang}
+              testHistory={testHistory}
+              loading={loading}
+            />
 
             <ProgressWidget
               studyTime={studyTime}

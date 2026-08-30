@@ -14,6 +14,12 @@ interface AuthContextType {
   logout: () => Promise<void>;
   fetchDevices: () => Promise<void>;
   revokeDevice: (deviceId: string) => Promise<void>;
+  updateUser: (updated: Partial<User> | User) => void;
+  uploadAvatar: (file: File) => Promise<User>;
+  selectGoogleAvatar: () => Promise<User>;
+  removeAvatar: () => Promise<User>;
+  updateProfile: (data: { fullName?: string }) => Promise<User>;
+  equipFrame: (frameKey: string | null) => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -70,48 +76,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const saveAuthSession = (authData: AuthResponse) => {
+  const saveAuthSession = React.useCallback((authData: AuthResponse) => {
     setUser(authData.user);
     localStorage.setItem('minna_access_token', authData.accessToken);
     localStorage.setItem('minna_refresh_token', authData.refreshToken);
     localStorage.setItem('minna_user', JSON.stringify(authData.user));
-  };
+  }, []);
 
-  const sendOtp = async (email: string) => {
+  const sendOtp = React.useCallback(async (email: string) => {
     return api.sendOtp(email);
-  };
+  }, []);
 
-  const loginWithOtp = async (email: string, code: string) => {
+  const loginWithOtp = React.useCallback(async (email: string, code: string) => {
     const res = await api.verifyOtp(email, code);
     saveAuthSession(res);
     return res;
-  };
+  }, [saveAuthSession]);
 
-  const loginWithGoogle = async (token: string) => {
+  const loginWithGoogle = React.useCallback(async (token: string) => {
     const res = await api.googleAuth(token);
     saveAuthSession(res);
     return res;
-  };
+  }, [saveAuthSession]);
 
-  const logout = async () => {
+  const logout = React.useCallback(async () => {
     await api.logout();
     setUser(null);
     setDevices([]);
-  };
+  }, []);
 
-  const fetchDevices = async () => {
+  const fetchDevices = React.useCallback(async () => {
     try {
       const activeDevices = await api.getDevices();
       setDevices(activeDevices);
     } catch (e) {
       console.error('Failed to fetch devices:', e);
     }
-  };
+  }, []);
 
-  const revokeDevice = async (deviceId: string) => {
+  const revokeDevice = React.useCallback(async (deviceId: string) => {
     await api.revokeDevice(deviceId);
     setDevices((prev) => prev.filter((d) => d.deviceId !== deviceId));
-  };
+  }, []);
+
+  const updateUser = React.useCallback((updated: Partial<User> | User) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...updated };
+      localStorage.setItem('minna_user', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const uploadAvatar = React.useCallback(async (file: File) => {
+    const updated = await api.uploadAvatar(file);
+    setUser(updated);
+    localStorage.setItem('minna_user', JSON.stringify(updated));
+    return updated;
+  }, []);
+
+  const selectGoogleAvatar = React.useCallback(async () => {
+    const updated = await api.selectGoogleAvatar();
+    setUser(updated);
+    localStorage.setItem('minna_user', JSON.stringify(updated));
+    return updated;
+  }, []);
+
+  const removeAvatar = React.useCallback(async () => {
+    const updated = await api.removeAvatar();
+    setUser(updated);
+    localStorage.setItem('minna_user', JSON.stringify(updated));
+    return updated;
+  }, []);
+
+  const updateProfile = React.useCallback(async (data: { fullName?: string }) => {
+    const updated = await api.updateProfile(data);
+    setUser(updated);
+    localStorage.setItem('minna_user', JSON.stringify(updated));
+    return updated;
+  }, []);
+
+  const equipFrame = React.useCallback(async (frameKey: string | null) => {
+    const res = await api.equipAvatarFrame(frameKey);
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, avatarFrame: res.avatarFrame };
+      localStorage.setItem('minna_user', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -126,6 +179,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         fetchDevices,
         revokeDevice,
+        updateUser,
+        uploadAvatar,
+        selectGoogleAvatar,
+        removeAvatar,
+        updateProfile,
+        equipFrame,
       }}
     >
       {children}

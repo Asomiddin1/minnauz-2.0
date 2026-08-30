@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Target, X } from 'lucide-react';
-import { NotificationItem } from '@/lib/api';
+import { NotificationItem, getMediaUrl } from '@/lib/api';
 
 export interface DashboardSlide {
   id: string | number;
@@ -77,13 +77,19 @@ export function DashboardBanner({
               isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}
           >
-            <Image
-              src={slide.image}
-              alt={slide.title}
-              fill
-              priority={index === 0}
-              className="object-cover object-center"
-            />
+            {/* Background Image or Gradient */}
+            {slide.image ? (
+              <Image
+                src={getMediaUrl(slide.image)}
+                alt={slide.title}
+                fill
+                unoptimized
+                priority={index === 0}
+                className="object-cover object-center"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#0071e3]/20 via-background to-secondary/40" />
+            )}
 
             {/* MOBILE OVERLAY FIX: Telefonda shaffof (to-transparent), Desktopda to'qroq */}
             <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent md:from-background/95 md:via-background/80 md:to-background/30 dark:from-background/85 dark:via-background/40 dark:to-transparent dark:md:from-background dark:md:via-background/90 dark:md:to-background/40" />
@@ -125,34 +131,27 @@ export function DashboardBanner({
                   {slide.desc}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-3 pt-3">
-                  {slide.actionType === 'LINK' && slide.btnUrl ? (
-                    <Link href={slide.btnUrl}>
-                      <button className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-7 py-3 text-[14px] font-semibold text-white transition-all hover:bg-[#005bb5] active:scale-[0.98] shadow-md cursor-pointer">
-                        <BtnIcon className="h-4.5 w-4.5" />
+                {/* Optional Action Button */}
+                {Boolean(slide.btnText && slide.btnText.trim()) && (
+                  <div className="flex flex-wrap items-center gap-3 pt-3">
+                    {slide.actionType === 'LINK' && slide.btnUrl ? (
+                      <Link href={slide.btnUrl}>
+                        <button className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-7 py-3 text-[14px] font-semibold text-white transition-all hover:bg-[#005bb5] active:scale-[0.98] shadow-md cursor-pointer">
+                          {BtnIcon && <BtnIcon className="h-4.5 w-4.5" />}
+                          <span>{slide.btnText}</span>
+                        </button>
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={handleButtonClick}
+                        className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-7 py-3 text-[14px] font-semibold text-white transition-all hover:bg-[#005bb5] active:scale-[0.98] shadow-md cursor-pointer"
+                      >
+                        {BtnIcon && <BtnIcon className="h-4.5 w-4.5" />}
                         <span>{slide.btnText}</span>
                       </button>
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={handleButtonClick}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#0071e3] px-7 py-3 text-[14px] font-semibold text-white transition-all hover:bg-[#005bb5] active:scale-[0.98] shadow-md cursor-pointer"
-                    >
-                      <BtnIcon className="h-4.5 w-4.5" />
-                      <span>{slide.btnText}</span>
-                    </button>
-                  )}
-
-                  {index === 0 && (
-                    <button
-                      onClick={onOpenPlan}
-                      className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 backdrop-blur-md px-6 py-3 text-[14px] font-medium text-foreground transition-colors hover:bg-background/80 cursor-pointer"
-                    >
-                      <Target className="h-4.5 w-4.5 text-[#0071e3]" />
-                      <span>Reja tuzish</span>
-                    </button>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

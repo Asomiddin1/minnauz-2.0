@@ -29,6 +29,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         email: true,
         fullName: true,
         avatarUrl: true,
+        googleAvatarUrl: true,
+        avatarFrame: true,
+        coins: true,
         role: true,
         isVerified: true,
       },
@@ -52,8 +55,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
     }
 
+    const activeSub = await this.prisma.userSubscription.findFirst({
+      where: {
+        userId: user.id,
+        status: 'ACTIVE',
+        endDate: { gt: new Date() },
+      },
+    });
+
+    const isPro = !!activeSub;
+
     return {
       ...user,
+      isPro,
       deviceId: payload.deviceId,
     };
   }

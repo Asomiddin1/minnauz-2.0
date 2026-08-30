@@ -22,6 +22,8 @@ import {
   CheckCircle,
   Loader2,
   ExternalLink,
+  Crown,
+  Lock,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
@@ -54,6 +56,7 @@ export default function AdminCourseModulesPage() {
   const [videoSourceType, setVideoSourceType] = React.useState<'youtube' | 'upload'>('youtube');
   const [uploadingVideo, setUploadingVideo] = React.useState(false);
   const [uploadProgress, setUploadProgress] = React.useState<string | null>(null);
+  const [togglingLessonId, setTogglingLessonId] = React.useState<string | null>(null);
 
   const [lessonForm, setLessonForm] = React.useState({
     title: '',
@@ -62,6 +65,7 @@ export default function AdminCourseModulesPage() {
     summary: '',
     videoUrl: '',
     order: 1,
+    isFree: false,
   });
 
   const loadCourse = async () => {
@@ -125,6 +129,21 @@ export default function AdminCourseModulesPage() {
     }
   };
 
+  // Quick Toggle Lesson Free / Pro
+  const handleToggleLessonFree = async (lesson: any) => {
+    try {
+      setTogglingLessonId(lesson.id);
+      const newIsFree = !lesson.isFree;
+      await api.updateAdminLesson(courseId, lesson.id, { isFree: newIsFree });
+      await loadCourse();
+    } catch (e) {
+      console.error(e);
+      alert('Dars tarifini oʻzgartirishda xatolik yuz berdi');
+    } finally {
+      setTogglingLessonId(null);
+    }
+  };
+
   // Open Create/Edit Lesson modal
   const openLessonModal = (moduleId: string, lesson?: any) => {
     setSelectedModuleId(moduleId);
@@ -139,6 +158,7 @@ export default function AdminCourseModulesPage() {
         summary: lesson.summary || '',
         videoUrl: lesson.videoUrl || '',
         order: lesson.order || 1,
+        isFree: !!lesson.isFree,
       });
     } else {
       setEditingLessonId(null);
@@ -151,6 +171,7 @@ export default function AdminCourseModulesPage() {
         summary: '',
         videoUrl: '',
         order: (currentModule?.lessons?.length || 0) + 1,
+        isFree: false,
       });
     }
     setLessonModalOpen(true);
@@ -347,6 +368,32 @@ export default function AdminCourseModulesPage() {
                           <span>{lesson._count?.kanjiItems || 0} Kanji</span> •
                           <span>{lesson._count?.renshuuItems || 0} Renshuu</span>
                         </div>
+
+                        {/* Free / Pro Quick Toggle Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleLessonFree(lesson)}
+                          disabled={togglingLessonId === lesson.id}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50 ${
+                            lesson.isFree
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20'
+                              : 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/25'
+                          }`}
+                          title="Dars tarifini oʻzgartirish uchun bosing (Bepul ⇄ Pro)"
+                        >
+                          {togglingLessonId === lesson.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : lesson.isFree ? (
+                            <>
+                              <span>🔓 Bepul</span>
+                            </>
+                          ) : (
+                            <>
+                              <Crown className="h-3 w-3 text-yellow-500" />
+                              <span>👑 Pro</span>
+                            </>
+                          )}
+                        </button>
 
                         {/* Edit Lesson Info & Video */}
                         <button
@@ -636,6 +683,43 @@ export default function AdminCourseModulesPage() {
                     placeholder="lesson-1"
                     className="w-full px-3.5 py-2 rounded-xl bg-secondary/40 border border-border text-[13px] text-foreground focus:outline-none focus:border-primary"
                   />
+                </div>
+              </div>
+
+              {/* Lesson Tariff: Free vs Pro */}
+              <div className="rounded-2xl border border-border/70 bg-secondary/20 p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[12px] font-bold text-foreground flex items-center gap-1.5">
+                    <span>Dars Tarifi</span>
+                  </label>
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    {lessonForm.isFree ? '🔓 Barcha foydalanuvchilarga ochiq' : '👑 Faqat Pro obuna talab qilinadi'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setLessonForm({ ...lessonForm, isFree: true })}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 cursor-pointer ${
+                      lessonForm.isFree
+                        ? 'bg-emerald-500 text-white border-emerald-500 shadow-xs'
+                        : 'bg-card text-muted-foreground border-border/60 hover:text-foreground'
+                    }`}
+                  >
+                    <span>🔓 Bepul dars</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLessonForm({ ...lessonForm, isFree: false })}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-1.5 cursor-pointer ${
+                      !lessonForm.isFree
+                        ? 'bg-yellow-500 text-black border-yellow-500 shadow-xs font-black'
+                        : 'bg-card text-muted-foreground border-border/60 hover:text-foreground'
+                    }`}
+                  >
+                    <Crown className="h-3.5 w-3.5" />
+                    <span>👑 Pullik (Pro)</span>
+                  </button>
                 </div>
               </div>
 

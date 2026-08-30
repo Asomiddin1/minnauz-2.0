@@ -9,6 +9,10 @@ import { CoursesModule } from './courses/courses.module';
 import { UploadModule } from './upload/upload.module';
 import { BannersModule } from './banners/banners.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { TestsModule } from './tests/tests.module';
+import { ShopModule } from './shop/shop.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { SearchModule } from './search/search.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -21,7 +25,7 @@ import { AppService } from './app.service';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100,
+        limit: 300,
       },
     ]),
     PrismaModule,
@@ -31,6 +35,10 @@ import { AppService } from './app.service';
     UploadModule,
     BannersModule,
     NotificationsModule,
+    TestsModule,
+    ShopModule,
+    SubscriptionsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [

@@ -38,6 +38,15 @@ export class CoursesSeedService implements OnModuleInit {
         data: { authorId: superAdmin.id },
       });
 
+      // Default N5 lessons 1-5 to free initially
+      await this.prisma.lesson.updateMany({
+        where: {
+          module: { course: { level: 'N5' } },
+          order: { lte: 5 },
+        },
+        data: { isFree: true },
+      });
+
       // 1. Get or create N5 Course: Minna no Nihongo I
       let n5Course = await this.prisma.course.findFirst({
         where: { slug: 'minna-no-nihongo-1' },

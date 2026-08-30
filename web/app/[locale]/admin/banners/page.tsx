@@ -22,8 +22,19 @@ import {
   ExternalLink,
   RefreshCw,
   Bell,
+  UploadCloud,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Loader2,
+  MousePointerClick,
 } from 'lucide-react';
-import { api, BannerItem, CreateBannerDto, NotificationItem } from '@/lib/api';
+import {
+  api,
+  BannerItem,
+  CreateBannerDto,
+  NotificationItem,
+  getMediaUrl,
+} from '@/lib/api';
 
 const TAG_ICONS = [
   { id: 'Sparkles', label: 'Yulduz (Sparkles)', icon: Sparkles },
@@ -45,14 +56,20 @@ export default function AdminBannersPage() {
   const [editingBanner, setEditingBanner] = React.useState<BannerItem | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
 
+  // Custom button toggle & image upload state
+  const [hasButton, setHasButton] = React.useState(false);
+  const [imageInputMode, setImageInputMode] = React.useState<'upload' | 'url'>('upload');
+  const [uploadingImage, setUploadingImage] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   // Form State
   const [formData, setFormData] = React.useState<CreateBannerDto>({
     title: '',
     desc: '',
     tag: 'Yangilik',
     tagIcon: 'Sparkles',
-    image: '/banner_art.png',
-    btnText: 'Batafsil',
+    image: '',
+    btnText: '',
     btnUrl: '',
     btnIcon: 'ArrowRight',
     actionType: 'LINK',
@@ -96,8 +113,8 @@ export default function AdminBannersPage() {
       desc: '',
       tag: 'Yangilik',
       tagIcon: 'Sparkles',
-      image: '/banner_art.png',
-      btnText: 'Batafsil',
+      image: '',
+      btnText: '',
       btnUrl: '',
       btnIcon: 'ArrowRight',
       actionType: 'LINK',
@@ -107,20 +124,23 @@ export default function AdminBannersPage() {
       isDismissible: true,
       targetAudience: 'ALL',
     });
+    setHasButton(false);
+    setImageInputMode('upload');
     setModalOpen(true);
   };
 
   const openEditModal = (banner: BannerItem) => {
     setEditingBanner(banner);
+    const bannerHasButton = Boolean(banner.btnText && banner.btnText.trim());
     setFormData({
       title: banner.title,
       desc: banner.desc,
       tag: banner.tag,
       tagIcon: banner.tagIcon,
-      image: banner.image,
-      btnText: banner.btnText,
+      image: banner.image || '',
+      btnText: banner.btnText || '',
       btnUrl: banner.btnUrl || '',
-      btnIcon: banner.btnIcon,
+      btnIcon: banner.btnIcon || 'ArrowRight',
       actionType: banner.actionType,
       notificationId: banner.notificationId || '',
       order: banner.order,
@@ -128,7 +148,25 @@ export default function AdminBannersPage() {
       isDismissible: banner.isDismissible,
       targetAudience: banner.targetAudience,
     });
+    setHasButton(bannerHasButton);
+    setImageInputMode(banner.image?.startsWith('http') ? 'url' : 'upload');
     setModalOpen(true);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const res = await api.uploadImage(file);
+      setFormData((prev) => ({ ...prev, image: res.url }));
+    } catch (err: any) {
+      alert(err?.message || 'Rasm yuklashda xatolik yuz berdi');
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,14 +175,22 @@ export default function AdminBannersPage() {
 
     setSubmitting(true);
     try {
+      const finalData: CreateBannerDto = {
+        ...formData,
+        image: formData.image?.trim() || '',
+        btnText: hasButton ? (formData.btnText?.trim() || 'Batafsil') : '',
+        btnUrl: formData.btnUrl?.trim() || undefined,
+      };
+
       if (editingBanner) {
-        await api.updateBanner(editingBanner.id, formData);
+        await api.updateBanner(editingBanner.id, finalData);
       } else {
-        await api.createBanner(formData);
+        await api.createBanner(finalData);
       }
       setModalOpen(false);
       await loadData();
-    } catch (err) {
+    } catch (err: any) {
+      alert(err?.message || 'Bannerni saqlashda xatolik yuz berdi');
       console.error('Failed to save banner:', err);
     } finally {
       setSubmitting(false);
@@ -158,15 +204,15 @@ export default function AdminBannersPage() {
         prev.map((b) => (b.id === banner.id ? { ...b, isActive: !b.isActive } : b)),
       );
     } catch (err) {
-      console.error('Failed to toggle banner:', err);
+      console.error('Failed to toggle banner active state:', err);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Haqiqatan ham bu bannerni o'chirmoqchimisiz?")) return;
+  const handleDelete = async (bannerId: string) => {
+    if (!confirm('Haqiqatan ham ushbu bannerni oʻchirmoqchimisiz?')) return;
     try {
-      await api.deleteBanner(id);
-      setBanners((prev) => prev.filter((b) => b.id !== id));
+      await api.deleteBanner(bannerId);
+      setBanners((prev) => prev.filter((b) => b.id !== bannerId));
     } catch (err) {
       console.error('Failed to delete banner:', err);
     }
@@ -181,9 +227,16 @@ export default function AdminBannersPage() {
     newBanners[index] = newBanners[targetIndex];
     newBanners[targetIndex] = temp;
 
+    // Recalculate orders
+    const bannerOrders = newBanners.map((b, idx) => ({
+      id: b.id,
+      order: idx + 1,
+    }));
+
     setBanners(newBanners);
+
     try {
-      await api.reorderBanners(newBanners.map((b) => b.id));
+      await api.reorderBanners(bannerOrders.map((b) => b.id));
     } catch (err) {
       console.error('Failed to reorder banners:', err);
       loadData();
@@ -191,24 +244,21 @@ export default function AdminBannersPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300 pb-12">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0071e3]/10 px-3 py-1 text-[12px] font-semibold text-[#0071e3]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               <Sliders className="h-3.5 w-3.5" />
-              <span>Admin Panel</span>
-            </span>
-            <span className="text-[13px] text-muted-foreground">
-              Jami: {banners.length} ta banner
+              <span>Reklama & Eʼlonlar</span>
             </span>
           </div>
-          <h1 className="headline text-[28px] sm:text-[32px] font-bold text-foreground mt-1">
-            Bannerlar Boshqaruvi
+          <h1 className="headline text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
+            Dashboard Bannerlar Boshqaruvi
           </h1>
-          <p className="text-[14px] text-muted-foreground mt-0.5">
-            Dashboard bosh sahifasidagi slayd bannerlarni tartiblash, yaratish va oʻzgartirish.
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Oʻquvchilar va oʻqituvchilar bosh sahifasidagi slayd bannerlarini moslashtiring, yangi bannerlar qoʻshing yoki tartibini oʻzgartiring.
           </p>
         </div>
 
@@ -217,7 +267,7 @@ export default function AdminBannersPage() {
             type="button"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary transition-colors cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Yangilash</span>
@@ -226,7 +276,7 @@ export default function AdminBannersPage() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0071e3] px-5 py-2.5 text-[13px] font-semibold text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[#0071e3] px-4 py-2.5 text-xs font-semibold text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-xs cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Yangi Banner</span>
@@ -234,46 +284,47 @@ export default function AdminBannersPage() {
         </div>
       </div>
 
-      {/* Banners List */}
-      <div className="space-y-4">
-        {loading ? (
-          <div className="rounded-[24px] border border-border bg-card p-12 text-center text-muted-foreground text-[14px]">
-            Bannerlar yuklanmoqda...
-          </div>
-        ) : banners.length === 0 ? (
-          <div className="rounded-[24px] border border-border bg-card p-12 text-center space-y-3">
-            <Sliders className="h-10 w-10 text-muted-foreground/50 mx-auto" />
-            <h3 className="text-[17px] font-semibold text-foreground">Hozircha maxsus bannerlar yoʻq</h3>
-            <p className="text-[13px] text-muted-foreground max-w-sm mx-auto">
-              Dashboardda standart 3 ta tizim banneri ishlamoqda. Yangi eʼlon yoki aksiya qoʻshish uchun yuqoridagi tugmani bosing.
-            </p>
-            <button
-              type="button"
-              onClick={openCreateModal}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0071e3] px-5 py-2 text-[13px] font-semibold text-white"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Banner yaratish</span>
-            </button>
-          </div>
-        ) : (
-          banners.map((banner, index) => (
+      {/* Main Content Area */}
+      {loading ? (
+        <div className="py-20 flex flex-col items-center justify-center space-y-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0071e3] border-t-transparent" />
+          <p className="text-xs font-semibold text-muted-foreground">Bannerlar yuklanmoqda...</p>
+        </div>
+      ) : banners.length === 0 ? (
+        <div className="p-12 text-center rounded-3xl border border-dashed border-border bg-secondary/20 space-y-3">
+          <Sliders className="h-10 w-10 text-muted-foreground mx-auto" />
+          <h3 className="text-base font-bold text-foreground">Bannerlar mavjud emas</h3>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            Hozircha hech qanday maxsus banner yaratilmagan. Yangi banner qoʻshing va uni bosh sahifada eʼlon qiling.
+          </p>
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="inline-flex items-center gap-2 rounded-2xl bg-[#0071e3] px-4 py-2 text-xs font-semibold text-white hover:brightness-110 transition-all cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Banner yaratish</span>
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3.5">
+          {banners.map((banner, index) => (
             <div
               key={banner.id}
-              className={`rounded-[24px] border transition-all p-5 sm:p-6 bg-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-xs ${
-                !banner.isActive ? 'opacity-60 border-border/60' : 'border-border hover:border-foreground/20'
+              className={`rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                !banner.isActive ? 'opacity-60 bg-secondary/10' : ''
               }`}
             >
               {/* Left Info & Image Preview */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-5 flex-1 min-w-0">
-                {/* Order Index & Arrows */}
-                <div className="flex sm:flex-col items-center gap-1 shrink-0 bg-secondary/50 p-1.5 rounded-2xl border border-border/50">
+              <div className="flex items-start sm:items-center gap-4 w-full sm:w-auto flex-1 min-w-0">
+                {/* Order Controls */}
+                <div className="flex sm:flex-col items-center justify-center rounded-2xl border border-border/60 bg-secondary/20 p-1 shrink-0">
                   <button
                     type="button"
                     disabled={index === 0}
                     onClick={() => handleMoveOrder(index, 'up')}
                     className="grid h-7 w-7 place-items-center rounded-xl hover:bg-card disabled:opacity-30 cursor-pointer"
-                    title="Yuqoriga surish"
+                    title="Tepaga surish"
                   >
                     <ArrowUp className="h-3.5 w-3.5 text-foreground" />
                   </button>
@@ -291,14 +342,22 @@ export default function AdminBannersPage() {
                   </button>
                 </div>
 
-                {/* Banner Thumbnail */}
+                {/* Banner Thumbnail Preview */}
                 <div className="relative aspect-[16/9] w-full sm:w-44 shrink-0 overflow-hidden rounded-2xl border border-border bg-secondary/30">
-                  <Image
-                    src={banner.image || '/banner_art.png'}
-                    alt={banner.title}
-                    fill
-                    className="object-cover"
-                  />
+                  {banner.image ? (
+                    <Image
+                      src={getMediaUrl(banner.image)}
+                      alt={banner.title}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-tr from-[#0071e3]/15 to-secondary/40 text-muted-foreground p-3 text-center">
+                      <ImageIcon className="h-6 w-6 mb-1 text-primary/70" />
+                      <span className="text-[10px] font-semibold">Rasmsiz</span>
+                    </div>
+                  )}
                   <div className="absolute top-2 left-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-background/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-foreground">
                       {banner.tag}
@@ -319,57 +378,57 @@ export default function AdminBannersPage() {
                       {banner.isActive ? 'Faol' : 'Nofaol'}
                     </span>
 
-                    <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-foreground">
-                      Auditoriya: {banner.targetAudience === 'ALL' ? 'Barchaga' : banner.targetAudience === 'TEACHER' ? 'Ustozlarga' : 'Oʻquvchilarga'}
-                    </span>
-
-                    <span className="rounded-full bg-[#0071e3]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#0071e3]">
-                      {banner.actionType === 'NOTIFICATION_DETAIL'
-                        ? 'Video / Eʼlon modali'
-                        : banner.actionType === 'PLAN_MODAL'
-                        ? 'Reja tuzish modali'
-                        : 'Havola'}
-                    </span>
-
-                    {banner.isDismissible && (
-                      <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-500">
-                        Yopilishi mumkin (Dismissible)
+                    {banner.btnText ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                        <MousePointerClick className="h-3 w-3" />
+                        <span>Tugma: {banner.btnText}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        Tugmasiz banner
                       </span>
                     )}
+
+                    <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-foreground">
+                      Auditoriya: {banner.targetAudience === 'ALL' ? 'Barchaga' : banner.targetAudience}
+                    </span>
                   </div>
 
-                  <h3 className="text-[17px] font-bold text-foreground leading-snug truncate">
+                  <h2 className="text-base font-bold text-foreground truncate">
                     {banner.title}
-                  </h3>
-                  <p className="text-[13px] text-muted-foreground line-clamp-2">
+                  </h2>
+                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                     {banner.desc}
                   </p>
-                  <p className="text-[12px] text-muted-foreground pt-1">
-                    Tugma: <strong className="text-foreground">{banner.btnText}</strong>
-                    {banner.btnUrl && <span className="ml-1 text-muted-foreground/70">({banner.btnUrl})</span>}
-                  </p>
+
+                  {banner.btnUrl && (
+                    <div className="flex items-center gap-1 text-[11px] text-[#0071e3] font-medium truncate pt-0.5">
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{banner.btnUrl}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Right Action Buttons */}
-              <div className="flex items-center gap-2 shrink-0 border-t lg:border-t-0 pt-3 lg:pt-0 border-border">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 self-end sm:self-center shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60 w-full sm:w-auto justify-end">
                 <button
                   type="button"
                   onClick={() => handleToggleActive(banner)}
-                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-medium transition-colors cursor-pointer ${
-                    banner.isActive
-                      ? 'border-border bg-secondary/50 text-foreground hover:bg-secondary'
-                      : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20'
-                  }`}
+                  className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                  title={banner.isActive ? 'Faolsizlantirish' : 'Faollashtirish'}
                 >
-                  {banner.isActive ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  <span>{banner.isActive ? 'Nofaol qilish' : 'Faollashtirish'}</span>
+                  {banner.isActive ? (
+                    <Eye className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => openEditModal(banner)}
-                  className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-card text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                  className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-secondary transition-colors cursor-pointer"
                   title="Tahrirlash"
                 >
                   <Edit2 className="h-4 w-4" />
@@ -378,23 +437,23 @@ export default function AdminBannersPage() {
                 <button
                   type="button"
                   onClick={() => handleDelete(banner.id)}
-                  className="grid h-9 w-9 place-items-center rounded-xl border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
+                  className="grid h-9 w-9 place-items-center rounded-xl border border-destructive/20 text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                   title="Oʻchirish"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Create / Edit Modal */}
+      {/* CREATE / EDIT MODAL */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-[32px] border border-border bg-card shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="border-b border-border px-6 py-4.5 sm:px-8 flex items-center justify-between bg-secondary/30">
+            <div className="flex items-center justify-between border-b border-border px-6 py-5 sm:px-8 bg-secondary/20">
               <div>
                 <h3 className="headline text-[20px] font-bold text-foreground">
                   {editingBanner ? 'Bannerni Tahrirlash' : 'Yangi Banner Yaratish'}
@@ -474,6 +533,195 @@ export default function AdminBannersPage() {
                 </div>
               </div>
 
+              {/* BANNER IMAGE SECTION: Upload or URL (No forced default) */}
+              <div className="rounded-2xl border border-border/80 bg-secondary/20 p-4.5 space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <label className="block text-[13px] font-semibold text-foreground">
+                      Banner Rasmi (Ixtiyoriy)
+                    </label>
+                    <p className="text-[11px] text-muted-foreground">
+                      Kompyuterdan rasm yuklang yoki internetdan havola (URL) kiriting
+                    </p>
+                  </div>
+
+                  {/* Upload vs URL Tabs */}
+                  <div className="flex items-center rounded-xl bg-card border border-border/80 p-1 text-xs shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('upload')}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                        imageInputMode === 'upload'
+                          ? 'bg-[#0071e3] text-white shadow-xs'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <UploadCloud className="h-3.5 w-3.5" />
+                      <span>Fayl yuklash</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('url')}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                        imageInputMode === 'url'
+                          ? 'bg-[#0071e3] text-white shadow-xs'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <LinkIcon className="h-3.5 w-3.5" />
+                      <span>Havola (URL)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {imageInputMode === 'upload' ? (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="banner-file-upload-input"
+                    />
+                    <label
+                      htmlFor="banner-file-upload-input"
+                      className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-border/80 hover:border-[#0071e3]/60 rounded-2xl bg-card hover:bg-secondary/30 transition-all cursor-pointer text-center space-y-2"
+                    >
+                      {uploadingImage ? (
+                        <div className="flex items-center gap-2 text-[#0071e3] font-semibold text-xs py-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Rasm serverga yuklanmoqda...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                            <UploadCloud className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-foreground">
+                              Kompyuterdan rasm tanlash uchun bosing
+                            </p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              PNG, JPG, WebP, GIF yoki SVG (Maks. 20 MB)
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="text"
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      placeholder="https://example.com/banner.jpg yoki /uploads/images/..."
+                      className="w-full rounded-2xl border border-border bg-card px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3]"
+                    />
+                  </div>
+                )}
+
+                {/* Attached Image Preview */}
+                {formData.image && (
+                  <div className="flex items-center gap-3 p-3 rounded-2xl border border-border bg-card">
+                    <div className="relative h-14 w-24 shrink-0 rounded-xl overflow-hidden border border-border/80 bg-secondary/40">
+                      <Image
+                        src={getMediaUrl(formData.image)}
+                        alt="Preview"
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-foreground truncate">
+                        {formData.image}
+                      </p>
+                      <p className="text-[11px] text-emerald-500 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" />
+                        <span>Rasm muvaffaqiyatli biriktirildi</span>
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, image: '' })}
+                      className="h-8 px-3 rounded-xl border border-destructive/20 text-destructive hover:bg-destructive/10 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span>Oʻchirish</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* BUTTON SECTION: Optional button toggle */}
+              <div className="rounded-2xl border border-border/80 bg-secondary/20 p-4.5 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-[13px] font-semibold text-foreground">
+                      Bannerda tugma koʻrsatilsinmi?
+                    </label>
+                    <p className="text-[11px] text-muted-foreground">
+                      Tugma ixtiyoriy. Agar kerak boʻlmasa, tugmasiz toza banner chiqarishingiz mumkin.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={hasButton}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setHasButton(checked);
+                        if (!checked) {
+                          setFormData({ ...formData, btnText: '' });
+                        } else if (!formData.btnText) {
+                          setFormData({ ...formData, btnText: 'Batafsil' });
+                        }
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0071e3]" />
+                  </label>
+                </div>
+
+                {hasButton && (
+                  <div className="pt-3 border-t border-border/60 space-y-3 animate-in fade-in duration-200">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-[13px] font-semibold text-foreground mb-1.5">
+                          Tugma Matni *
+                        </label>
+                        <input
+                          type="text"
+                          required={hasButton}
+                          value={formData.btnText}
+                          onChange={(e) => setFormData({ ...formData, btnText: e.target.value })}
+                          placeholder="Darsga o'tish, Batafsil, Ishtirok etish..."
+                          className="w-full rounded-2xl border border-border bg-card px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[13px] font-semibold text-foreground mb-1.5">
+                          Tugma Ikonkasi
+                        </label>
+                        <select
+                          value={formData.btnIcon}
+                          onChange={(e) => setFormData({ ...formData, btnIcon: e.target.value })}
+                          className="w-full rounded-2xl border border-border bg-card px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] cursor-pointer"
+                        >
+                          <option value="ArrowRight">Oʻngga strelka (ArrowRight)</option>
+                          <option value="PlayCircle">Video ijro (PlayCircle)</option>
+                          <option value="Sparkles">Yulduzcha (Sparkles)</option>
+                          <option value="ExternalLink">Tashqi havola (ExternalLink)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ACTION TYPE & LINK URL */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-[13px] font-semibold text-foreground mb-1.5">
@@ -492,48 +740,17 @@ export default function AdminBannersPage() {
 
                 <div>
                   <label className="block text-[13px] font-semibold text-foreground mb-1.5">
-                    Auditoriya
+                    Havola (URL) {hasButton ? '' : '(Ixtiyoriy)'}
                   </label>
-                  <select
-                    value={formData.targetAudience}
-                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value as any })}
-                    className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] focus:bg-card cursor-pointer"
-                  >
-                    <option value="ALL">Barcha foydalanuvchilar</option>
-                    <option value="USER">Faqat Oʻquvchilar</option>
-                    <option value="TEACHER">Faqat Oʻqituvchilar</option>
-                  </select>
+                  <input
+                    type="text"
+                    value={formData.btnUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, btnUrl: e.target.value })}
+                    placeholder="/dashboard/courses yoki https://..."
+                    className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] focus:bg-card"
+                  />
                 </div>
               </div>
-
-              {formData.actionType === 'LINK' && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-[13px] font-semibold text-foreground mb-1.5">
-                      Tugma Matni
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.btnText}
-                      onChange={(e) => setFormData({ ...formData, btnText: e.target.value })}
-                      placeholder="Darsga o'tish, Ko'rish..."
-                      className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] focus:bg-card"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[13px] font-semibold text-foreground mb-1.5">
-                      Tugma Havolasi (URL)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.btnUrl || ''}
-                      onChange={(e) => setFormData({ ...formData, btnUrl: e.target.value })}
-                      placeholder="/dashboard/courses yoki https://..."
-                      className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] focus:bg-card"
-                    />
-                  </div>
-                </div>
-              )}
 
               {formData.actionType === 'NOTIFICATION_DETAIL' && (
                 <div className="rounded-2xl border border-border/60 bg-secondary/30 p-4 space-y-3">
@@ -553,7 +770,7 @@ export default function AdminBannersPage() {
                     ))}
                   </select>
                   <p className="text-[12px] text-muted-foreground">
-                    Foydalanuvchi bannerdagi tugmani bosganda ushbu xabarnomaning YouTube videosi va toʻliq matni modal boʻlib ochiladi.
+                    Foydalanuvchi bannerdagi tugmani bosganda ushbu xabarnomaning videosi va toʻliq matni modal boʻlib ochiladi.
                   </p>
                 </div>
               )}
@@ -561,15 +778,17 @@ export default function AdminBannersPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-[13px] font-semibold text-foreground mb-1.5">
-                    Banner Rasmi URL
+                    Auditoriya
                   </label>
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="/banner_art.png yoki rasm havolasi"
-                    className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] focus:bg-card"
-                  />
+                  <select
+                    value={formData.targetAudience}
+                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value as any })}
+                    className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-2.5 text-[14px] text-foreground outline-none focus:border-[#0071e3] focus:bg-card cursor-pointer"
+                  >
+                    <option value="ALL">Barcha foydalanuvchilar</option>
+                    <option value="USER">Faqat Oʻquvchilar</option>
+                    <option value="TEACHER">Faqat Oʻqituvchilar</option>
+                  </select>
                 </div>
 
                 <div>

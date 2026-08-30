@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
   Param,
   UseGuards,
@@ -19,6 +20,10 @@ import {
   UpdateProgressDto,
   LogStudyTimeDto,
   SaveStudyPlanDto,
+  ToggleFlashcardDto,
+  BatchFlashcardDto,
+  ToggleKanjiFlashcardDto,
+  BatchKanjiFlashcardDto,
 } from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { JwtPayload } from '../auth/strategies/jwt.strategy';
@@ -92,6 +97,102 @@ export class CoursesController {
     @Body() body: SaveStudyPlanDto,
   ) {
     return this.coursesService.saveUserStudyPlan(userId, body);
+  }
+
+  // === VOCABULARY & FLASHCARDS ===
+  @Get('vocab/all')
+  @ApiOperation({ summary: 'Foydalanuvchiga ochiq boʻlgan barcha kurslar lugʻatlarini olish' })
+  async getAllVocab(@Req() req: any) {
+    const userId = this.extractUserId(req);
+    return this.coursesService.getAllUserVocab(userId);
+  }
+
+  @Get('vocab/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lugʻat va flashcard statistikasi (yodlangan / yodlanayotgan)' })
+  async getVocabStats(@CurrentUser('id') userId: string) {
+    return this.coursesService.getVocabStats(userId);
+  }
+
+  @Post('vocab/flashcards')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Soʻzni flashcardga qoʻshish yoki holatini almashtirish' })
+  async toggleFlashcard(@CurrentUser('id') userId: string, @Body() dto: ToggleFlashcardDto) {
+    return this.coursesService.setFlashcardStatus(userId, dto.kotobaId, dto.status);
+  }
+
+  @Post('vocab/flashcards/batch')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bir nechta soʻzlarni birvarakay flashcardga qoʻshish' })
+  async batchAddFlashcards(@CurrentUser('id') userId: string, @Body() dto: BatchFlashcardDto) {
+    return this.coursesService.batchAddFlashcards(userId, dto.kotobaIds, dto.status);
+  }
+
+  @Delete('vocab/flashcards/:kotobaId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Soʻzni flashcard toʻplamidan olib tashlash' })
+  async removeFlashcard(@CurrentUser('id') userId: string, @Param('kotobaId') kotobaId: string) {
+    return this.coursesService.removeFlashcard(userId, kotobaId);
+  }
+
+  @Post('vocab/flashcards/batch-remove')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bir nechta soʻzlarni birvarakay flashcard toʻplamidan chiqarish' })
+  async batchRemoveFlashcards(@CurrentUser('id') userId: string, @Body() dto: BatchFlashcardDto) {
+    return this.coursesService.batchRemoveFlashcards(userId, dto.kotobaIds);
+  }
+
+  // === KANJI & FLASHCARDS ===
+  @Get('kanji/all')
+  @ApiOperation({ summary: 'Foydalanuvchiga ochiq boʻlgan barcha kurslar Kanjilarini olish' })
+  async getAllKanji(@Req() req: any) {
+    const userId = this.extractUserId(req);
+    return this.coursesService.getAllUserKanji(userId);
+  }
+
+  @Get('kanji/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Kanji va flashcard statistikasi (yodlangan / yodlanayotgan)' })
+  async getKanjiStats(@CurrentUser('id') userId: string) {
+    return this.coursesService.getKanjiStats(userId);
+  }
+
+  @Post('kanji/flashcards')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Kanjini flashcardga qoʻshish yoki holatini almashtirish' })
+  async toggleKanjiFlashcard(@CurrentUser('id') userId: string, @Body() dto: ToggleKanjiFlashcardDto) {
+    return this.coursesService.setKanjiFlashcardStatus(userId, dto.kanjiId, dto.status);
+  }
+
+  @Post('kanji/flashcards/batch')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bir nechta Kanjilarni birvarakay flashcardga qoʻshish' })
+  async batchAddKanjiFlashcards(@CurrentUser('id') userId: string, @Body() dto: BatchKanjiFlashcardDto) {
+    return this.coursesService.batchAddKanjiFlashcards(userId, dto.kanjiIds, dto.status);
+  }
+
+  @Delete('kanji/flashcards/:kanjiId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Kanjini flashcard toʻplamidan olib tashlash' })
+  async removeKanjiFlashcard(@CurrentUser('id') userId: string, @Param('kanjiId') kanjiId: string) {
+    return this.coursesService.removeKanjiFlashcard(userId, kanjiId);
+  }
+
+  @Post('kanji/flashcards/batch-remove')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bir nechta Kanjilarni birvarakay flashcard toʻplamidan chiqarish' })
+  async batchRemoveKanjiFlashcards(@CurrentUser('id') userId: string, @Body() dto: BatchKanjiFlashcardDto) {
+    return this.coursesService.batchRemoveKanjiFlashcards(userId, dto.kanjiIds);
   }
 
   @Get()
