@@ -16,8 +16,18 @@ export function getMediaUrl(url?: string | null): string {
   ) {
     return trimmed;
   }
-  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return `${API_ORIGIN}${cleanPath}`;
+  // Backend upload path (e.g. /uploads/... or uploads/...)
+  if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
+    const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return `${API_ORIGIN}${cleanPath}`;
+  }
+
+  // Next.js local public static assets (e.g. /planbanner_bg.png, /auth_bg.jpg, /logo.png)
+  if (trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  return `${API_ORIGIN}/${trimmed}`;
 }
 
 export interface User {

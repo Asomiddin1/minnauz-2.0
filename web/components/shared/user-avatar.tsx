@@ -14,11 +14,18 @@ export function getMediaUrl(url?: string | null): string {
     return trimmed;
   }
 
-  // Prepend backend origin if relative path (e.g. /uploads/...)
+  // Backend upload path (e.g. /uploads/... or uploads/...)
   const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
   const apiOrigin = rawApiUrl.replace(/\/api\/?$/, '');
-  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return `${apiOrigin}${cleanPath}`;
+  if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
+    const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return `${apiOrigin}${cleanPath}`;
+  }
+  // Next.js local public static assets (e.g. /planbanner_bg.png, /auth_bg.jpg)
+  if (trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return `${apiOrigin}/${trimmed}`;
 }
 
 const AVATAR_GRADIENTS = [

@@ -16,7 +16,6 @@ import {
   Languages,
   ShoppingBag,
   Sparkles,
-  Type,
 } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useThemeCtx } from '@/lib/theme';
@@ -26,6 +25,18 @@ import { NotificationPopover } from './notification-popover';
 import { useDashboardTab, type DashboardTabId } from './tab-context';
 import { api } from '@/lib/api';
 import { GlobalSearchModal } from './global-search-modal';
+
+// Kanji uchun maxsus stilizatsiyalangan haqiqiy '漢' ieroglif belgisi
+function KanjiIcon({ className }: { className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center justify-center font-bold select-none leading-none ${className}`}
+      style={{ fontFamily: '"Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif' }}
+    >
+      漢
+    </span>
+  );
+}
 
 export function DashboardHeader({
   activeTab: externalActiveTab,
@@ -91,7 +102,7 @@ export function DashboardHeader({
     { id: 'vocab', label: "Lug'at", icon: BookA },
     { id: 'games', label: "O'yinlar", icon: Gamepad2 },
     { id: 'dokkay', label: 'Dokkay', icon: BookOpen },
-    { id: 'kanji', label: 'Kanji', icon: Type },
+    { id: 'kanji', label: 'Kanji', icon: KanjiIcon },
     { id: 'store', label: "Do'kon", icon: ShoppingBag },
     { id: 'translate', label: 'Tarjimon', icon: Languages },
     { id: 'ai', label: 'AI ustoz', icon: Sparkles },
@@ -150,7 +161,7 @@ export function DashboardHeader({
             </Link>
           </div>
 
-          {/* Yangilangan Zamonaviy Search Trigger Tugmasi */}
+          {/* Universal Search Trigger */}
           <div className="relative flex-1 max-w-md min-w-0">
             <button
               type="button"
