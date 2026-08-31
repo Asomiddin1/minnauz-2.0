@@ -1658,6 +1658,100 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // === AI API ===
+  async translate(text: string, direction: 'ja-uz' | 'uz-ja'): Promise<TranslateResponse> {
+    return this.request<TranslateResponse>('/ai/translate', {
+      method: 'POST',
+      body: JSON.stringify({ text, direction }),
+    });
+  }
+
+  async sendKaiwaMessage(data: {
+    lessonId: string;
+    lessonTitle?: string;
+    topic?: string;
+    goal?: string;
+    partnerName?: string;
+    kotobaWords?: string[];
+    history: { sender: 'ai' | 'user'; japanese: string; romaji?: string; uzbek?: string }[];
+    userMessage: string;
+    step: number;
+  }): Promise<KaiwaResponse> {
+    return this.request<KaiwaResponse>('/ai/kaiwa', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async explainMistake(data: {
+    question: string;
+    userAnswer: string;
+    correctAnswer: string;
+    explanation?: string;
+    level?: string;
+  }): Promise<ExplainMistakeResponse> {
+    return this.request<ExplainMistakeResponse>('/ai/explain-mistake', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async generateDokkai(data: {
+    level: 'N5' | 'N4' | 'N3';
+    topic: string;
+  }): Promise<GeneratedDokkaiResponse> {
+    return this.request<GeneratedDokkaiResponse>('/ai/generate-dokkai', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+}
+
+export interface TranslateResponse {
+  translation: string;
+  romaji?: string;
+  furigana?: string;
+  notes?: string;
+}
+
+export interface KaiwaResponse {
+  japanese: string;
+  romaji: string;
+  uzbek: string;
+  correction?: string;
+  encouragement?: string;
+  isCompleted: boolean;
+  summary?: {
+    accuracyPercent: number;
+    wordsUsedCount: number;
+    feedback: string;
+    rewardCoins: number;
+  };
+  coinsAwarded?: number;
+  newBalance?: number;
+}
+
+export interface ExplainMistakeResponse {
+  whyWrong: string;
+  whyCorrect: string;
+  tip: string;
+}
+
+export interface GeneratedDokkaiResponse {
+  title: string;
+  titleUz: string;
+  readingTime: string;
+  japaneseText: string;
+  furiganaText: string;
+  uzbekTranslation: string;
+  vocabulary: { word: string; meaning: string }[];
+  question: {
+    prompt: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  };
 }
 
 // === SUBSCRIPTIONS TYPES ===
