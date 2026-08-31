@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
-import { api, UserDashboardStats, BannerItem, NotificationItem, JlptUserTestHistoryItem } from '@/lib/api';
+import { api, UserDashboardStats, BannerItem, NotificationItem, JlptUserTestHistoryItem, getMediaUrl } from '@/lib/api';
 import { getNextJLPTCountdown, getNextJLPTExamDate, JLPTCountdown } from '@/lib/jlpt';
 import { StudyPlanModal } from '@/components/dashboard/study-plan-modal';
 import { NotificationModal } from '@/components/dashboard/notification-modal';
@@ -150,11 +150,11 @@ export function MainDashboard() {
       tagIcon: Target,
       title: 'Haftalik rejangiz qanday ketyapti?',
       desc: `Siz bu hafta rejangizning ${weeklyProgress}% qismini bajardingiz. Belgilangan maqsadga yetishish uchun oz qoldi!`,
-      btnText: "Rejani ko'rish",
+      btnText: 'Batafsil',
       btnUrl: null,
       btnIcon: TrendingUp,
       actionType: 'PLAN_MODAL',
-      image: '/banner_art.png',
+      image: '/planbanner_bg.png',
       isDismissible: false,
     },
   ];
@@ -163,11 +163,21 @@ export function MainDashboard() {
   const convertedCustomSlides: DashboardSlide[] = customBanners
     .filter((b) => !dismissedBannerIds.includes(b.id))
     .map((b) => {
-      const isNotifDetail = b.actionType === 'NOTIFICATION_DETAIL';
-      const targetUrl =
-        isNotifDetail && b.notificationId
-          ? `/${lang}/dashboard/notifications/${b.notificationId}`
-          : b.btnUrl || null;
+      const isLink = b.actionType === 'LINK' && Boolean(b.btnUrl);
+
+      const notifItem: NotificationItem = b.notification || {
+        id: b.notificationId || String(b.id),
+        title: b.title,
+        message: b.desc,
+        content: b.desc,
+        type: 'PROMO',
+        audience: 'ALL',
+        imageUrl: b.image ? getMediaUrl(b.image) : undefined,
+        videoUrl: null,
+        actionUrl: b.btnUrl || null,
+        actionText: b.btnUrl ? 'Oʻtish' : 'Tushunarli',
+        createdAt: new Date().toISOString(),
+      };
 
       return {
         id: b.id,
@@ -175,11 +185,11 @@ export function MainDashboard() {
         tagIcon: ICON_MAP[b.tagIcon] || Sparkles,
         title: b.title,
         desc: b.desc,
-        btnText: b.btnText || '',
-        btnUrl: targetUrl,
-        btnIcon: ICON_MAP[b.btnIcon] || (isNotifDetail ? PlayCircle : ArrowRight),
-        actionType: isNotifDetail && targetUrl ? 'LINK' : b.actionType,
-        notification: b.notification || null,
+        btnText: b.btnText || 'Batafsil',
+        btnUrl: isLink && b.btnUrl ? b.btnUrl : null,
+        btnIcon: ICON_MAP[b.btnIcon] || ArrowRight,
+        actionType: isLink ? 'LINK' : 'NOTIFICATION_DETAIL',
+        notification: notifItem,
         image: b.image || '',
         isDismissible: b.isDismissible,
       };

@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 import { ThemeProvider } from "@/lib/theme";
 import { LangProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth-context";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   title: "MinnaUz | JLPT",
@@ -34,6 +35,18 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col antialiased bg-background text-foreground`}>
+        <NextTopLoader
+          color="#0071e3"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #0071e3,0 0 5px #0071e3"
+          zIndex={99999}
+        />
         <ThemeProvider>
           <LangProvider>
             <AuthProvider>
