@@ -62,6 +62,34 @@ export default function LessonPlayerPage() {
   const [quizSubmitted, setQuizSubmitted] = React.useState(false);
   const [quizScore, setQuizScore] = React.useState<number | null>(null);
 
+  // AI Kaiwa State (5-step bounded speaking practice)
+  const [kaiwaStarted, setKaiwaStarted] = React.useState(false);
+  const [kaiwaStep, setKaiwaStep] = React.useState(1);
+  const [kaiwaInput, setKaiwaInput] = React.useState('');
+  const [kaiwaLoading, setKaiwaLoading] = React.useState(false);
+  const [kaiwaMessages, setKaiwaMessages] = React.useState<
+    {
+      sender: 'ai' | 'user';
+      japanese: string;
+      romaji?: string;
+      uzbek?: string;
+      correction?: string;
+      encouragement?: string;
+    }[]
+  >([]);
+  const [kaiwaSummary, setKaiwaSummary] = React.useState<{
+    accuracyPercent: number;
+    wordsUsedCount: number;
+    feedback: string;
+    rewardCoins: number;
+  } | null>(null);
+  const [kaiwaRewardAwarded, setKaiwaRewardAwarded] = React.useState<number | null>(null);
+
+  // AI Explainer State for Renshuu
+  const [aiExplanations, setAiExplanations] = React.useState<
+    Record<number, { whyWrong: string; whyCorrect: string; tip: string; loading?: boolean }>
+  >({});
+
   // Completed tabs
   const [completedSections, setCompletedSections] = React.useState<string[]>([]);
   const [isCompleted, setIsCompleted] = React.useState(false);
@@ -151,6 +179,119 @@ export default function LessonPlayerPage() {
       });
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleAskAiExplainer = async (
+    qIdx: number,
+    question: string,
+    userAnswer: string,
+    correctAnswer: string,
+    existingExplanation?: string | null,
+  ) => {
+    setAiExplanations((prev) => ({
+      ...prev,
+      [qIdx]: { whyWrong: '', whyCorrect: '', tip: '', loading: true },
+    }));
+    try {
+      const res = await api.explainMistake({
+        question,
+        userAnswer,
+        correctAnswer,
+        explanation: existingExplanation || undefined,
+        level: lesson?.module?.courseTitle || 'N5',
+      });
+      setAiExplanations((prev) => ({
+        ...prev,
+        [qIdx]: { ...res, loading: false },
+      }));
+    } catch (e) {
+      setAiExplanations((prev) => ({
+        ...prev,
+        [qIdx]: {
+          whyWrong: 'AI bilan bogʻlanishda xatolik yuz berdi.',
+          whyCorrect: `Toʻgʻri javob: "${correctAnswer}"`,
+          tip: 'Qoidalarni qayta takrorlang.',
+          loading: false,
+        },
+      }));
+    }
+  };
+
+  const startKaiwa = () => {
+    setKaiwaStarted(true);
+    setKaiwaStep(1);
+    setKaiwaSummary(null);
+    setKaiwaRewardAwarded(null);
+
+    const firstLine = lesson?.kaiwaScenario?.sampleDialog?.[0];
+    const initialAiMsg = {
+      sender: 'ai' as const,
+      japanese: firstLine?.text || 'こんにちは！はじめまして。お名前は何ですか？',
+      uzbek: firstLine?.uz || 'Salom! Tanishganimdan xursandman. Ismingiz nima?',
+      romaji: 'Konnichiwa! Hajimemashite. Onamae wa nan desu ka?',
+      encouragement: 'Suhbatni boshlash uchun yaponcha javob yozing!',
+    };
+    setKaiwaMessages([initialAiMsg]);
+  };
+
+  const sendKaiwa = async (textToSend?: string) => {
+    const text = (textToSend ?? kaiwaInput).trim();
+    if (!text || kaiwaLoading || kaiwaStep > 5) return;
+    setKaiwaInput('');
+
+    const newHistory = [
+      ...kaiwaMessages,
+      { sender: 'user' as const, japanese: text },
+    ];
+    setKaiwaMessages(newHistory);
+    setKaiwaLoading(true);
+
+    try {
+      const res = await api.sendKaiwaMessage({
+        lessonId,
+        lessonTitle: lesson?.title,
+        topic: lesson?.kaiwaScenario?.topic,
+        goal: lesson?.kaiwaScenario?.goal,
+        partnerName: lesson?.kaiwaScenario?.partnerName,
+        kotobaWords: lesson?.content?.kotoba?.map((k) => k.word) || [],
+        history: newHistory.map((m) => ({
+          sender: m.sender,
+          japanese: m.japanese,
+          romaji: m.romaji,
+          uzbek: m.uzbek,
+        })),
+        userMessage: text,
+        step: kaiwaStep,
+      });
+
+      setKaiwaMessages((prev) => [
+        ...prev,
+        {
+          sender: 'ai',
+          japanese: res.japanese,
+          romaji: res.romaji,
+          uzbek: res.uzbek,
+          correction: res.correction,
+          encouragement: res.encouragement,
+        },
+      ]);
+
+      if (res.isCompleted || kaiwaStep >= 5) {
+        if (res.summary) {
+          setKaiwaSummary(res.summary);
+        }
+        if (res.coinsAwarded) {
+          setKaiwaRewardAwarded(res.coinsAwarded);
+        }
+        markSectionCompleted('kaiwa');
+      } else {
+        setKaiwaStep((s) => s + 1);
+      }
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setKaiwaLoading(false);
     }
   };
 
@@ -874,6 +1015,56 @@ export default function LessonPlayerPage() {
                             <strong>Tushuntirish:</strong> {q.explanation}
                           </div>
                         )}
+
+                        {/* AI Explainer button when answer is wrong */}
+                        {quizSubmitted && selected && selected !== q.correctAnswer && (
+                          <div className="ml-8 space-y-2">
+                            {!aiExplanations[qIdx] ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleAskAiExplainer(
+                                    qIdx,
+                                    q.question,
+                                    selected,
+                                    q.correctAnswer,
+                                    q.explanation
+                                  )
+                                }
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-semibold cursor-pointer transition-colors"
+                              >
+                                <Sparkles className="h-3.5 w-3.5" />
+                                <span>💡 Nega bu javob xato? (AI Senseidan soʻrash)</span>
+                              </button>
+                            ) : aiExplanations[qIdx].loading ? (
+                              <div className="p-3 rounded-xl bg-purple-500/5 border border-purple-500/20 text-xs text-purple-600 dark:text-purple-400 flex items-center gap-2">
+                                <Sparkles className="h-4 w-4 animate-spin" />
+                                <span>AI Sensei xatoni tahlil qilmoqda...</span>
+                              </div>
+                            ) : (
+                              <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/20 text-xs space-y-2">
+                                <div className="flex items-center gap-1.5 font-bold text-purple-600 dark:text-purple-400">
+                                  <Sparkles className="h-4 w-4" />
+                                  <span>AI Sensei Tushuntirishi:</span>
+                                </div>
+                                <div className="text-foreground/90 space-y-1 leading-relaxed">
+                                  <p>
+                                    <span className="font-semibold text-destructive">Nega xato: </span>
+                                    {aiExplanations[qIdx].whyWrong}
+                                  </p>
+                                  <p>
+                                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">Toʻgʻri javob qoidasi: </span>
+                                    {aiExplanations[qIdx].whyCorrect}
+                                  </p>
+                                  <p>
+                                    <span className="font-semibold text-primary">Maslahat: </span>
+                                    {aiExplanations[qIdx].tip}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -960,13 +1151,242 @@ export default function LessonPlayerPage() {
                   </div>
                 )}
 
-                <div className="rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent p-5 border border-purple-500/20 text-center space-y-2">
-                  <Sparkles className="h-6 w-6 text-purple-500 mx-auto animate-pulse" />
-                  <div className="font-bold text-foreground text-[15px]">AI Suhbat moduli tayyorlanmoqda</div>
-                  <p className="text-[13px] text-muted-foreground max-w-sm mx-auto">
-                    Ushbu dars boʻyicha real vaqtda ovozli gaplashish (Speaking practice) keyingi bosqichda toʻliq faollashtiriladi.
-                  </p>
-                </div>
+                {/* Interactive AI Chat Workspace */}
+                {!kaiwaStarted ? (
+                  <div className="rounded-2xl bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-card p-6 sm:p-8 border border-purple-500/20 text-center space-y-4">
+                    <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg mx-auto">
+                      <Sparkles className="h-8 w-8 animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-foreground text-lg sm:text-xl">
+                        AI Sensei bilan dars boʻyicha 5-qadamli muloqot
+                      </h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                        Darsda oʻrgangan grammatika va soʻzlaringizni tekshiring. Har bir javobingiz tahlil qilinadi, xatolar tuzatiladi va yakunida sizga <strong>+20 tanga</strong> mukofot beriladi!
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={startKaiwa}
+                        className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2"
+                      >
+                        <Bot className="h-4 w-4" />
+                        <span>Suhbatni boshlash (1/5 qadam)</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Header Progress Bar */}
+                    <div className="rounded-2xl border border-border bg-secondary/30 p-4 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                          <Bot className="h-4 w-4" />
+                          <span>AI Sensei Muloqoti</span>
+                        </span>
+                        <span className="text-muted-foreground">
+                          {kaiwaSummary ? 'Yakunlandi 🎉' : `Qadam ${kaiwaStep} / 5`}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 transition-all duration-500"
+                          style={{
+                            width: kaiwaSummary ? '100%' : `${(kaiwaStep / 5) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Messages Flow */}
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                      {kaiwaMessages.map((msg, mIdx) => {
+                        const isAi = msg.sender === 'ai';
+
+                        return (
+                          <div
+                            key={mIdx}
+                            className={`flex gap-3 ${isAi ? 'justify-start' : 'justify-end'}`}
+                          >
+                            {isAi && (
+                              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-purple-600 text-white text-xs font-bold shadow-xs mt-1">
+                                <Bot className="h-5 w-5" />
+                              </div>
+                            )}
+
+                            <div
+                              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 space-y-2 text-sm ${
+                                isAi
+                                  ? 'bg-secondary/40 border border-border text-foreground'
+                                  : 'bg-primary text-primary-foreground font-japanese text-[15px]'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <span className={`text-[11px] font-bold uppercase tracking-wider ${isAi ? 'text-purple-600 dark:text-purple-400' : 'text-primary-foreground/80'}`}>
+                                  {isAi ? 'Sensei' : 'Siz'}
+                                </span>
+                                {isAi && (
+                                  <button
+                                    type="button"
+                                    onClick={() => playJapaneseAudio(msg.japanese)}
+                                    className="text-muted-foreground hover:text-foreground cursor-pointer"
+                                  >
+                                    <Volume2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
+
+                              <p className={`font-semibold ${isAi ? 'font-japanese text-[16px]' : ''}`}>
+                                {msg.japanese}
+                              </p>
+
+                              {isAi && msg.romaji && (
+                                <p className="text-xs font-mono text-muted-foreground">
+                                  {msg.romaji}
+                                </p>
+                              )}
+
+                              {isAi && msg.uzbek && (
+                                <p className="text-xs text-muted-foreground/90 pt-1 border-t border-border/40">
+                                  {msg.uzbek}
+                                </p>
+                              )}
+
+                              {/* Correction Badge */}
+                              {msg.correction && (
+                                <div className="mt-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                                  <strong>⚠️ Maslahat:</strong> {msg.correction}
+                                </div>
+                              )}
+
+                              {/* Encouragement Badge */}
+                              {msg.encouragement && (
+                                <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                                  ✨ {msg.encouragement}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {kaiwaLoading && (
+                        <div className="flex gap-3 items-center text-xs text-purple-600 dark:text-purple-400 py-2">
+                          <div className="grid h-8 w-8 place-items-center rounded-xl bg-purple-600/10">
+                            <Sparkles className="h-4 w-4 animate-spin" />
+                          </div>
+                          <span>Sensei javob bermoqda...</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Celebration / Summary Card */}
+                    {kaiwaSummary ? (
+                      <div className="rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-card p-6 sm:p-8 text-center space-y-4 animate-in zoom-in-95 duration-300">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span>Dars muloqoti muvaffaqiyatli yakunlandi!</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-center">
+                          <div className="p-3 rounded-2xl bg-secondary/40 border border-border">
+                            <div className="text-xl font-bold text-foreground">
+                              {kaiwaSummary.accuracyPercent}%
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">Aniq javoblar</div>
+                          </div>
+                          <div className="p-3 rounded-2xl bg-secondary/40 border border-border">
+                            <div className="text-xl font-bold text-foreground">
+                              {kaiwaSummary.wordsUsedCount} ta
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">Yangi soʻzlar</div>
+                          </div>
+                          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 col-span-2 sm:col-span-1">
+                            <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                              +{kaiwaRewardAwarded || kaiwaSummary.rewardCoins || 20} 🪙
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">Tanga berildi!</div>
+                          </div>
+                        </div>
+
+                        <p className="text-sm text-foreground/90 max-w-md mx-auto leading-relaxed">
+                          {kaiwaSummary.feedback}
+                        </p>
+
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={startKaiwa}
+                            className="px-6 py-2.5 rounded-xl border border-border bg-card hover:bg-secondary text-xs font-semibold text-foreground transition-all cursor-pointer"
+                          >
+                            Qaytadan mashq qilish
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* User Input Box */
+                      <div className="space-y-3 pt-2">
+                        {/* Quick prompt hints from lesson */}
+                        {lesson?.content?.kotoba && lesson.content.kotoba.length > 0 && (
+                          <div className="space-y-1.5">
+                            <span className="text-[11px] text-muted-foreground font-medium">
+                              Yordamchi soʻzlar (bosib kiriting):
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {lesson.content.kotoba.slice(0, 6).map((k) => (
+                                <button
+                                  key={k.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setKaiwaInput((prev) => (prev ? `${prev} ${k.word}` : k.word))
+                                  }
+                                  className="text-xs px-2.5 py-1 rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                >
+                                  {k.word} ({k.meaningUz})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={kaiwaInput}
+                            onChange={(e) => setKaiwaInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                sendKaiwa();
+                              }
+                            }}
+                            placeholder="Yaponcha javobingizni yozing (masalan: はい、学生です)..."
+                            disabled={kaiwaLoading}
+                            className="flex-1 rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm sm:text-base text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-purple-500 focus:bg-card focus:ring-2 focus:ring-purple-500/10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => sendKaiwa()}
+                            disabled={kaiwaLoading || !kaiwaInput.trim()}
+                            className="px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold text-sm shadow-md transition-all cursor-pointer inline-flex items-center gap-1.5"
+                          >
+                            {kaiwaLoading ? (
+                              <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <>
+                                <span>Yuborish</span>
+                                <ArrowRight className="h-4 w-4" />
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

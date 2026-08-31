@@ -13,6 +13,7 @@ import { TestsModule } from './tests/tests.module';
 import { ShopModule } from './shop/shop.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SearchModule } from './search/search.module';
+import { AiModule } from './ai/ai.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -39,6 +40,7 @@ import { AppService } from './app.service';
     ShopModule,
     SubscriptionsModule,
     SearchModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [
