@@ -7,7 +7,7 @@ const defaultLocale = 'uz';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Ignore static assets, next internals, and files with extensions
+  // 1. Skip next internal files, api routes, and static assets with extensions
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if pathname already starts with a supported locale
+  // 2. Check if pathname already starts with a supported locale
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
@@ -25,16 +25,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect to default locale (avoid trailing slash /uz/ on root)
-  const redirectPath = pathname === '/' ? `/${defaultLocale}` : `/${defaultLocale}${pathname}`;
-  const url = request.nextUrl.clone();
-  url.pathname = redirectPath;
-  return NextResponse.redirect(url);
+  // 3. Redirect to default locale (e.g. / -> /uz, /dashboard -> /uz/dashboard)
+  request.nextUrl.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`;
+  return NextResponse.redirect(request.nextUrl);
 }
 
 export const config = {
-  // Matcher ignoring internal Next.js paths and static file extensions
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml|webmanifest)$).*)',
-  ],
+  // Official Next.js matcher pattern (no unsupported regex anchors or non-capturing groups)
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
