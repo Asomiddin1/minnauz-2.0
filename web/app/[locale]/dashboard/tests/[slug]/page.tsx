@@ -33,7 +33,7 @@ import { TestResultsView } from '@/components/dashboard/tests/test-results-view'
 import { getMediaUrl } from '@/components/shared/user-avatar';
 
 export default function TestRunnerPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
@@ -548,7 +548,7 @@ export default function TestRunnerPage() {
             }`}
           >
             <BookOpen className="h-3.5 w-3.5" />
-            <span>1-Modul: 文字・語彙 ({moduleCounts.m1})</span>
+            <span>{t?.examRoom?.section1 || '1-Modul: 文字・語彙'} ({moduleCounts.m1})</span>
           </button>
 
           <button
@@ -561,7 +561,7 @@ export default function TestRunnerPage() {
             }`}
           >
             <FileCheck2 className="h-3.5 w-3.5" />
-            <span>2-Modul: 文法・読解 ({moduleCounts.m2})</span>
+            <span>{t?.examRoom?.section2 || '2-Modul: 文法・読解'} ({moduleCounts.m2})</span>
           </button>
 
           <button
@@ -574,7 +574,7 @@ export default function TestRunnerPage() {
             }`}
           >
             <Headphones className="h-3.5 w-3.5" />
-            <span>3-Modul: 聴解 Audio ({moduleCounts.m3})</span>
+            <span>{t?.examRoom?.section3 || '3-Modul: 聴解 Audio'} ({moduleCounts.m3})</span>
           </button>
         </div>
 

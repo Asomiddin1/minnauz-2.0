@@ -34,7 +34,7 @@ import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function ProfilePage() {
   const { user, devices, fetchDevices, revokeDevice, logout } = useAuth();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [revokingId, setRevokingId] = React.useState<string | null>(null);
   const [refreshing, setRefreshing] = React.useState(false);
   const [studyPlan, setStudyPlan] = React.useState<UserStudyPlan | null>(null);
@@ -127,14 +127,14 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide uppercase">
                 <Sparkles className="h-3.5 w-3.5" />
-                Shaxsiy Kabinet
+                <span>{t?.profilePage?.title || 'Shaxsiy Kabinet'}</span>
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              Profil & Sozlamalar
+              {t?.profilePage?.title || 'Profil & Sozlamalar'}
             </h1>
             <p className="text-sm text-muted-foreground max-w-lg">
-              Shaxsiy maʼlumotlar, oʻrganish surʼati va qurilmalar xavfsizligini boshqaring.
+              {t?.profilePage?.subtitle || 'Shaxsiy maʼlumotlar, oʻrganish surʼati va qurilmalar xavfsizligini boshqaring.'}
             </p>
           </div>
 
@@ -144,10 +144,10 @@ export default function ProfilePage() {
               onClick={handleRefresh}
               disabled={refreshing}
               className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-card border border-border/60 hover:bg-secondary text-foreground text-xs font-medium transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
-              title="Yangilash"
+              title={t?.admin?.overview?.refresh || 'Yangilash'}
             >
               <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span>Yangilash</span>
+              <span>{t?.admin?.overview?.refresh || 'Yangilash'}</span>
             </button>
           </div>
         </div>

@@ -33,7 +33,7 @@ import { useAuth } from '@/lib/auth-context';
 import { getNextJLPTExamDate } from '@/lib/jlpt';
 
 export default function TestsPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { user } = useAuth();
   const isPro = !!user?.isPro;
 
@@ -199,7 +199,7 @@ export default function TestsPage() {
           }`}
         >
           <BookOpen className="h-4 w-4" />
-          <span>Mock Imtihonlar ({tests.length})</span>
+          <span>{t?.tests?.mockExam || 'Mock Imtihonlar'} ({tests.length})</span>
         </button>
 
         <button
@@ -212,7 +212,7 @@ export default function TestsPage() {
           }`}
         >
           <History className="h-4 w-4" />
-          <span>Mening natijalarim tarixi ({history.length})</span>
+          <span>{t?.tests?.resultTitle || 'Mening natijalarim tarixi'} ({history.length})</span>
         </button>
       </div>
 

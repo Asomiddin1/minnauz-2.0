@@ -1,6 +1,26 @@
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-const cleanBaseUrl = rawApiUrl.replace(/\/+$/, '');
-const API_URL = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/api`;
+function resolveApiUrl(): string {
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  const cleanBaseUrl = rawApiUrl.replace(/\/+$/, '');
+  const base = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/api`;
+
+  if (typeof window !== 'undefined') {
+    const currentHost = window.location.hostname;
+    // If accessing via LAN IP (e.g. 192.168.x.x on mobile), replace localhost with device hostname
+    if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+      try {
+        const parsed = new URL(base);
+        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+          parsed.hostname = currentHost;
+          return parsed.toString().replace(/\/+$/, '');
+        }
+      } catch {}
+    }
+  }
+
+  return base;
+}
+
+export const API_URL = resolveApiUrl();
 
 // Statik fayllar (masalan, yuklangan videolar) uchun /api siz asosiy manzil
 export const API_ORIGIN = API_URL.replace(/\/api$/, '');

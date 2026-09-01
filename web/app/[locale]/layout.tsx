@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 import { ThemeProvider } from "@/lib/theme";
-import { LangProvider } from "@/lib/i18n";
+import { LangProvider, type Lang } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth-context";
 import NextTopLoader from "nextjs-toploader";
 
@@ -31,9 +31,12 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
+  const validLocale: Lang = ['uz', 'ru', 'en', 'ja', 'jp'].includes(locale)
+    ? (locale === 'jp' ? 'ja' : (locale as Lang))
+    : 'uz';
   
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={validLocale} suppressHydrationWarning>
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col antialiased bg-background text-foreground`}>
         <NextTopLoader
           color="#0071e3"
@@ -48,7 +51,7 @@ export default async function RootLayout({
           zIndex={99999}
         />
         <ThemeProvider>
-          <LangProvider>
+          <LangProvider initialLang={validLocale}>
             <AuthProvider>
               {children}
             </AuthProvider>

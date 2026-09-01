@@ -1,0 +1,843 @@
+{
+  "nav": {
+    "levels": "Levels",
+    "practice": "Practice",
+    "kids": "Kids",
+    "premium": "Premium",
+    "schools": "Schools",
+    "getStarted": "Get started",
+    "language": "Language"
+  },
+  "hero": {
+    "titleA": "Japanese, from",
+    "titleB": "to fluent.",
+    "sub": "One platform for every JLPT level. Real exam tests, video lessons, and AI that hears your pronunciation — built in Tashkent for Uzbek learners.",
+    "cta1": "Start free",
+    "cta2": "Take a placement test →",
+    "stats": ["active learners", "JLPT levels", "speech accuracy", "exam questions"]
+  },
+  "levels": {
+    "eyebrow": "The path",
+    "heading": "Five levels. One continuous line.",
+    "kanji": "Kanji",
+    "words": "Vocabulary",
+    "hours": "Study hours",
+    "items": [
+      {
+        "title": "The first hundred days",
+        "blurb": "Hiragana, katakana and 103 kanji. By the end you order lunch, introduce yourself, and read a train sign without panic."
+      },
+      {
+        "title": "Everyday Japanese",
+        "blurb": "Plain form, te-form chains and casual speech. You follow slow conversations about familiar topics and write short messages."
+      },
+      {
+        "title": "The bridge level",
+        "blurb": "Where most learners stall — so we spend the most time here. Keigo basics, newspaper headlines, and natural listening speed."
+      },
+      {
+        "title": "Work-ready",
+        "blurb": "Business email, interview Japanese, and reading full articles. The level most Japanese employers ask for."
+      },
+      {
+        "title": "No subtitles",
+        "blurb": "Abstract essays, dialects, academic listening. You stop translating in your head and start thinking in Japanese."
+      }
+    ]
+  },
+  "practice": {
+    "eyebrow": "Practice",
+    "heading": "Everything you need on exam day. Nothing you don't.",
+    "speech": {
+      "eyebrow": "AI pronunciation",
+      "title": "It listens like a teacher does.",
+      "body": "Say the phrase. We score pitch accent, vowel length and rhythm — then tell you exactly which mora slipped."
+    },
+    "streak": {
+      "eyebrow": "Daily streak",
+      "title": "Twelve minutes beats twelve hours.",
+      "strong": "27-day streak.",
+      "body": "XP carries across lessons, tests and mini-games."
+    },
+    "tests": {
+      "eyebrow": "Test bank",
+      "title": "Real JLPT conditions.",
+      "body": "2,800 questions written to the official blueprint, timed to the minute, scored the way Japan scores them.",
+      "rows": ["Language knowledge", "Reading", "Listening"]
+    },
+    "video": {
+      "eyebrow": "Video lessons",
+      "title": "Taught by people who passed.",
+      "body": "412 lessons in Uzbek and Russian, from kana strokes to keigo, with transcripts you can search mid-sentence."
+    }
+  },
+  "kids": {
+    "eyebrow": "Minna ABC · ages 8–13",
+    "heading": "Kids don't study. They play, and it sticks.",
+    "body": "Phonics first, then illustrated stories that reuse every character a child has already met. Parents get a weekly note on what changed — not a chart nobody reads.",
+    "caption": "Stroke order, traced with a finger. 46 characters, one week.",
+    "items": [
+      ["Phonics", "Sound before symbol, so reading starts on day one."],
+      ["Story mode", "38 illustrated readers, each unlocking the next."],
+      ["Handwriting", "Guided strokes with instant correction."]
+    ]
+  },
+  "premium": {
+    "eyebrow": "Premium",
+    "heading": "Pay once a year. Forget it exists.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perYear": "year",
+    "perMonth": "mo",
+    "free": "Free",
+    "trial": "Start 7-day trial",
+    "choose": "Choose",
+    "footnote": "Pass your level with us and the next year of Premium is free. Cancel any time in Settings.",
+    "plans": [
+      {
+        "note": "Everything you need to start",
+        "features": [
+          "N5 lesson track",
+          "3 practice tests a month",
+          "Streaks and XP",
+          "Community answers"
+        ]
+      },
+      {
+        "note": "The whole library, no ads",
+        "features": [
+          "All five JLPT levels",
+          "Full 2,800-question test bank",
+          "AI speech scoring, unlimited",
+          "412 video lessons, offline",
+          "Mini-games unlocked",
+          "Certificate on completion"
+        ]
+      },
+      {
+        "note": "Up to four learners",
+        "features": [
+          "Everything in SUPERMINNA",
+          "Minna ABC for kids",
+          "Parent progress digest",
+          "Shared billing"
+        ]
+      }
+    ]
+  },
+  "schools": {
+    "eyebrow": "For schools",
+    "heading": "One dashboard for every classroom you run.",
+    "demo": "Request a demo",
+    "overview": "Cohort overview",
+    "updated": "Autumn 2026 · updated 4 min ago",
+    "columns": ["Center", "City", "Learners", "Track", "Pass rate"],
+    "cities": ["Tashkent", "Samarkand", "Bukhara", "Nationwide"],
+    "mixed": "Mixed"
+  },
+  "footer": {
+    "heading": "Your first Japanese word is free.",
+    "cta1": "Start free",
+    "cta2": "See the levels",
+    "tagline": "Japanese for Uzbekistan. Built in Tashkent.",
+    "columns": [
+      { "title": "Learn", "links": ["JLPT N5", "JLPT N4", "JLPT N3", "JLPT N2", "JLPT N1", "Minna ABC"] },
+      {
+        "title": "Product",
+        "links": ["Practice tests", "Video lessons", "Speech scoring", "Mini-games"]
+      },
+      { "title": "Company", "links": ["About us", "Results", "Support center", "Contact"] },
+      { "title": "Legal", "links": ["Terms", "Public offer", "Privacy", "Payments"] }
+    ],
+    "rights": "© 2026 Minna.Uz. All rights reserved.",
+    "address": "Tashkent, Uzbekistan · support@minna.uz"
+  },
+  "auth": {
+    "back": "Back",
+    "title": "Sign in to Minna",
+    "sub": "Your streak, your levels, your tests — on every device.",
+    "google": "Continue with Google",
+    "or": "or",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "emailInvalid": "Enter a valid email address.",
+    "sendCode": "Send me a code",
+    "sending": "Sending…",
+    "codeTitle": "Check your inbox",
+    "codeSub": "We sent a six-digit code to",
+    "codeIncomplete": "Enter all six digits.",
+    "codeWrong": "That code is not right. Try again.",
+    "verify": "Verify and continue",
+    "verifying": "Verifying…",
+    "resend": "Send a new code",
+    "resendIn": "You can ask for a new code in",
+    "seconds": "s",
+    "changeEmail": "Use a different email",
+    "successTitle": "You're in.",
+    "successSub": "Taking you to your dashboard…",
+    "terms": "By continuing you agree to the Terms and Privacy Policy.",
+    "callbackLoading": "Signing in with Google...",
+    "callbackChecking": "Checking your session, please wait",
+    "callbackError": "Login error",
+    "backToLogin": "Back to login"
+  },
+  "notFound": {
+    "title": "This page went missing.",
+    "sub": "The link is broken or the page has moved.",
+    "home": "Back to home"
+  },
+  "dash": {
+    "search": "Search…",
+    "collapse": "Collapse sidebar",
+    "menu": "Menu",
+    "nav": ["Home", "Courses", "JLPT", "Premium", "Profile"],
+    "tabs": [
+      "Home",
+      "Vocabulary",
+      "Games",
+      "Dokkai",
+      "Kanji",
+      "Store",
+      "Translator",
+      "AI tutor",
+      "Premium"
+    ],
+    "pageTitle": "Home",
+    "expand": "Focus mode",
+    "soon": {
+      "title": "This section is on the way",
+      "body": "We are still building it. Meanwhile, keep your streak going from Home.",
+      "back": "Back to Home"
+    },
+    "goal": {
+      "title": "You're close to your goal.",
+      "level": "Level",
+      "continue": "Continue"
+    },
+    "admin": "Admin panel",
+    "logout": "Sign out",
+    "hero": {
+      "chip": "Today's goal",
+      "title": "Ready for the JLPT?",
+      "sub": "Learn Japanese from N5 to N1 with real exam tests and daily drills.",
+      "cta1": "Open lesson",
+      "cta2": "Plan my week"
+    },
+    "levelLabels": [
+      "Beginner level",
+      "Basic level",
+      "Intermediate level",
+      "Upper level",
+      "Highest level"
+    ],
+    "calendar": {
+      "title": "Calendar",
+      "streakDays": "{streakDays}-day streak",
+      "weekdays": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+      "months": [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ],
+      "done": "Completed",
+      "missed": "Missed",
+      "prev": "Previous month",
+      "next": "Next month"
+    },
+    "progress": {
+      "title": "Overall progress",
+      "period": "This week",
+      "todayLabel": "Today's study time",
+      "goalLabel": "Weekly goal"
+    },
+    "stats": {
+      "streak": "Streak (days)",
+      "wordsLearned": "Words learned",
+      "lessonsCompleted": "Completed lessons",
+      "levelGoal": "preparation",
+      "daysSuffix": "days",
+      "itemsSuffix": "items"
+    },
+    "countdown": {
+      "untilExam": "Until JLPT {season} Exam",
+      "title": "Time is ticking! Keep reinforcing your knowledge regularly.",
+      "officialDate": "Official exam date:",
+      "mockTestBtn": "Mock Test",
+      "units": {
+        "days": "DAYS",
+        "hours": "HRS",
+        "minutes": "MIN",
+        "seconds": "SEC"
+      }
+    },
+    "banner": {
+      "weeklyGoalTag": "Weekly Goal",
+      "weeklyGoalTitle": "How is your weekly plan going?",
+      "weeklyGoalDesc": "You completed {percent}% of your goal this week. You are very close to reaching it!",
+      "details": "Details",
+      "dismiss": "Dismiss banner",
+      "prevSlide": "Previous slide",
+      "nextSlide": "Next slide",
+      "slide": "Slide",
+      "announcement": "Announcement",
+      "go": "Go",
+      "understood": "Got it"
+    },
+    "activeCourse": {
+      "badge": "Current Course",
+      "defaultTitle": "Minna no Nihongo I (N5)",
+      "lessonsCount": "{completed} / {total} Lessons",
+      "nextLesson": "Next lesson:",
+      "defaultNextLesson": "Lesson 1: Introduction & Basics",
+      "defaultCategory": "Grammar",
+      "progress": "Course progress",
+      "goToLesson": "Go to lesson"
+    },
+    "testsWidget": {
+      "eyebrow": "Exam",
+      "title": "JLPT Mock Tests",
+      "all": "All",
+      "allTestsBtn": "All tests",
+      "examTitle": "JLPT {season} Exam",
+      "daysRemaining": "{days} days left",
+      "historyTitle": "Test history",
+      "attempts": "{count} attempts",
+      "emptyTitle": "You haven't taken a mock test yet",
+      "emptyDesc": "Take a practice test matching the real exam format and test your skills.",
+      "takeTestBtn": "Take test",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{days} days ago",
+      "minutes": "min",
+      "passed": "Passed",
+      "failed": "Failed",
+      "viewResults": "View results and analysis"
+    },
+    "progressWidget": {
+      "title": "Overall progress",
+      "period": "This week",
+      "todayStudyTime": "Today's study time",
+      "hourUnit": "h",
+      "minUnit": "m",
+      "weeklyGoal": "Weekly goal ({hours} hrs)"
+    },
+    "studyPlanModal": {
+      "titleWelcome": "Welcome · Onboarding",
+      "titleEdit": "Personal Study Plan",
+      "stepSuffix": " step",
+      "step1Title": "Choose your target JLPT level",
+      "step2Title": "How many hours per week will you study?",
+      "step3Title": "Target timeline and exam",
+      "step1Desc": "Select the level you want to reach. Dashboard and lessons will adapt to it:",
+      "step2Desc": "Consistency is the key to success. Choose a comfortable pace:",
+      "step3Desc": "When do you plan to take the exam?",
+      "recommended": "Recommended",
+      "approxHours": "≈ {hours} hrs",
+      "summaryTitle": "Your final plan",
+      "summaryGoal": "Target",
+      "summaryWeekly": "Weekly",
+      "summaryDaily": "Daily",
+      "hoursSuffix": "hrs",
+      "minSuffix": "min",
+      "back": "Back",
+      "next": "Next",
+      "saving": "Saving...",
+      "savePlan": "Confirm plan"
+    },
+    "courses": {
+      "title": "Continue where you stopped",
+      "items": [
+        ["Hiragana in a week", "Lesson 6 of 12"],
+        ["N5 kanji · set 3", "Lesson 2 of 9"],
+        ["N4 listening", "Lesson 8 of 14"]
+      ]
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "joined": "With Minna since",
+    "edit": "Edit profile",
+    "stats": [
+      ["Tests taken", "24"],
+      ["Passed", "19"],
+      ["Average score", "142/180"],
+      ["Longest streak", "41 days"]
+    ],
+    "history": {
+      "title": "Test history",
+      "sub": "Every attempt, scored the way the JLPT scores it.",
+      "filters": ["All", "Passed", "Failed"],
+      "columns": ["Date", "Test", "Level", "Score", "Result", "Time"],
+      "passed": "Passed",
+      "failed": "Failed",
+      "empty": "No attempts in this filter yet.",
+      "more": "Show more",
+      "names": [
+        "Full mock exam",
+        "Language knowledge",
+        "Listening",
+        "Reading",
+        "Kanji sprint",
+        "Grammar drill"
+      ]
+    },
+    "devices": {
+      "title": "Devices",
+      "sub": "Places where your account is signed in.",
+      "current": "This device",
+      "lastActive": "Last active",
+      "now": "now",
+      "revoke": "Sign out",
+      "revokeAll": "Sign out of all other devices",
+      "empty": "No other devices are signed in."
+    }
+  },
+  "video": {
+    "title": "Video lessons",
+    "sub": "Watch, read the subtitles in your language, repeat out loud.",
+    "search": "Search lessons",
+    "all": "All",
+    "empty": "Nothing matches that search.",
+    "lessons": "lessons",
+    "minutes": "min",
+    "views": "views",
+    "back": "All videos",
+    "watchNext": "Watch next",
+    "transcript": {
+      "title": "Subtitles",
+      "sub": "Tap a line to jump there.",
+      "bilingual": "Show Japanese too",
+      "auto": "Follow playback",
+      "empty": "Subtitles for this lesson are being prepared."
+    }
+  },
+  "plans": {
+    "title": "Premium",
+    "sub": "One subscription. Every level, every test, every video.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "save 20%",
+    "perMonth": "/mo",
+    "billedYearly": "billed yearly",
+    "currency": "UZS",
+    "current": "Current plan",
+    "choose": "Upgrade",
+    "popular": "Most popular",
+    "names": ["Free", "Premium", "Family"],
+    "notes": [
+      "Enough to find out if Japanese is for you",
+      "The whole library, no limits, no ads",
+      "Up to four learners on one bill"
+    ],
+    "highlights": [
+      ["N5 lessons", "3 tests a month", "Streaks and XP"],
+      ["All five JLPT levels", "2,800-question test bank", "AI speech scoring", "Offline video"],
+      ["Everything in Premium", "Minna ABC for kids", "Parent digest", "Shared billing"]
+    ],
+    "compare": {
+      "title": "What you get",
+      "columns": ["Feature", "Free", "Premium", "Family"],
+      "rows": [
+        "JLPT levels N5–N1",
+        "Video lessons with subtitles",
+        "Full mock exams",
+        "AI speech scoring",
+        "Offline downloads",
+        "Kids track (Minna ABC)",
+        "Up to 4 accounts",
+        "Certificate on completion"
+      ]
+    },
+    "guarantee": "Pass your level with us and the next year is free. Cancel any time.",
+    "faq": {
+      "title": "Questions",
+      "items": [
+        ["Can I cancel whenever I want?", "Yes. Cancel in Settings and you keep access until the paid period ends."],
+        ["How do I pay?", "Uzcard, Humo and Visa through Payme or Click. Payment is charged in UZS."],
+        ["Does Family need separate emails?", "Each learner signs in with their own email, but the bill stays on one card."],
+        ["What happens to my progress if I downgrade?", "Nothing is deleted. Locked lessons simply wait until you upgrade again."]
+      ]
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "next": "Next",
+    "prev": "Previous",
+    "all": "All",
+    "search": "Search...",
+    "filter": "Filter",
+    "retry": "Retry",
+    "open": "Open",
+    "select": "Select",
+    "start": "Start",
+    "viewAll": "View all",
+    "days": "days",
+    "items": "items"
+  },
+  "sidebar": {
+    "home": "Home",
+    "courses": "Courses",
+    "jlpt": "JLPT",
+    "premium": "Premium",
+    "profile": "Profile",
+    "admin": "Admin Panel",
+    "logout": "Sign out",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "vocab": {
+    "title": "Vocabulary & Kotoba",
+    "subtitle": "Learn JLPT vocabulary with smart spaced repetition and interactive flashcards.",
+    "catalog": "Dictionary Catalog",
+    "flashcards": "Flashcards Practice",
+    "openWords": "Available Words",
+    "learning": "In Progress",
+    "mastered": "Mastered",
+    "saved": "Saved",
+    "searchPlaceholder": "Search word, romaji, or meaning...",
+    "allLevels": "All Levels",
+    "flipCard": "Click card to flip",
+    "markMastered": "Know it",
+    "markLearning": "Review again",
+    "emptyCatalog": "No words found matching your search.",
+    "emptyFlashcards": "No words in this flashcard deck.",
+    "exampleSentence": "Example sentence"
+  },
+  "kanji": {
+    "title": "Kanji Laboratory",
+    "subtitle": "Master JLPT kanji with stroke order animations, radicals, and drawing canvas.",
+    "catalog": "Kanji Catalog",
+    "flashcards": "Kanji Flashcards",
+    "openKanji": "Available Kanji",
+    "learning": "Learning",
+    "mastered": "Mastered",
+    "saved": "Saved",
+    "searchPlaceholder": "Search kanji or meaning...",
+    "radicals": "Radicals",
+    "onyomi": "On'yomi",
+    "kunyomi": "Kun'yomi",
+    "strokes": "Strokes",
+    "practiceDraw": "Practice Drawing",
+    "clearCanvas": "Clear",
+    "animate": "Animate",
+    "strokeOrder": "Stroke order"
+  },
+  "dokkai": {
+    "title": "Dokkai Reading",
+    "subtitle": "Practice reading Japanese articles, news, and JLPT passages with furigana.",
+    "articles": "Articles",
+    "furigana": "Furigana",
+    "questions": "Comprehension Questions",
+    "checkAnswer": "Check Answer",
+    "correct": "Correct!",
+    "incorrect": "Incorrect, review the text.",
+    "explanation": "Explanation"
+  },
+  "ai": {
+    "title": "AI Sensei",
+    "subtitle": "Practice speaking Japanese with real-time AI pronunciation feedback.",
+    "badge": "Emotional AI",
+    "faceToFace": "Face-to-Face Conversation",
+    "liveVoiceChat": "Speak directly with AI Sensei. Be careful, make mistakes and their temper might rise!",
+    "startSpeaking": "Start Speaking",
+    "stopSpeaking": "Stop Speaking",
+    "listening": "Listening...",
+    "feedback": "AI Feedback"
+  },
+  "translate": {
+    "title": "AI Translator",
+    "subtitle": "Intelligent Japanese-Uzbek translation with grammar and furigana breakdown.",
+    "placeholder": "Enter text to translate...",
+    "translateBtn": "Translate",
+    "translating": "Translating...",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "swap": "Swap languages",
+    "breakdown": "Grammar & Vocabulary Breakdown"
+  },
+  "store": {
+    "title": "Coin Store",
+    "subtitle": "Spend your earned coins on avatar frames, streak freezes, and study boosters.",
+    "balance": "Your Balance",
+    "frames": "Avatar Frames",
+    "freezes": "Streak Freezes",
+    "boosters": "XP Boosters",
+    "buy": "Purchase",
+    "bought": "Purchased",
+    "equip": "Equip",
+    "equipped": "Equipped",
+    "unequip": "Unequip",
+    "insufficientCoins": "Not enough coins"
+  },
+  "games": {
+    "title": "Language Mini-Games",
+    "subtitle": "Sharpen your memory with quick kana and vocabulary mini-games.",
+    "speedMatch": "Speed Match",
+    "kanjiBattle": "Kanji Battle",
+    "kanaDash": "Kana Dash",
+    "leaderboard": "Leaderboard",
+    "play": "Play",
+    "score": "Score",
+    "bestScore": "Best Score",
+    "playAgain": "Play Again"
+  },
+  "courses": {
+    "title": "Courses",
+    "subtitle": "Structured video lessons from N5 to N1 taught by top instructors.",
+    "modules": "Modules",
+    "lessons": "Lessons",
+    "duration": "Duration",
+    "startLesson": "Start Lesson",
+    "completed": "Completed",
+    "homework": "Homework & Quizzes",
+    "notes": "Lesson Notes"
+  },
+  "tests": {
+    "title": "JLPT Mock Exams",
+    "subtitle": "Full-length exam simulations timed and scored according to official JLPT standards.",
+    "mockExam": "Full Mock Exam",
+    "timeRemaining": "Time Remaining",
+    "question": "Question",
+    "next": "Next Question",
+    "prev": "Previous Question",
+    "finish": "Finish & Submit",
+    "resultTitle": "Exam Results",
+    "scoreLabel": "Your Score",
+    "passed": "Passed!",
+    "failed": "Failed",
+    "reviewAnswers": "Review Answers"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Admin Panel",
+      "dashboard": "Dashboard",
+      "banners": "Banners",
+      "courses": "Courses & Lessons",
+      "tests": "JLPT Tests",
+      "shop": "Digital Store",
+      "subscriptions": "Subscriptions & VIP",
+      "users": "Users",
+      "notifications": "Notifications",
+      "studentPanel": "Student Dashboard",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar",
+      "logout": "Log Out"
+    },
+    "header": {
+      "title": "Admin",
+      "studentPanel": "Student Dashboard",
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "dashboardSub": "Platform metrics and general overview",
+        "users": "Users",
+        "usersSub": "Manage all students, teachers, and admins",
+        "courses": "Courses",
+        "coursesSub": "Lessons and learning modules",
+        "tests": "JLPT Tests",
+        "testsSub": "Exam questions database",
+        "shop": "Digital Store",
+        "shopSub": "Store items and profile avatar frames",
+        "subscriptions": "Subscriptions & VIP",
+        "subscriptionsSub": "PRO members and revenue history",
+        "banners": "Banners",
+        "bannersSub": "Announcements and promotional banners",
+        "notifications": "Notifications",
+        "notificationsSub": "Broadcast announcements to users"
+      }
+    },
+    "overview": {
+      "title": "Control Panel",
+      "welcome": "Welcome back",
+      "subtitle": "Platform statistics and user activity overview:",
+      "refresh": "Refresh",
+      "totalUsers": "Total Users",
+      "todayRegistered": "Registered Today",
+      "proUsers": "PRO Members",
+      "activeCourses": "Active Courses",
+      "recentUsers": "Recent Users",
+      "viewAll": "View All",
+      "tableUser": "User",
+      "tableRole": "Role",
+      "tableCoins": "Coins",
+      "tableStatus": "Status",
+      "tableJoined": "Joined Date",
+      "tableActions": "Actions",
+      "active": "Active",
+      "blocked": "Blocked",
+      "noUsers": "No users found",
+      "roles": {
+        "superAdmin": "Super Admin",
+        "admin": "Admin",
+        "teacher": "Teacher",
+        "student": "Student"
+      }
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "search": "Search...",
+      "filter": "Filter",
+      "actions": "Actions",
+      "status": "Status",
+      "success": "Saved successfully!",
+      "error": "An error occurred"
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage all students, teachers, and administrators",
+      "searchPlaceholder": "Search by name or email...",
+      "allRoles": "All roles",
+      "filter": "Filter",
+      "addUser": "Add User",
+      "name": "Full Name",
+      "email": "Email Address",
+      "role": "Role",
+      "avatar": "Avatar",
+      "verified": "Email Verified",
+      "editUser": "Edit User",
+      "deleteUser": "Delete User",
+      "deleteConfirm": "Are you sure you want to delete this user?",
+      "devices": "Devices",
+      "activeSessions": "Active Sessions",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "submitting": "Saving...",
+      "totalCount": "Total Users"
+    },
+    "courses": {
+      "title": "Course Management",
+      "subtitle": "Manage video courses, lessons, and learning modules",
+      "createCourse": "Create Course",
+      "editCourse": "Edit Course",
+      "deleteCourse": "Delete Course",
+      "courseTitle": "Course Title",
+      "level": "Level",
+      "description": "Description",
+      "price": "Price",
+      "teacher": "Instructor",
+      "selectTeacher": "Select Instructor",
+      "allTeachers": "All Instructors",
+      "isFree": "Free Course",
+      "isPublished": "Published",
+      "thumbnail": "Course Thumbnail (URL or Upload)",
+      "lessonsCount": "Lessons Count",
+      "manageModules": "Modules & Lessons",
+      "emptyCourses": "No courses available yet."
+    },
+    "tests": {
+      "title": "JLPT Test Management",
+      "subtitle": "Manage mock exams and practice question databases",
+      "createTest": "Create Test",
+      "editTest": "Edit Test",
+      "deleteTest": "Delete Test",
+      "testTitle": "Test Title",
+      "level": "Level",
+      "duration": "Duration (minutes)",
+      "passingScore": "Passing Score",
+      "category": "Category",
+      "mockExam": "Full Mock Exam",
+      "practice": "Practice Quiz",
+      "questionsCount": "Questions Count",
+      "manageQuestions": "Manage Questions",
+      "emptyTests": "No tests available yet."
+    },
+    "subscriptions": {
+      "title": "Subscriptions & VIP",
+      "subtitle": "Manage PRO members and payment transactions",
+      "activeSubs": "Active PRO Members",
+      "grantPro": "Grant PRO Access",
+      "userEmail": "User Email",
+      "durationDays": "Duration (days)",
+      "planType": "Plan Type",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "lifetime": "Lifetime",
+      "save": "Activate Subscription"
+    },
+    "banners": {
+      "title": "Banner Management",
+      "subtitle": "Announcement and promotional banners",
+      "createBanner": "New Banner",
+      "bannerTitle": "Title",
+      "description": "Description",
+      "image": "Image",
+      "btnText": "Button Text",
+      "btnUrl": "Target URL",
+      "isActive": "Active",
+      "save": "Save"
+    },
+    "shop": {
+      "title": "Digital Store Management",
+      "subtitle": "Manage avatar frames and store perks",
+      "createItem": "Create Item",
+      "itemName": "Item Name",
+      "priceCoins": "Price (Coins)",
+      "category": "Category",
+      "frames": "Avatar Frames",
+      "perks": "Perks"
+    },
+    "notifications": {
+      "title": "Notification Broadcasts",
+      "subtitle": "Broadcast announcements to users",
+      "create": "Compose Notification",
+      "subject": "Subject",
+      "message": "Message Body",
+      "audience": "Audience",
+      "allUsers": "All Users",
+      "proUsers": "PRO Users Only",
+      "send": "Broadcast"
+    }
+  },
+  "profilePage": {
+    "title": "My Profile",
+    "subtitle": "Personal account details, study settings, and stats",
+    "editProfile": "Edit Profile",
+    "changeAvatar": "Change Avatar",
+    "studyPlan": "Study Plan",
+    "activeDevices": "Connected Devices",
+    "deviceSessions": "Session History",
+    "revokeAll": "Revoke All Other Devices",
+    "revoke": "Revoke",
+    "thisDevice": "Current Device",
+    "planTitle": "JLPT Goal",
+    "weeklyGoal": "Weekly Study Goal",
+    "minutesPerDay": "min/day",
+    "successUpdated": "Profile updated successfully!"
+  },
+  "lessonRoom": {
+    "syllabus": "Course Syllabus",
+    "vocabulary": "Vocabulary (Kotoba)",
+    "grammar": "Grammar (Bunpou)",
+    "practice": "Practice (Renshuu)",
+    "subtitles": "Subtitles",
+    "nextLesson": "Next Lesson",
+    "prevLesson": "Previous Lesson",
+    "completeAndContinue": "Complete & Next",
+    "notes": "Lesson Notes"
+  },
+  "examRoom": {
+    "title": "JLPT Mock Exam Simulator",
+    "timeLeft": "Time Left",
+    "section1": "1. Language Knowledge & Kanji",
+    "section2": "2. Grammar & Reading",
+    "section3": "3. Listening",
+    "submitExam": "Submit Exam",
+    "confirmSubmit": "Are you sure you want to finish and submit your exam?",
+    "scoreResult": "Your Result",
+    "passed": "Congratulations! You passed! 🎉",
+    "failed": "Unfortunately, you did not pass this time.",
+    "reviewAnswers": "Review Answers",
+    "backToTests": "Back to Test List"
+  }
+}

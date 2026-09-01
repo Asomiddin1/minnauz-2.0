@@ -42,7 +42,7 @@ const ICON_MAP: Record<string, any> = {
 };
 
 export function MainDashboard() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [statsData, setStatsData] = React.useState<UserDashboardStats | null>(null);
   const [customBanners, setCustomBanners] = React.useState<BannerItem[]>([]);
   const [testHistory, setTestHistory] = React.useState<JlptUserTestHistoryItem[]>([]);
@@ -143,14 +143,15 @@ export function MainDashboard() {
     : `/${lang}/dashboard/courses`;
 
   // 1. Core Default Dynamic Slides (JLPT olib tashlandi, faqat maqsad qoldi)
+  // 1. Core Default Dynamic Slides (JLPT olib tashlandi, faqat maqsad qoldi)
   const defaultSlides: DashboardSlide[] = [
     {
       id: 'default-weekly-goal',
-      tag: 'Haftalik maqsad',
+      tag: t?.dash?.banner?.weeklyGoalTag || 'Haftalik maqsad',
       tagIcon: Target,
-      title: 'Haftalik rejangiz qanday ketyapti?',
-      desc: `Siz bu hafta rejangizning ${weeklyProgress}% qismini bajardingiz. Belgilangan maqsadga yetishish uchun oz qoldi!`,
-      btnText: 'Batafsil',
+      title: t?.dash?.banner?.weeklyGoalTitle || 'Haftalik rejangiz qanday ketyapti?',
+      desc: (t?.dash?.banner?.weeklyGoalDesc || 'Siz bu hafta rejangizning {percent}% qismini bajardingiz. Belgilangan maqsadga yetishish uchun oz qoldi!').replace('{percent}', String(weeklyProgress)),
+      btnText: t?.dash?.banner?.details || 'Batafsil',
       btnUrl: null,
       btnIcon: TrendingUp,
       actionType: 'PLAN_MODAL',
@@ -175,17 +176,17 @@ export function MainDashboard() {
         imageUrl: b.image ? getMediaUrl(b.image) : undefined,
         videoUrl: null,
         actionUrl: b.btnUrl || null,
-        actionText: b.btnUrl ? 'Oʻtish' : 'Tushunarli',
+        actionText: b.btnUrl ? (t?.dash?.banner?.go || 'Oʻtish') : (t?.dash?.banner?.understood || 'Tushunarli'),
         createdAt: new Date().toISOString(),
       };
 
       return {
         id: b.id,
-        tag: b.tag || 'Eʼlon',
+        tag: b.tag || t?.dash?.banner?.announcement || 'Eʼlon',
         tagIcon: ICON_MAP[b.tagIcon] || Sparkles,
         title: b.title,
         desc: b.desc,
-        btnText: b.btnText || 'Batafsil',
+        btnText: b.btnText || t?.dash?.banner?.details || 'Batafsil',
         btnUrl: isLink && b.btnUrl ? b.btnUrl : null,
         btnIcon: ICON_MAP[b.btnIcon] || ArrowRight,
         actionType: isLink ? 'LINK' : 'NOTIFICATION_DETAIL',
@@ -197,48 +198,52 @@ export function MainDashboard() {
 
   const allSlides = [...defaultSlides, ...convertedCustomSlides];
 
+  const daysSuffix = t?.dash?.stats?.daysSuffix || 'kun';
+  const itemsSuffix = t?.dash?.stats?.itemsSuffix || 'ta';
+
   const statsProps = [
     {
-      label: 'Streak (kunlar)',
-      value: `${statsData?.streakDays || 1} kun`,
+      label: t?.dash?.stats?.streak || 'Streak (kunlar)',
+      value: `${statsData?.streakDays || 1} ${daysSuffix}`,
       icon: Flame,
       color: 'text-amber-500 bg-amber-500/10',
     },
     {
-      label: 'Yodlangan soʻzlar',
-      value: `${statsData?.wordsLearned || 0} ta`,
+      label: t?.dash?.stats?.wordsLearned || 'Yodlangan soʻzlar',
+      value: `${statsData?.wordsLearned || 0} ${itemsSuffix}`,
       icon: BookOpen,
       color: 'text-[#0071e3] bg-[#0071e3]/10',
     },
     {
-      label: 'Yakunlangan darslar',
+      label: t?.dash?.stats?.lessonsCompleted || 'Yakunlangan darslar',
       value: `${statsData?.completedLessons || 0} / ${statsData?.totalLessons || 25}`,
       icon: CheckCircle2,
       color: 'text-emerald-500 bg-emerald-500/10',
     },
     {
-      label: `JLPT ${targetLevel} tayyorgarlik`,
+      label: `JLPT ${targetLevel} ${t?.dash?.stats?.levelGoal || 'tayyorgarlik'}`,
       value: `${statsData?.n5ProgressPercent || 0}%`,
       icon: TrendingUp,
       color: 'text-indigo-500 bg-indigo-500/10',
     },
   ];
 
+  const weekdays = t?.dash?.calendar?.weekdays || ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
   const weeklyActivityMock = [
-    { day: 'Du', active: false, height: 'h-8' },
-    { day: 'Se', active: false, height: 'h-12' },
-    { day: 'Ch', active: false, height: 'h-10' },
-    { day: 'Pa', active: true, height: 'h-16' },
-    { day: 'Ju', active: false, height: 'h-10' },
-    { day: 'Sh', active: false, height: 'h-6' },
-    { day: 'Ya', active: false, height: 'h-14' },
+    { day: weekdays[0] || 'Du', active: false, height: 'h-8' },
+    { day: weekdays[1] || 'Se', active: false, height: 'h-12' },
+    { day: weekdays[2] || 'Ch', active: false, height: 'h-10' },
+    { day: weekdays[3] || 'Pa', active: true, height: 'h-16' },
+    { day: weekdays[4] || 'Ju', active: false, height: 'h-10' },
+    { day: weekdays[5] || 'Sh', active: false, height: 'h-6' },
+    { day: weekdays[6] || 'Ya', active: false, height: 'h-14' },
   ];
 
   const timeUnits = [
-    { label: 'KUN', value: String(countdown.days).padStart(2, '0') },
-    { label: 'SOAT', value: String(countdown.hours).padStart(2, '0') },
-    { label: 'DAQ', value: String(countdown.minutes).padStart(2, '0') },
-    { label: 'SON', value: String(countdown.seconds).padStart(2, '0') },
+    { label: t?.dash?.countdown?.units?.days || 'KUN', value: String(countdown.days).padStart(2, '0') },
+    { label: t?.dash?.countdown?.units?.hours || 'SOAT', value: String(countdown.hours).padStart(2, '0') },
+    { label: t?.dash?.countdown?.units?.minutes || 'DAQ', value: String(countdown.minutes).padStart(2, '0') },
+    { label: t?.dash?.countdown?.units?.seconds || 'SON', value: String(countdown.seconds).padStart(2, '0') },
   ];
 
   return (
@@ -274,13 +279,15 @@ export function MainDashboard() {
           <div className="space-y-1.5 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
               <Clock className="h-3.5 w-3.5 animate-pulse" />
-              <span>JLPT {countdown.season} Imtihonigacha</span>
+              <span>
+                {(t?.dash?.countdown?.untilExam || 'JLPT {season} Imtihonigacha').replace('{season}', countdown.season)}
+              </span>
             </div>
             <h3 className="text-base sm:text-lg font-bold text-foreground">
-              Vaqt ketyapti! Bilimingizni muntazam mustahkamlab boring.
+              {t?.dash?.countdown?.title || 'Vaqt ketyapti! Bilimingizni muntazam mustahkamlab boring.'}
             </h3>
             <p className="text-xs text-muted-foreground">
-              Rasmiy imtihon sanasi: <span className="font-semibold text-foreground">{countdown.formattedDate}</span>
+              {t?.dash?.countdown?.officialDate || 'Rasmiy imtihon sanasi:'} <span className="font-semibold text-foreground">{countdown.formattedDate}</span>
             </p>
           </div>
 
@@ -308,7 +315,7 @@ export function MainDashboard() {
               className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-amber-500 text-black hover:bg-amber-400 font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-sm"
             >
               <Award className="h-4 w-4" />
-              <span>Mock Test</span>
+              <span>{t?.dash?.countdown?.mockTestBtn || 'Mock Test'}</span>
             </Link>
           </div>
         </div>

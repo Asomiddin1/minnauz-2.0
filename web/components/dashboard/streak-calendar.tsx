@@ -2,11 +2,7 @@
 
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-const MONTH_NAMES_UZ = [
-  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
-  'Iyul', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
-];
+import { useLang } from '@/lib/i18n';
 
 interface StreakCalendarProps {
   streakDays: number;
@@ -14,11 +10,20 @@ interface StreakCalendarProps {
 }
 
 export function StreakCalendar({ streakDays, activeDates }: StreakCalendarProps) {
+  const { t, lang } = useLang();
+  const calDict = t?.dash?.calendar;
+
   const [currentDate, setCurrentDate] = React.useState(() => new Date());
   
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  const monthName = MONTH_NAMES_UZ[month] || 'Avgust';
+
+  const monthName =
+    calDict?.months?.[month] ||
+    new Date(year, month).toLocaleString(
+      lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : lang === 'ja' ? 'ja-JP' : 'en-US',
+      { month: 'long' }
+    );
   
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const startDayOffset = (firstDayOfMonth + 6) % 7; 
@@ -35,29 +40,49 @@ export function StreakCalendar({ streakDays, activeDates }: StreakCalendarProps)
   const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const handleNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
+  const weekdays = calDict?.weekdays || ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
+
   return (
     <div className="rounded-[28px] border border-border bg-card p-6 shadow-xs space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-[18px] font-bold text-foreground">Kalendar</h3>
+        <h3 className="text-[18px] font-bold text-foreground">
+          {calDict?.title || 'Kalendar'}
+        </h3>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/80 px-2.5 py-0.5 text-[12px] font-semibold text-foreground">
           <span className="h-2 w-2 rounded-full bg-[#1a9e4b]" />
-          <span>{streakDays} kunlik streak</span>
+          <span>
+            {(calDict?.streakDays || '{streakDays} kunlik streak').replace('{streakDays}', String(streakDays))}
+          </span>
         </span>
       </div>
 
       <div className="flex items-center justify-between text-[14px] font-medium text-foreground">
-        <button type="button" onClick={handlePrevMonth} className="grid h-7 w-7 place-items-center rounded-full hover:bg-secondary cursor-pointer">
+        <button
+          type="button"
+          onClick={handlePrevMonth}
+          title={calDict?.prev || 'Oldingi oy'}
+          aria-label={calDict?.prev || 'Oldingi oy'}
+          className="grid h-7 w-7 place-items-center rounded-full hover:bg-secondary cursor-pointer"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <span>{monthName} {year}</span>
-        <button type="button" onClick={handleNextMonth} className="grid h-7 w-7 place-items-center rounded-full hover:bg-secondary cursor-pointer">
+        <button
+          type="button"
+          onClick={handleNextMonth}
+          title={calDict?.next || 'Keyingi oy'}
+          aria-label={calDict?.next || 'Keyingi oy'}
+          className="grid h-7 w-7 place-items-center rounded-full hover:bg-secondary cursor-pointer"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
       <div>
         <div className="grid grid-cols-7 text-center text-[11px] font-medium uppercase tracking-wider text-muted-foreground pb-2">
-          <span>Du</span><span>Se</span><span>Ch</span><span>Pa</span><span>Ju</span><span>Sh</span><span>Ya</span>
+          {weekdays.map((day, i) => (
+            <span key={i}>{day}</span>
+          ))}
         </div>
         <div className="grid grid-cols-7 gap-y-1 text-center text-[13px]">
           {calendarDays.map((day, idx) => {
@@ -77,11 +102,11 @@ export function StreakCalendar({ streakDays, activeDates }: StreakCalendarProps)
       <div className="flex items-center justify-center gap-6 pt-2 text-[12px] text-muted-foreground border-t border-border">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-[#1a9e4b]" />
-          <span>Bajarilgan</span>
+          <span>{calDict?.done || 'Bajarilgan'}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full border border-muted-foreground/60" />
-          <span>Oʻtkazib yuborilgan</span>
+          <span>{calDict?.missed || 'Oʻtkazib yuborilgan'}</span>
         </div>
       </div>
     </div>

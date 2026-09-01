@@ -14,6 +14,7 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { api, JlptUserTestHistoryItem } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 export function DashboardStats({ stats }: { stats: any[] }) {
   return (
@@ -37,36 +38,51 @@ export function DashboardStats({ stats }: { stats: any[] }) {
 }
 
 export function ActiveCourseWidget({ activeCourse, nextLesson, courseTargetUrl }: any) {
+  const { t } = useLang();
+  const cDict = t?.dash?.activeCourse;
+
+  const lessonsCountStr = activeCourse
+    ? (cDict?.lessonsCount || '{completed} / {total} Dars')
+        .replace('{completed}', String(activeCourse.completedLessons))
+        .replace('{total}', String(activeCourse.totalLessons))
+    : (cDict?.lessonsCount || '{completed} / {total} Dars')
+        .replace('{completed}', '0')
+        .replace('{total}', '25');
+
   return (
     <div className="space-y-6 rounded-[28px] border border-border bg-card p-6 sm:p-8 shadow-xs">
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
-          <p className="text-[12px] uppercase tracking-wider text-[#0071e3] font-semibold">Joriy Kurs</p>
+          <p className="text-[12px] uppercase tracking-wider text-[#0071e3] font-semibold">
+            {cDict?.badge || 'Joriy Kurs'}
+          </p>
           <h2 className="headline text-[22px] font-semibold text-foreground mt-1">
-            {activeCourse?.title || 'Minna no Nihongo I (N5)'}
+            {activeCourse?.title || cDict?.defaultTitle || 'Minna no Nihongo I (N5)'}
           </h2>
         </div>
         <span className="rounded-full bg-secondary px-3 py-1 text-[13px] font-medium text-foreground">
-          {activeCourse ? `${activeCourse.completedLessons} / ${activeCourse.totalLessons} Dars` : '0 / 25 Dars'}
+          {lessonsCountStr}
         </span>
       </div>
 
       <div className="rounded-2xl bg-secondary/40 p-5 border border-border/50 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[13px] font-medium text-muted-foreground">Navbatdagi dars:</p>
+            <p className="text-[13px] font-medium text-muted-foreground">
+              {cDict?.nextLesson || 'Navbatdagi dars:'}
+            </p>
             <h3 className="text-[17px] font-semibold text-foreground mt-1">
-              {nextLesson ? `${nextLesson.order}-dars: ${nextLesson.title}` : '1-dars: Tanishtiruv va asoslar'}
+              {nextLesson ? `${nextLesson.order}-dars: ${nextLesson.title}` : (cDict?.defaultNextLesson || '1-dars: Tanishtiruv va asoslar')}
             </h3>
           </div>
           <span className="shrink-0 rounded-lg bg-[#0071e3]/10 px-2.5 py-1 text-[12px] font-semibold text-[#0071e3]">
-            {nextLesson?.category || 'Grammatika'}
+            {nextLesson?.category || cDict?.defaultCategory || 'Grammatika'}
           </span>
         </div>
 
         <div className="space-y-2 pt-2">
           <div className="flex justify-between text-[13px] text-muted-foreground">
-            <span>Kurs oʻzlashtirilishi</span>
+            <span>{cDict?.progress || 'Kurs oʻzlashtirilishi'}</span>
             <span className="font-semibold text-foreground">{activeCourse?.progressPercent || 0}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
@@ -77,7 +93,7 @@ export function ActiveCourseWidget({ activeCourse, nextLesson, courseTargetUrl }
         <div className="pt-2">
           <Link href={courseTargetUrl} className="block">
             <button type="button" className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-[14px] font-medium text-background transition-opacity duration-200 hover:opacity-90 cursor-pointer">
-              <span>Darsga oʻtish</span>
+              <span>{cDict?.goToLesson || 'Darsga oʻtish'}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </Link>
@@ -87,16 +103,19 @@ export function ActiveCourseWidget({ activeCourse, nextLesson, courseTargetUrl }
   );
 }
 
-function formatTestDate(dateStr: string) {
+function formatTestDate(dateStr: string, t: any, lang: string) {
   try {
     const d = new Date(dateStr);
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'Bugun';
-    if (diffDays === 1) return 'Kecha';
-    if (diffDays < 7) return `${diffDays} kun oldin`;
-    return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
+    if (diffDays === 0) return t?.dash?.testsWidget?.today || 'Bugun';
+    if (diffDays === 1) return t?.dash?.testsWidget?.yesterday || 'Kecha';
+    if (diffDays < 7) {
+      return (t?.dash?.testsWidget?.daysAgo || '{days} kun oldin').replace('{days}', String(diffDays));
+    }
+    const localeCode = lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : lang === 'ja' ? 'ja-JP' : 'en-US';
+    return d.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' });
   } catch {
     return dateStr;
   }
@@ -162,6 +181,9 @@ export function TestsWidget({
     };
   }, [propHistory]);
 
+  const { t } = useLang();
+  const twDict = t?.dash?.testsWidget;
+
   return (
     <div className="space-y-5 rounded-[28px] border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
       <div className="space-y-4">
@@ -169,17 +191,17 @@ export function TestsWidget({
           <div>
             <p className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
               <GraduationCap className="h-3.5 w-3.5 text-primary" />
-              <span>Imtihon</span>
+              <span>{twDict?.eyebrow || 'Imtihon'}</span>
             </p>
             <h3 className="headline text-[19px] font-semibold text-foreground mt-0.5">
-              JLPT Mock Testlar
+              {twDict?.title || 'JLPT Mock Testlar'}
             </h3>
           </div>
           <Link
             href={`/${lang}/dashboard/tests`}
             className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-0.5"
           >
-            <span>Barchasi</span>
+            <span>{twDict?.all || 'Barchasi'}</span>
             <ChevronRight className="h-3 w-3" />
           </Link>
         </div>
@@ -190,12 +212,12 @@ export function TestsWidget({
             <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent p-3 border border-amber-500/30">
               <div>
                 <p className="text-[13px] font-bold text-foreground">
-                  JLPT {examInfo.season} Imtihoni
+                  {(twDict?.examTitle || 'JLPT {season} Imtihoni').replace('{season}', examInfo.season)}
                 </p>
                 <p className="text-[11px] text-muted-foreground">{examInfo.formattedDate}</p>
               </div>
               <span className="text-[12px] font-bold text-amber-500 bg-amber-500/20 px-2.5 py-1 rounded-full">
-                {examInfo.daysRemaining} kun qoldi
+                {(twDict?.daysRemaining || '{days} kun qoldi').replace('{days}', String(examInfo.daysRemaining))}
               </span>
             </div>
           )}
@@ -204,11 +226,11 @@ export function TestsWidget({
           <div className="flex items-center justify-between pt-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <History className="h-3.5 w-3.5 text-primary" />
-              <span>Topshirilgan testlar tarixi</span>
+              <span>{twDict?.historyTitle || 'Topshirilgan testlar tarixi'}</span>
             </span>
             {history.length > 0 && (
               <span className="text-[11px] text-muted-foreground font-medium">
-                {history.length} ta urinish
+                {(twDict?.attempts || '{count} ta urinish').replace('{count}', String(history.length))}
               </span>
             )}
           </div>
@@ -222,17 +244,17 @@ export function TestsWidget({
           ) : history.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border/80 bg-secondary/15 p-4 text-center space-y-2">
               <p className="text-xs font-semibold text-foreground">
-                Hali mock test topshirmadingiz
+                {twDict?.emptyTitle || 'Hali mock test topshirmadingiz'}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Haqiqiy imtihon andozasidagi testni yechib, bilimingizni sinab koʻring.
+                {twDict?.emptyDesc || 'Haqiqiy imtihon andozasidagi testni yechib, bilimingizni sinab koʻring.'}
               </p>
               <Link
                 href={`/${lang}/dashboard/tests`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:opacity-90 transition-all active:scale-95 mt-1"
               >
                 <Play className="h-3 w-3 fill-current" />
-                <span>Test topshirish</span>
+                <span>{twDict?.takeTestBtn || 'Test topshirish'}</span>
               </Link>
             </div>
           ) : (
@@ -242,7 +264,7 @@ export function TestsWidget({
                   key={item.id}
                   href={`/${lang}/dashboard/tests/results/${item.id}`}
                   className="group flex items-center justify-between rounded-xl bg-secondary/35 hover:bg-secondary/70 p-3 border border-border/40 hover:border-primary/40 transition-all cursor-pointer"
-                  title="Natijalar va tahlilni koʻrish"
+                  title={twDict?.viewResults || 'Natijalar va tahlilni koʻrish'}
                 >
                   <div className="min-w-0 pr-2 space-y-0.5">
                     <div className="flex items-center gap-1.5">
@@ -258,13 +280,13 @@ export function TestsWidget({
                       </p>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                      <span>{formatTestDate(item.completedAt)}</span>
+                      <span>{formatTestDate(item.completedAt, t, lang)}</span>
                       <span>•</span>
                       <span className="font-semibold">{item.percentage}%</span>
                       {item.timeSpentSeconds > 0 && (
                         <>
                           <span>•</span>
-                          <span>{Math.round(item.timeSpentSeconds / 60)} daq</span>
+                          <span>{Math.round(item.timeSpentSeconds / 60)} {twDict?.minutes || 'daq'}</span>
                         </>
                       )}
                     </div>
@@ -283,12 +305,12 @@ export function TestsWidget({
                         {item.isPassed ? (
                           <>
                             <CheckCircle2 className="h-3 w-3" />
-                            <span>Oʻtdi</span>
+                            <span>{twDict?.passed || 'Oʻtdi'}</span>
                           </>
                         ) : (
                           <>
                             <XCircle className="h-3 w-3" />
-                            <span>Oʻtmadi</span>
+                            <span>{twDict?.failed || 'Oʻtmadi'}</span>
                           </>
                         )}
                       </span>
@@ -307,7 +329,7 @@ export function TestsWidget({
           className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors"
         >
           <Award className="h-4 w-4 text-[#0071e3]" />
-          <span>Barcha testlar</span>
+          <span>{twDict?.allTestsBtn || 'Barcha testlar'}</span>
         </button>
       </Link>
     </div>
@@ -315,25 +337,32 @@ export function TestsWidget({
 }
 
 export function ProgressWidget({ studyTime, weeklyActivity, weeklyGoalHours, weeklyProgress }: any) {
+  const { t } = useLang();
+  const pwDict = t?.dash?.progressWidget;
+
   return (
     <div className="rounded-[28px] border border-border bg-card p-6 shadow-xs flex flex-col justify-between space-y-4">
       <div>
         <div className="flex items-center justify-between">
-          <h3 className="text-[19px] font-bold text-foreground">Umumiy progress</h3>
-          <span className="rounded-full border border-border bg-secondary/50 px-3 py-1 text-[12px] font-medium text-muted-foreground">Bu hafta</span>
+          <h3 className="text-[19px] font-bold text-foreground">
+            {pwDict?.title || 'Umumiy progress'}
+          </h3>
+          <span className="rounded-full border border-border bg-secondary/50 px-3 py-1 text-[12px] font-medium text-muted-foreground">
+            {pwDict?.period || 'Bu hafta'}
+          </span>
         </div>
         <div className="mt-3">
           <div className="flex items-center justify-between">
             <p className="text-[13px] text-muted-foreground font-medium flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5 text-[#0071e3]" />
-              <span>Bugungi oʻrganish vaqti</span>
+              <span>{pwDict?.todayStudyTime || 'Bugungi oʻrganish vaqti'}</span>
             </p>
           </div>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span className="text-[28px] font-bold text-foreground">{studyTime?.todayHours ?? 0}</span>
-            <span className="text-[15px] font-semibold text-foreground">h</span>
+            <span className="text-[15px] font-semibold text-foreground">{pwDict?.hourUnit || 'h'}</span>
             <span className="text-[28px] font-bold text-foreground ml-1">{studyTime?.todayMinutesRemainder ?? 15}</span>
-            <span className="text-[15px] font-semibold text-foreground">m</span>
+            <span className="text-[15px] font-semibold text-foreground">{pwDict?.minUnit || 'm'}</span>
           </div>
         </div>
         <div className="flex items-end justify-between gap-1.5 pt-5 pb-1">
@@ -349,7 +378,9 @@ export function ProgressWidget({ studyTime, weeklyActivity, weeklyGoalHours, wee
       </div>
       <div className="space-y-2 border-t border-border pt-4">
         <div className="flex items-center justify-between text-[13px]">
-          <span className="text-muted-foreground font-medium">Haftalik maqsad ({weeklyGoalHours} soat)</span>
+          <span className="text-muted-foreground font-medium">
+            {(pwDict?.weeklyGoal || 'Haftalik maqsad ({hours} soat)').replace('{hours}', String(weeklyGoalHours))}
+          </span>
           <span className="font-bold text-foreground">{weeklyProgress}%</span>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">

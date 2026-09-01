@@ -4,6 +4,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X, ArrowRight } from 'lucide-react';
 import { NotificationItem, getMediaUrl } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 export interface DashboardSlide {
   id: string | number;
@@ -33,6 +34,8 @@ export function DashboardBanner({
   onOpenNotification,
   onDismissSlide,
 }: DashboardBannerProps) {
+  const { t } = useLang();
+  const bDict = t?.dash?.banner;
   const [activeSlide, setActiveSlide] = React.useState(0);
 
   React.useEffect(() => {
@@ -104,7 +107,7 @@ export function DashboardBanner({
                 }}
                 className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md px-3.5 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-[13px] font-semibold transition-all border border-white/25 shadow-md hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <span>{slide.btnText || 'Batafsil'}</span>
+                <span>{slide.btnText || bDict?.details || 'Batafsil'}</span>
                 <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               </button>
             </div>
@@ -117,8 +120,8 @@ export function DashboardBanner({
                   e.stopPropagation();
                   onDismissSlide(slide.id);
                 }}
-                aria-label="Bannerni yopish"
-                title="Bannerni yopish"
+                aria-label={bDict?.dismiss || 'Bannerni yopish'}
+                title={bDict?.dismiss || 'Bannerni yopish'}
                 className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-background/70 backdrop-blur-md border border-border/80 text-muted-foreground hover:text-foreground hover:bg-background transition-all cursor-pointer shadow-xs"
               >
                 <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -137,7 +140,7 @@ export function DashboardBanner({
               e.stopPropagation();
               setActiveSlide((prev) => (prev - 1 + slides.length) % slides.length);
             }}
-            aria-label="Oldingi slayd"
+            aria-label={bDict?.prevSlide || 'Oldingi slayd'}
             className="hidden sm:flex absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-30 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-background/70 backdrop-blur-md border border-border shadow-xs items-center justify-center text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-background cursor-pointer"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -149,7 +152,7 @@ export function DashboardBanner({
               e.stopPropagation();
               setActiveSlide((prev) => (prev + 1) % slides.length);
             }}
-            aria-label="Keyingi slayd"
+            aria-label={bDict?.nextSlide || 'Keyingi slayd'}
             className="hidden sm:flex absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-30 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-background/70 backdrop-blur-md border border-border shadow-xs items-center justify-center text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-background cursor-pointer"
           >
             <ChevronRight className="h-5 w-5" />
@@ -161,7 +164,7 @@ export function DashboardBanner({
               <button
                 key={i}
                 type="button"
-                aria-label={`Slayd ${i + 1}`}
+                aria-label={`${bDict?.slide || 'Slayd'} ${i + 1}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveSlide(i);

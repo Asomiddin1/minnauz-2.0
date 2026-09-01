@@ -24,7 +24,7 @@ import { useAuth } from '@/lib/auth-context';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminCoursesPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
@@ -54,10 +54,10 @@ export default function AdminCoursesPage() {
         api.getAdminCourses(),
         isAdmin ? api.getAdminTeachers().catch(() => []) : Promise.resolve([]),
       ]);
-      setCourses(coursesData);
-      setTeachers(teachersData);
-    } catch (e) {
-      console.error(e);
+      setCourses(coursesData || []);
+      setTeachers(teachersData || []);
+    } catch (err) {
+      console.error('Failed to load courses:', err);
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export default function AdminCoursesPage() {
 
   React.useEffect(() => {
     loadData();
-  }, [isAdmin]);
+  }, []);
 
   const openCreateModal = () => {
     setEditingCourseId(null);
@@ -87,7 +87,7 @@ export default function AdminCoursesPage() {
       slug: c.slug || '',
       description: c.description || '',
       level: c.level || 'N5',
-      authorId: c.authorId || c.author?.id || user?.id || '',
+      authorId: c.authorId || user?.id || '',
       isPublished: c.isPublished ?? true,
     });
     setCourseModalOpen(true);
@@ -95,30 +95,48 @@ export default function AdminCoursesPage() {
 
   const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title) return;
+    if (!form.title.trim()) {
+      alert('Kurs sarlavhasi talab qilinadi');
+      return;
+    }
+
     setSubmitting(true);
     try {
       if (editingCourseId) {
-        await api.updateAdminCourse(editingCourseId, form);
+        await api.updateAdminCourse(editingCourseId, {
+          title: form.title,
+          slug: form.slug || form.title.toLowerCase().replace(/\s+/g, '-'),
+          description: form.description,
+          level: form.level,
+          authorId: isAdmin && form.authorId ? form.authorId : undefined,
+          isPublished: form.isPublished,
+        });
       } else {
-        await api.createAdminCourse(form);
+        await api.createAdminCourse({
+          title: form.title,
+          slug: form.slug || form.title.toLowerCase().replace(/\s+/g, '-'),
+          description: form.description,
+          level: form.level,
+          authorId: isAdmin && form.authorId ? form.authorId : undefined,
+          isPublished: form.isPublished,
+        });
       }
       setCourseModalOpen(false);
-      await loadData();
-    } catch (e) {
-      console.error(e);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Xatolik yuz berdi');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Haqiqatan ham ushbu kursni va uning barcha darslarini oʻchirmoqchimisiz?')) return;
+  const handleDeleteCourse = async (id: string, title: string) => {
+    if (!confirm(`Haqiqatan ham "${title}" kursini oʻchirmoqchimisiz?`)) return;
     try {
       await api.deleteAdminCourse(id);
-      await loadData();
-    } catch (e) {
-      console.error(e);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Kursni oʻchirishda xatolik');
     }
   };
 
@@ -126,7 +144,7 @@ export default function AdminCoursesPage() {
     const matchSearch =
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.level.toLowerCase().includes(search.toLowerCase()) ||
-      (c.author?.fullName && c.author.fullName.toLowerCase().includes(search.toLowerCase()));
+      (c.author?.fullName || '').toLowerCase().includes(search.toLowerCase());
 
     const matchTeacher =
       selectedTeacherFilter === 'ALL' ||
@@ -142,12 +160,10 @@ export default function AdminCoursesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="headline text-[26px] font-bold text-foreground">
-            Kurslar va Darslar Boshqaruvi
+            {t?.admin?.courses?.title || 'Kurslar va Darslar Boshqaruvi'}
           </h1>
           <p className="text-[14px] text-muted-foreground mt-0.5">
-            {isAdmin
-              ? 'Barcha oʻqituvchilar va platforma kurslarini boshqarish'
-              : 'Oʻzingizning mualliflik kurslaringiz va dars materiallarini boshqarish'}
+            {t?.admin?.courses?.subtitle || 'Barcha video kurslar, darslar va modullar'}
           </p>
         </div>
 
@@ -157,7 +173,7 @@ export default function AdminCoursesPage() {
           className="inline-flex items-center gap-2 rounded-xl bg-[#0071e3] px-4 py-2.5 text-[14px] font-semibold text-white shadow-md hover:bg-[#0077ed] transition-colors self-start sm:self-auto cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          <span>Yangi kurs yaratish</span>
+          <span>{t?.admin?.courses?.createCourse || 'Yangi kurs yaratish'}</span>
         </button>
       </div>
 

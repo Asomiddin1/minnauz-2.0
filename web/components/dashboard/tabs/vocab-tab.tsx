@@ -36,7 +36,7 @@ import {
 import { useLang } from '@/lib/i18n';
 
 export function VocabTab() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
 
   // Mode: 'CATALOG' (Lug'atlar ro'yxati) or 'FLASHCARDS' (Yodlash xonasi)
   const [activeMode, setActiveMode] = React.useState<'CATALOG' | 'FLASHCARDS'>('CATALOG');
@@ -305,7 +305,7 @@ export function VocabTab() {
             }`}
           >
             <BookA className="h-4 w-4 text-primary" />
-            <span>Lugʻat Qomusi</span>
+            <span>{t?.vocab?.catalog || "Lugʻat Qomusi"}</span>
           </button>
           <button
             type="button"
@@ -321,7 +321,7 @@ export function VocabTab() {
             }`}
           >
             <Layers className="h-4 w-4 text-amber-500" />
-            <span>Flashcard Yodlash</span>
+            <span>{t?.vocab?.flashcards || "Flashcard Yodlash"}</span>
             {stats.totalSaved > 0 && (
               <span className="px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-black">
                 {stats.totalSaved}
@@ -339,7 +339,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Ochiq soʻzlar
+              {t?.vocab?.openWords || "Ochiq soʻzlar"}
             </p>
             <p className="text-base font-black text-foreground">{words.length} ta</p>
           </div>
@@ -351,7 +351,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Yodlanayotgan
+              {t?.vocab?.learning || "Yodlanayotgan"}
             </p>
             <p className="text-base font-black text-yellow-600 dark:text-yellow-400">
               {stats.totalLearning} ta
@@ -365,7 +365,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Yodlangan
+              {t?.vocab?.mastered || "Yodlangan"}
             </p>
             <p className="text-base font-black text-emerald-600 dark:text-emerald-400">
               {stats.totalMastered} ta
@@ -379,7 +379,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Toʻplamda jami
+              {t?.vocab?.saved || "Toʻplamda jami"}
             </p>
             <p className="text-base font-black text-foreground">{stats.totalSaved} ta</p>
           </div>

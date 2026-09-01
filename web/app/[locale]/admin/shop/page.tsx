@@ -44,7 +44,7 @@ import { useLang } from '@/lib/i18n';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminShopPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
 
   const [items, setItems] = React.useState<AdminStoreItem[]>([]);
   const [stats, setStats] = React.useState<AdminStoreStats | null>(null);
@@ -253,15 +253,14 @@ export default function AdminShopPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              Raqamli Doʻkon Boshqaruvi
+              {t?.admin?.shop?.title || 'Raqamli Doʻkon Boshqaruvi'}
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
               Minna Coin
             </span>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Platforma ichidagi vaucherlar, streak muzlatgichlari, AI imtiyozlar va profil
-            ramkalarini boshqarish
+            {t?.admin?.shop?.subtitle || 'Platforma ichidagi vaucherlar, streak muzlatgichlari, AI imtiyozlar va profil ramkalarini boshqarish'}
           </p>
         </div>
 
@@ -271,7 +270,7 @@ export default function AdminShopPage() {
             onClick={loadData}
             disabled={loading}
             className="h-9 w-9 rounded-xl border border-border/60 bg-card hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs"
-            title="Yangilash"
+            title={t?.admin?.overview?.refresh || 'Yangilash'}
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -282,7 +281,7 @@ export default function AdminShopPage() {
             className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             <Plus className="h-4 w-4" />
-            <span>Yangi Mahsulot</span>
+            <span>{t?.admin?.shop?.createItem || 'Yangi Mahsulot'}</span>
           </button>
         </div>
       </div>

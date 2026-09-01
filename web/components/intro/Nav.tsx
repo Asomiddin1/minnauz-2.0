@@ -31,9 +31,7 @@ export default function Nav() {
     : `/${lang}/auth/login`
 
   const buttonLabel = isAuthenticated
-    ? lang === 'ru'
-      ? 'Панель'
-      : 'Dashboard'
+    ? t?.dash?.nav?.[0] || 'Dashboard'
     : t.nav.getStarted
 
   useEffect(() => {
@@ -62,7 +60,8 @@ export default function Nav() {
             lifted ? 'px-6' : 'max-w-[1120px] px-5'
           }`}
         >
-          <a href="#top" aria-label="Minna" className="shrink-0">
+          {/* flex items-center qo'shildi */}
+          <a href="#top" aria-label="Minna" className="shrink-0 flex items-center">
             <Logo />
           </a>
 

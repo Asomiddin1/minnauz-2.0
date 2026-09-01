@@ -32,8 +32,10 @@ import {
   SubscriptionStatus,
 } from '@/lib/api';
 import { UserAvatar } from '@/components/shared/user-avatar';
+import { useLang } from '@/lib/i18n';
 
 export default function AdminSubscriptionsPage() {
+  const { lang, t } = useLang();
   const [activeTab, setActiveTab] = React.useState<'users' | 'plans'>('users');
 
   // User Subscriptions State
@@ -343,13 +345,13 @@ export default function AdminSubscriptionsPage() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-[11px] font-bold text-yellow-600 dark:text-yellow-400 mb-2">
             <Crown className="h-3.5 w-3.5" />
-            <span>Monetizatsiya & Aʼzolik CRUD</span>
+            <span>{t?.admin?.subscriptions?.title || 'Obunalar & VIP'}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-            Obunalar & Tariflar Boshqaruvi
+            {t?.admin?.subscriptions?.title || 'Obunalar & Tariflar Boshqaruvi'}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Tariflarni yaratish, tahrirlash, faol obunalarni kuzatish va VIP huquqlarini berish.
+            {t?.admin?.subscriptions?.subtitle || 'Tariflarni yaratish, tahrirlash, faol obunalarni kuzatish va VIP huquqlarini berish.'}
           </p>
         </div>
 
@@ -370,7 +372,7 @@ export default function AdminSubscriptionsPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xs transition-all shadow-sm cursor-pointer"
             >
               <Crown className="h-4 w-4" />
-              <span>Foydalanuvchiga Pro berish</span>
+              <span>{t?.admin?.subscriptions?.grantPro || 'Foydalanuvchiga Pro berish'}</span>
             </button>
           )}
         </div>

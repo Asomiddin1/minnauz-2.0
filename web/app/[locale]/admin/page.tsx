@@ -20,8 +20,8 @@ import { useAuth } from '@/lib/auth-context';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminOverviewPage() {
-  const { lang } = useLang();
-  const { user } = useAuth();
+  const { lang, t } = useLang();
+  const { user, isAuthenticated } = useAuth();
 
   const [stats, setStats] = React.useState<AdminUserStats | null>(null);
   const [recentUsers, setRecentUsers] = React.useState<AdminUserItem[]>([]);
@@ -52,25 +52,25 @@ export default function AdminOverviewPage() {
       case 'SUPER_ADMIN':
         return (
           <span className="inline-flex items-center rounded-md bg-purple-500/10 px-2 py-0.5 text-[11px] font-semibold text-purple-600 dark:text-purple-400">
-            Super Admin
+            {t?.admin?.overview?.roles?.superAdmin || 'Super Admin'}
           </span>
         );
       case 'ADMIN':
         return (
           <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-            Admin
+            {t?.admin?.overview?.roles?.admin || 'Admin'}
           </span>
         );
       case 'TEACHER':
         return (
           <span className="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:text-blue-400">
-            Ustoz
+            {t?.admin?.overview?.roles?.teacher || 'Ustoz'}
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-            Oʻquvchi
+            {t?.admin?.overview?.roles?.student || 'Oʻquvchi'}
           </span>
         );
     }
@@ -82,10 +82,10 @@ export default function AdminOverviewPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="headline text-[28px] sm:text-[32px] font-bold text-foreground">
-            Boshqaruv Paneli
+            {t?.admin?.overview?.title || 'Boshqaruv Paneli'}
           </h1>
           <p className="text-[14px] text-muted-foreground mt-1">
-            Xush kelibsiz, <strong className="text-foreground">{user?.fullName || user?.email}</strong>. Platforma koʻrsatkichlari va foydalanuvchilar holati:
+            {t?.admin?.overview?.welcome || 'Xush kelibsiz'}, <strong className="text-foreground">{user?.fullName || user?.email}</strong>. {t?.admin?.overview?.subtitle || 'Platforma koʻrsatkichlari va foydalanuvchilar holati:'}
           </p>
         </div>
 
@@ -97,14 +97,14 @@ export default function AdminOverviewPage() {
             className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Yangilash</span>
+            <span>{t?.admin?.overview?.refresh || 'Yangilash'}</span>
           </button>
           <Link
             href={`/${lang}/admin/users`}
             className="inline-flex items-center gap-1.5 rounded-xl bg-[#0071e3] px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 shadow-xs"
           >
             <UserPlus className="h-4 w-4" />
-            <span>Foydalanuvchilar</span>
+            <span>{t?.admin?.sidebar?.users || 'Foydalanuvchilar'}</span>
           </Link>
         </div>
       </div>
@@ -188,17 +188,17 @@ export default function AdminOverviewPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-[18px] font-bold text-foreground">
-              Soʻnggi roʻyxatdan oʻtganlar
+              {t?.admin?.overview?.recentUsers || 'Soʻnggi roʻyxatdan oʻtganlar'}
             </h2>
             <p className="text-[13px] text-muted-foreground">
-              Yangi qoʻshilgan foydalanuvchilar roʻyxati
+              {t?.admin?.overview?.subtitle || 'Yangi qoʻshilgan foydalanuvchilar roʻyxati'}
             </p>
           </div>
           <Link
             href={`/${lang}/admin/users`}
             className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0071e3] hover:underline"
           >
-            <span>Barchasini koʻrish</span>
+            <span>{t?.admin?.overview?.viewAll || 'Barchasini koʻrish'}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -207,11 +207,11 @@ export default function AdminOverviewPage() {
           <table className="w-full text-left text-[13px]">
             <thead>
               <tr className="border-b border-border/80 text-muted-foreground">
-                <th className="pb-3 font-semibold">Foydalanuvchi</th>
-                <th className="pb-3 font-semibold">Rol</th>
-                <th className="pb-3 font-semibold">Holat</th>
+                <th className="pb-3 font-semibold">{t?.admin?.overview?.tableUser || 'Foydalanuvchi'}</th>
+                <th className="pb-3 font-semibold">{t?.admin?.overview?.tableRole || 'Rol'}</th>
+                <th className="pb-3 font-semibold">{t?.admin?.overview?.tableStatus || 'Holat'}</th>
                 <th className="pb-3 font-semibold">Qurilmalar</th>
-                <th className="pb-3 font-semibold">Sana</th>
+                <th className="pb-3 font-semibold">{t?.admin?.overview?.tableJoined || 'Sana'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -224,7 +224,7 @@ export default function AdminOverviewPage() {
               ) : recentUsers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-muted-foreground">
-                    Foydalanuvchilar topilmadi
+                    {t?.admin?.overview?.noUsers || 'Foydalanuvchilar topilmadi'}
                   </td>
                 </tr>
               ) : (

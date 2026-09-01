@@ -40,7 +40,7 @@ export function AdminSidebar({
   mobileOpen?: boolean;
   onMobileClose?: () => void;
 }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -60,45 +60,44 @@ export function AdminSidebar({
     });
   };
 
-  // LINKLAR MANTIQIY TARTIBDA JOYLASHTIRILDI
   const navItems: NavItem[] = [
     {
-      label: 'Boshqaruv paneli',
+      label: t?.admin?.sidebar?.dashboard || 'Boshqaruv paneli',
       href: `/${lang}/admin`,
       icon: LayoutDashboard,
     },
     {
-      label: 'Bannerlar',
+      label: t?.admin?.sidebar?.banners || 'Bannerlar',
       href: `/${lang}/admin/banners`,
       icon: Sliders,
     },
     {
-      label: 'Kurslar & Darslar',
+      label: t?.admin?.sidebar?.courses || 'Kurslar & Darslar',
       href: `/${lang}/admin/courses`,
       icon: BookOpen,
     },
     {
-      label: 'JLPT Testlar',
+      label: t?.admin?.sidebar?.tests || 'JLPT Testlar',
       href: `/${lang}/admin/tests`,
       icon: FileCheck2,
     },
     {
-      label: 'Raqamli Doʻkon',
+      label: t?.admin?.sidebar?.shop || 'Raqamli Doʻkon',
       href: `/${lang}/admin/shop`,
       icon: ShoppingBag,
     },
     {
-      label: 'Obunalar & VIP',
+      label: t?.admin?.sidebar?.subscriptions || 'Obunalar & VIP',
       href: `/${lang}/admin/subscriptions`,
       icon: Crown,
     },
     {
-      label: 'Foydalanuvchilar',
+      label: t?.admin?.sidebar?.users || 'Foydalanuvchilar',
       href: `/${lang}/admin/users`,
       icon: Users,
     },
     {
-      label: 'Xabarnomalar',
+      label: t?.admin?.sidebar?.notifications || 'Xabarnomalar',
       href: `/${lang}/admin/notifications`,
       icon: Bell,
     },
@@ -145,7 +144,7 @@ export function AdminSidebar({
                     MinnaUz
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 block">
-                    Admin Panel
+                    {t?.admin?.sidebar?.title || 'Admin Panel'}
                   </span>
                 </div>
               </Link>
@@ -155,7 +154,7 @@ export function AdminSidebar({
                   <button
                     type="button"
                     onClick={toggleCollapse}
-                    title="Sidebarni kichraytirish"
+                    title={t?.admin?.sidebar?.collapse || 'Sidebarni kichraytirish'}
                     aria-label="Collapse sidebar"
                     className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   >
@@ -181,7 +180,7 @@ export function AdminSidebar({
               <button
                 type="button"
                 onClick={toggleCollapse}
-                title="Sidebarni kengaytirish"
+                title={t?.admin?.sidebar?.expand || 'Sidebarni kengaytirish'}
                 aria-label="Expand sidebar"
                 className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
@@ -195,13 +194,13 @@ export function AdminSidebar({
         <Link
           href={`/${lang}/dashboard`}
           onClick={onMobileClose}
-          title={!isMobileDrawer && isCollapsed ? 'Oʻquvchi paneliga qaytish' : undefined}
+          title={!isMobileDrawer && isCollapsed ? (t?.admin?.sidebar?.studentPanel || 'Oʻquvchi paneliga qaytish') : undefined}
           className={`flex items-center rounded-xl text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground ${
             !isMobileDrawer && isCollapsed ? 'h-10 w-10 justify-center mx-auto' : 'gap-2 px-3.5 py-2'
           }`}
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
-          {(isMobileDrawer || !isCollapsed) && <span>Oʻquvchi paneli</span>}
+          {(isMobileDrawer || !isCollapsed) && <span>{t?.admin?.sidebar?.studentPanel || 'Oʻquvchi paneli'}</span>}
         </Link>
 
         {/* Nav Items */}
@@ -284,7 +283,7 @@ export function AdminSidebar({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4" />
-              <span>Chiqish</span>
+              <span>{t?.admin?.sidebar?.logout || 'Chiqish'}</span>
             </button>
           </div>
         ) : (
@@ -293,7 +292,7 @@ export function AdminSidebar({
             <button
               type="button"
               onClick={logout}
-              title="Chiqish"
+              title={t?.admin?.sidebar?.logout || 'Chiqish'}
               className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4" />

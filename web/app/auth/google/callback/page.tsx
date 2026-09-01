@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function RootGoogleCallbackPage() {
   const router = useRouter();
   const { loginWithGoogle } = useAuth();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [error, setError] = React.useState<string | null>(null);
 
   const savedLang = typeof window !== 'undefined' ? (localStorage.getItem('minna-lang') as string) : null;
@@ -58,7 +58,7 @@ export default function RootGoogleCallbackPage() {
               ✕
             </div>
             <h2 className="headline text-[20px] font-semibold text-foreground">
-              Kirishda xatolik
+              {t?.auth?.callbackError || "Kirishda xatolik"}
             </h2>
             <p className="text-[14px] text-muted-foreground leading-relaxed">
               {error}
@@ -68,7 +68,7 @@ export default function RootGoogleCallbackPage() {
                 href={`/${currentLang}/auth/login`}
                 className="inline-flex items-center justify-center rounded-full bg-[#0071e3] px-6 py-2.5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
               >
-                Login sahifasiga qaytish
+                {t?.auth?.backToLogin || "Login sahifasiga qaytish"}
               </Link>
             </div>
           </div>
@@ -76,10 +76,10 @@ export default function RootGoogleCallbackPage() {
           <div className="space-y-4">
             <div className="mx-auto h-10 w-10 animate-spin rounded-full border-3 border-[#0071e3] border-t-transparent" />
             <h2 className="headline text-[20px] font-semibold text-foreground">
-              Google orqali ulanmoqda...
+              {t?.auth?.callbackLoading || "Google orqali ulanmoqda..."}
             </h2>
             <p className="text-[13px] text-muted-foreground">
-              Sessiyangiz tekshirilmoqda, iltimos kuting
+              {t?.auth?.callbackChecking || "Sessiyangiz tekshirilmoqda, iltimos kuting"}
             </p>
           </div>
         )}

@@ -16,6 +16,7 @@ import {
   Bot,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 interface DokkaiStory {
   id: string;
@@ -92,6 +93,7 @@ const SUGGESTED_TOPICS = [
 ];
 
 export function DokkayTab() {
+  const { lang, t } = useLang();
   const [stories, setStories] = React.useState<DokkaiStory[]>(SAMPLE_STORIES);
   const [selectedStory, setSelectedStory] = React.useState<DokkaiStory>(SAMPLE_STORIES[0]);
   const [showFurigana, setShowFurigana] = React.useState(true);
@@ -168,15 +170,15 @@ export function DokkayTab() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                 <BookOpen className="h-3.5 w-3.5" />
-                <span>Dokkay (読解) — Oʻqish & Matn tushunish</span>
+                <span>{t?.dokkai?.title || 'Dokkay (読解) — Oʻqish & Matn tushunish'}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>AI Generator ulangan</span>
+                <span>AI Generator</span>
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Yapon tilida matn oʻqish va tahlil
+              {t?.dokkai?.subtitle || 'Yapon tilida matn oʻqish va tahlil'}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
               JLPT imtihonida eng koʻp ball beruvchi qism — Dokkay. Tayyor hikoyalarni oʻqing yoki AI yordamida oʻzingiz qiziqqan mavzuda cheksiz yangi matnlar yarating.

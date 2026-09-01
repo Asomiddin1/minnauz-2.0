@@ -35,6 +35,7 @@ import {
   NotificationItem,
   getMediaUrl,
 } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 const TAG_ICONS = [
   { id: 'Sparkles', label: 'Yulduz (Sparkles)', icon: Sparkles },
@@ -46,6 +47,7 @@ const TAG_ICONS = [
 ];
 
 export default function AdminBannersPage() {
+  const { lang, t } = useLang();
   const [banners, setBanners] = React.useState<BannerItem[]>([]);
   const [notifications, setNotifications] = React.useState<NotificationItem[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -255,10 +257,10 @@ export default function AdminBannersPage() {
             </span>
           </div>
           <h1 className="headline text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-1">
-            Dashboard Bannerlar Boshqaruvi
+            {t?.admin?.banners?.title || 'Dashboard Bannerlar Boshqaruvi'}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Oʻquvchilar va oʻqituvchilar bosh sahifasidagi slayd bannerlarini moslashtiring, yangi bannerlar qoʻshing yoki tartibini oʻzgartiring.
+            {t?.admin?.banners?.subtitle || 'Oʻquvchilar va oʻqituvchilar bosh sahifasidagi slayd bannerlarini moslashtiring, yangi bannerlar qoʻshing yoki tartibini oʻzgartiring.'}
           </p>
         </div>
 
@@ -270,7 +272,7 @@ export default function AdminBannersPage() {
             className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary transition-colors cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            <span>Yangilash</span>
+            <span>{t?.admin?.overview?.refresh || 'Yangilash'}</span>
           </button>
 
           <button
@@ -279,7 +281,7 @@ export default function AdminBannersPage() {
             className="inline-flex items-center gap-2 rounded-2xl bg-[#0071e3] px-4 py-2.5 text-xs font-semibold text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-xs cursor-pointer"
           >
             <Plus className="h-4 w-4" />
-            <span>Yangi Banner</span>
+            <span>{t?.admin?.banners?.createBanner || 'Yangi Banner'}</span>
           </button>
         </div>
       </div>

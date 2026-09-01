@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { Sun, Moon, ArrowLeft, Check } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/shared/language-switcher'
 import Logo, { LogoMark } from '@/components/intro/Logo'
-import { LangProvider, useLang } from '@/lib/i18n'
-import { ThemeProvider, useThemeCtx } from '@/lib/theme'
+import { useLang } from '@/lib/i18n'
+import { useThemeCtx } from '@/lib/theme'
 import { useAuth } from '@/lib/auth-context'
 
 type Step = 'email' | 'code' | 'done'
@@ -51,8 +52,14 @@ function LoginForm() {
   const [busy, setBusy] = useState<null | 'email' | 'code' | 'google'>(null)
   const [cooldown, setCooldown] = useState(0)
   const [devCodeHint, setDevCodeHint] = useState<string | null>(null)
+  
+  const [mounted, setMounted] = useState(false)
 
   const boxes = useRef<(HTMLInputElement | null)[]>([])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -170,7 +177,6 @@ function LoginForm() {
       return
     }
 
-    // Dev fallback if client id is missing
     loginWithGoogle('google-mock-token')
       .then(() => {
         setBusy(null)
@@ -184,7 +190,6 @@ function LoginForm() {
 
   return (
     <div className="grid min-h-screen md:grid-cols-[1.05fr_1fr]">
-      {/* Brand panel with auth_bg.jpg */}
       <aside className="relative hidden overflow-hidden p-8 lg:p-12 md:flex md:flex-col md:justify-between text-white bg-zinc-950">
         <Image
           src="/auth_bg.jpg"
@@ -194,7 +199,6 @@ function LoginForm() {
           sizes="50vw"
           className="object-cover z-0"
         />
-        {/* Soft elegant gradient overlay to make text crystal clear */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/60 z-[1]" />
 
         <Link href="/" className="relative z-10 flex items-center gap-2.5 drop-shadow">
@@ -202,11 +206,10 @@ function LoginForm() {
           <span className="headline text-[20px] font-semibold tracking-[-0.045em] text-white">MinnaUz</span>
         </Link>
 
+        {/* O'zingizning yaponcha original yozuvingiz va bir qatorda chiqadigan holati */}
         <div className="relative z-10 space-y-4">
           <p className="font-jp text-[clamp(3.4rem,7vw,5.6rem)] leading-[1.05] text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] font-medium">
-            みんなで
-            <br />
-            まなぶ。
+            みんなでまなぶ。
           </p>
         </div>
 
@@ -218,21 +221,30 @@ function LoginForm() {
           <Link href="/" className="lg:hidden">
             <Logo />
           </Link>
+          
           <Link
             href="/"
-            className="hidden text-[13px] text-muted-foreground transition-colors duration-300 hover:text-foreground lg:block"
+            className="hidden items-center gap-1.5 text-[13px] text-muted-foreground transition-colors duration-300 hover:text-foreground lg:flex"
           >
-            ← {t.auth.back}
+            <ArrowLeft className="h-4 w-4" /> {t.auth.back}
           </Link>
+          
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
+            
             <button
               type="button"
               onClick={toggle}
-              aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              aria-label={!mounted ? 'Toggle theme' : theme === 'dark' ? 'Light mode' : 'Dark mode'}
               className="grid h-9 w-9 place-items-center rounded-full border border-border transition-colors duration-300 hover:bg-secondary"
             >
-              <span className="text-[14px] leading-none">{theme === 'dark' ? '☾' : '☀'}</span>
+              {!mounted ? (
+                <span className="h-[18px] w-[18px]" />
+              ) : theme === 'dark' ? (
+                <Moon className="h-[18px] w-[18px]" strokeWidth={2} />
+              ) : (
+                <Sun className="h-[18px] w-[18px]" strokeWidth={2} />
+              )}
             </button>
           </div>
         </header>
@@ -241,8 +253,8 @@ function LoginForm() {
           <div className="w-full max-w-[380px]">
             {step === 'done' ? (
               <div className="text-center">
-                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary text-[22px] text-primary-foreground">
-                  ✓
+                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <Check className="h-7 w-7" strokeWidth={2.5} />
                 </div>
                 <h1 className="headline mt-6 text-[32px]">{t.auth.successTitle}</h1>
                 <p className="mt-2 text-[15px] text-muted-foreground">{t.auth.successSub}</p>
@@ -386,11 +398,5 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return (
-    <ThemeProvider>
-      <LangProvider>
-        <LoginForm />
-      </LangProvider>
-    </ThemeProvider>
-  )
+  return <LoginForm />
 }

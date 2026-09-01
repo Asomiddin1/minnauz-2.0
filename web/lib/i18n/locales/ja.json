@@ -1,0 +1,843 @@
+{
+  "nav": {
+    "levels": "レベル",
+    "practice": "練習",
+    "kids": "キッズ",
+    "premium": "プレミアム",
+    "schools": "教育機関向け",
+    "getStarted": "始める",
+    "language": "言語"
+  },
+  "hero": {
+    "titleA": "ゼロから",
+    "titleB": "流暢な日本語へ。",
+    "sub": "JLPTの全レベルに対応したオールインワン学習プラットフォーム。本番形式の模擬試験、ビデオ講座、AIによる発音判定を搭載。",
+    "cta1": "無料で始める",
+    "cta2": "レベルチェックテストを受ける →",
+    "stats": ["人のアクティブ学習者", "つのJLPTレベル", "の発音精度", "問の試験問題"]
+  },
+  "levels": {
+    "eyebrow": "ロードマップ",
+    "heading": "5つのレベル、確かなステップ。",
+    "kanji": "漢字",
+    "words": "語彙",
+    "hours": "学習時間",
+    "items": [
+      {
+        "title": "最初の100日",
+        "blurb": "ひらがな、カタカナ、そして103の基本漢字。食事の注文、自己紹介、駅の案内表示が読めるようになります。"
+      },
+      {
+        "title": "日常会話",
+        "blurb": "普通形、テ形接続、カジュアルな会話。身近なトピックのゆっくりした会話を理解し、簡単なメッセージが書けます。"
+      },
+      {
+        "title": "中級への架け橋",
+        "blurb": "多くの学習者がつまずく重要なステップ。敬語の基礎、ニュースの見出し、自然なスピードでの聞き取りをマスターします。"
+      },
+      {
+        "title": "ビジネス対応",
+        "blurb": "ビジネスメール、面接の受け答え、記事の読解。日本の企業が最も求める実用的なレベルです。"
+      },
+      {
+        "title": "字幕なしで理解",
+        "blurb": "論説文、方言、学術的な講義の理解。頭の中で翻訳せず、日本語のまま思考できるようになります。"
+      }
+    ]
+  },
+  "practice": {
+    "eyebrow": "実践トレーニング",
+    "heading": "試験当日に必要なすべてを、無駄なく凝縮。",
+    "speech": {
+      "eyebrow": "AI発音判定",
+      "title": "まるで専任講師のように聞き取る。",
+      "body": "フレーズを発声してください。ピッチアクセント、母音の長さ、リズムをリアルタイムで分析し、改善点を的確に指摘します。"
+    },
+    "streak": {
+      "eyebrow": "連続学習記録",
+      "title": "毎日の12分が、週末の12時間を超える。",
+      "strong": "27日連続達成中。",
+      "body": "レッスン、テスト、ミニゲームで獲得したXPが毎日のモチベーションに繋がります。"
+    },
+    "tests": {
+      "eyebrow": "問題バンク",
+      "title": "JLPT本番同様の環境。",
+      "body": "公式出題基準に沿った2,800問を収録。制限時間管理から採点基準まで本番を完全再現。",
+      "rows": ["言語知識", "読解", "聴解"]
+    },
+    "video": {
+      "eyebrow": "ビデオ講座",
+      "title": "合格実績を持つ講師陣が解説。",
+      "body": "文字の書き順から敬語まで412本の講座を収録。字幕内のテキスト検索にも対応しています。"
+    }
+  },
+  "kids": {
+    "eyebrow": "Minna ABC · 8〜13歳対象",
+    "heading": "勉強ではなく、遊び感覚で自然と身につく。",
+    "body": "文字より先に「音」から始め、既習の文字を活用した絵本ストーリーで定着。保護者向けに毎週の成長レポートをお届けします。",
+    "caption": "指でなぞる書き順練習。1週間で46文字をマスター。",
+    "items": [
+      ["フォニックス", "文字の前に音から。初日から声に出して読めるようになります。"],
+      ["ストーリーモード", "次の章が待ち遠しくなる、38編のイラスト付きリーダー。"],
+      ["運筆・書き順", "ガイド線と即時判定で、正しい書き順が身につきます。"]
+    ]
+  },
+  "premium": {
+    "eyebrow": "プレミアムプラン",
+    "heading": "年額払いで、いつでも好きなだけ学べる。",
+    "monthly": "月額",
+    "yearly": "年額",
+    "perYear": "年",
+    "perMonth": "月",
+    "free": "無料",
+    "trial": "7日間の無料体験を始める",
+    "choose": "プランを選択",
+    "footnote": "目標レベルに合格した場合、翌年のプレミアムは無料。いつでも設定から解約可能です。",
+    "plans": [
+      {
+        "note": "学習スタートに最適な基本プラン",
+        "features": [
+          "N5レッスンコース",
+          "月3回の模擬試験",
+          "連続記録とXP獲得",
+          "コミュニティQ&A"
+        ]
+      },
+      {
+        "note": "全ライブラリが無制限・広告なし",
+        "features": [
+          "JLPT全5レベルに対応",
+          "2,800問の全問題バンク",
+          "無制限のAI発音判定",
+          "412本のビデオ講座（オフライン対応）",
+          "全ミニゲームのアンロック",
+          "コース修了証の発行"
+        ]
+      },
+      {
+        "note": "最大4名まで利用可能なファミリープラン",
+        "features": [
+          "SUPERMINNAの全機能",
+          "子ども向けMinna ABC",
+          "保護者向け進度レポート",
+          "一括請求"
+        ]
+      }
+    ]
+  },
+  "schools": {
+    "eyebrow": "教育機関・スクール向け",
+    "heading": "すべてのクラスをひとつのダッシュボードで管理。",
+    "demo": "デモをリクエスト",
+    "overview": "クラス受講状況",
+    "updated": "2026年秋 · 4分前に更新",
+    "columns": ["スクール名", "所在地", "受講生数", "コース", "合格率"],
+    "cities": ["タシュケント", "サマルカンド", "ブハラ", "全国"],
+    "mixed": "混合"
+  },
+  "footer": {
+    "heading": "最初の一歩は、ここから。",
+    "cta1": "無料で始める",
+    "cta2": "レベル一覧を見る",
+    "tagline": "世界中の学習者のための日本語教育プラットフォーム。",
+    "columns": [
+      { "title": "学習", "links": ["JLPT N5", "JLPT N4", "JLPT N3", "JLPT N2", "JLPT N1", "Minna ABC"] },
+      {
+        "title": "製品",
+        "links": ["模擬試験", "動画講座", "発音判定", "ミニゲーム"]
+      },
+      { "title": "企業情報", "links": ["会社概要", "合格実績", "サポートセンター", "お問い合わせ"] },
+      { "title": "法的表記", "links": ["利用規約", "特定商取引法に基づく表記", "プライバシーポリシー", "決済について"] }
+    ],
+    "rights": "© 2026 Minna.Uz. All rights reserved.",
+    "address": "Tashkent, Uzbekistan · support@minna.uz"
+  },
+  "auth": {
+    "back": "戻る",
+    "title": "Minnaにログイン",
+    "sub": "あなたの連続記録、学習レベル、テスト結果をすべてのデバイスで同期。",
+    "google": "Googleでログイン",
+    "or": "または",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "emailInvalid": "有効なメールアドレスを入力してください。",
+    "sendCode": "認証コードを送信",
+    "sending": "送信中…",
+    "codeTitle": "受信トレイをご確認ください",
+    "codeSub": "6桁の認証コードを以下のアドレスに送信しました:",
+    "codeIncomplete": "6桁の数字をすべて入力してください。",
+    "codeWrong": "コードが正しくありません。再入力してください。",
+    "verify": "認証して続ける",
+    "verifying": "認証中…",
+    "resend": "コードを再送信",
+    "resendIn": "再送信可能まであと",
+    "seconds": "秒",
+    "changeEmail": "別のメールアドレスを使用",
+    "successTitle": "ログイン完了",
+    "successSub": "ダッシュボードに移動しています…",
+    "terms": "続けることで、利用規約およびプライバシーポリシーに同意したものとみなされます。",
+    "callbackLoading": "Googleアカウントでログイン中...",
+    "callbackChecking": "セッションを確認しています。少々お待ちください",
+    "callbackError": "ログインエラー",
+    "backToLogin": "ログイン画面に戻る"
+  },
+  "notFound": {
+    "title": "ページが見つかりません。",
+    "sub": "リンクが無効であるか、ページが移動された可能性があります。",
+    "home": "ホームに戻る"
+  },
+  "dash": {
+    "search": "検索…",
+    "collapse": "サイドバーを折りたたむ",
+    "menu": "メニュー",
+    "nav": ["ホーム", "コース", "JLPT", "プレミアム", "プロフィール"],
+    "tabs": [
+      "ホーム",
+      "語彙",
+      "ゲーム",
+      "読解",
+      "漢字",
+      "ショップ",
+      "翻訳ツール",
+      "AI講師",
+      "プレミアム"
+    ],
+    "pageTitle": "ホーム",
+    "expand": "フォーカスモード",
+    "soon": {
+      "title": "この機能は近日公開予定です",
+      "body": "現在準備中です。ホームから毎日の学習を続けましょう。",
+      "back": "ホームに戻る"
+    },
+    "goal": {
+      "title": "目標達成まであと少し！",
+      "level": "レベル",
+      "continue": "続ける"
+    },
+    "admin": "管理者パネル",
+    "logout": "ログアウト",
+    "hero": {
+      "chip": "今日の目標",
+      "title": "JLPT合格への準備はできていますか？",
+      "sub": "本番形式のテストと毎日のドリルで、N5からN1まで段階的に日本語をマスター。",
+      "cta1": "レッスンを開始",
+      "cta2": "今週の計画を立てる"
+    },
+    "levelLabels": [
+      "入門レベル",
+      "基礎レベル",
+      "中級レベル",
+      "上級レベル",
+      "最上級レベル"
+    ],
+    "calendar": {
+      "title": "学習カレンダー",
+      "streakDays": "{streakDays}日連続",
+      "weekdays": ["月", "火", "水", "木", "金", "土", "日"],
+      "months": [
+        "1月", "2月", "3月", "4月", "5月", "6月",
+        "7月", "8月", "9月", "10月", "11月", "12月"
+      ],
+      "done": "完了",
+      "missed": "未達成",
+      "prev": "前月",
+      "next": "次月"
+    },
+    "progress": {
+      "title": "全体の進捗",
+      "period": "今週",
+      "todayLabel": "本日の学習時間",
+      "goalLabel": "週間目標"
+    },
+    "stats": {
+      "streak": "連続日数",
+      "wordsLearned": "学習した単語",
+      "lessonsCompleted": "完了したレッスン",
+      "levelGoal": "対策",
+      "daysSuffix": "日",
+      "itemsSuffix": "語"
+    },
+    "countdown": {
+      "untilExam": "JLPT {season} 試験まで",
+      "title": "時間は刻々と進んでいます！定期的に復習しましょう。",
+      "officialDate": "公式試験日:",
+      "mockTestBtn": "模擬テスト",
+      "units": {
+        "days": "日",
+        "hours": "時間",
+        "minutes": "分",
+        "seconds": "秒"
+      }
+    },
+    "banner": {
+      "weeklyGoalTag": "週間目標",
+      "weeklyGoalTitle": "週間計画の進捗はいかがですか？",
+      "weeklyGoalDesc": "今週の計画の{percent}%を達成しました。目標達成まであと少しです！",
+      "details": "詳細を見る",
+      "dismiss": "バナーを閉じる",
+      "prevSlide": "前のスライド",
+      "nextSlide": "次のスライド",
+      "slide": "スライド",
+      "announcement": "お知らせ",
+      "go": "移動",
+      "understood": "了解"
+    },
+    "activeCourse": {
+      "badge": "現在のコース",
+      "defaultTitle": "みんなの日本語 I (N5)",
+      "lessonsCount": "{completed} / {total} レッスン",
+      "nextLesson": "次のレッスン:",
+      "defaultNextLesson": "第1課: はじめましてと基本",
+      "defaultCategory": "文法",
+      "progress": "コース進捗率",
+      "goToLesson": "レッスンへ進む"
+    },
+    "testsWidget": {
+      "eyebrow": "試験",
+      "title": "JLPT 模擬テスト",
+      "all": "すべて",
+      "allTestsBtn": "すべてのテスト",
+      "examTitle": "JLPT {season} 試験",
+      "daysRemaining": "残り{days}日",
+      "historyTitle": "受験履歴",
+      "attempts": "{count}回の受験",
+      "emptyTitle": "まだ模擬テストを受けていません",
+      "emptyDesc": "本番形式のテストを解いて実力を試してみましょう。",
+      "takeTestBtn": "テストを受ける",
+      "today": "今日",
+      "yesterday": "昨日",
+      "daysAgo": "{days}日前",
+      "minutes": "分",
+      "passed": "合格",
+      "failed": "不合格",
+      "viewResults": "結果と分析を見る"
+    },
+    "progressWidget": {
+      "title": "全体の進捗",
+      "period": "今週",
+      "todayStudyTime": "本日の学習時間",
+      "hourUnit": "h",
+      "minUnit": "m",
+      "weeklyGoal": "週間目標 ({hours}時間)"
+    },
+    "studyPlanModal": {
+      "titleWelcome": "ようこそ · オンボーディング",
+      "titleEdit": "学習プラン設定",
+      "stepSuffix": "ステップ",
+      "step1Title": "目標のJLPTレベルを選択",
+      "step2Title": "週に何時間勉強しますか？",
+      "step3Title": "目標期間と試験日程",
+      "step1Desc": "目指すレベルを選択してください。ダッシュボードや教材が最適化されます:",
+      "step2Desc": "継続は力なり。無理のないペースを選びましょう:",
+      "step3Desc": "いつ頃試験を受ける予定ですか？",
+      "recommended": "おすすめ",
+      "approxHours": "≈ {hours}時間",
+      "summaryTitle": "あなたの最終プラン",
+      "summaryGoal": "目標",
+      "summaryWeekly": "週間",
+      "summaryDaily": "1日あたり",
+      "hoursSuffix": "時間",
+      "minSuffix": "分",
+      "back": "戻る",
+      "next": "次へ",
+      "saving": "保存中...",
+      "savePlan": "プランを確定する"
+    },
+    "courses": {
+      "title": "前回の続きから再開",
+      "items": [
+        ["1週間でマスターするひらがな", "全12回中 第6回"],
+        ["N5漢字 · 第3セット", "全9回中 第2回"],
+        ["N4聴解トレーニング", "全14回中 第8回"]
+      ]
+    }
+  },
+  "profile": {
+    "title": "プロフィール",
+    "joined": "登録日:",
+    "edit": "プロフィールを編集",
+    "stats": [
+      ["受験回数", "24回"],
+      ["合格回数", "19回"],
+      ["平均スコア", "142/180点"],
+      ["最長連続日数", "41日"]
+    ],
+    "history": {
+      "title": "テスト履歴",
+      "sub": "すべての受験結果はJLPT基準で自動採点されています。",
+      "filters": ["すべて", "合格", "不合格"],
+      "columns": ["日時", "テスト名", "レベル", "スコア", "結果", "所要時間"],
+      "passed": "合格",
+      "failed": "不合格",
+      "empty": "該当する履歴はありません。",
+      "more": "もっと見る",
+      "names": [
+        "総合模擬試験",
+        "言語知識",
+        "聴解",
+        "読解",
+        "漢字スプリント",
+        "文法ドリル"
+      ]
+    },
+    "devices": {
+      "title": "ログイン中のデバイス",
+      "sub": "現在ログイン中の端末一覧。",
+      "current": "このデバイス",
+      "lastActive": "最終アクセス",
+      "now": "現在",
+      "revoke": "ログアウト",
+      "revokeAll": "他の全デバイスからログアウト",
+      "empty": "他のデバイスはありません。"
+    }
+  },
+  "video": {
+    "title": "ビデオ講座",
+    "sub": "動画を見て、字幕を読み、声に出してリピートしましょう。",
+    "search": "レッスンを検索",
+    "all": "すべて",
+    "empty": "該当するレッスンが見つかりませんでした。",
+    "lessons": "レッスン",
+    "minutes": "分",
+    "views": "回再生",
+    "back": "すべての動画",
+    "watchNext": "次のレッスン",
+    "transcript": {
+      "title": "スクリプト / 字幕",
+      "sub": "行をタップするとその位置にスキップします。",
+      "bilingual": "日本語テキストも表示",
+      "auto": "再生に合わせて追従",
+      "empty": "このレッスンの字幕は準備中です。"
+    }
+  },
+  "plans": {
+    "title": "プレミアム",
+    "sub": "すべてのレベル、すべての試験、すべての動画が見放題。",
+    "monthly": "月払い",
+    "yearly": "年払い",
+    "save": "20%お得",
+    "perMonth": "/月",
+    "billedYearly": "年額一括払い",
+    "currency": "UZS",
+    "current": "現在のプラン",
+    "choose": "アップグレード",
+    "popular": "一番人気",
+    "names": ["無料プラン", "プレミアム", "ファミリー"],
+    "notes": [
+      "まずは気軽に日本語学習を始めたい方に",
+      "すべての講座・機能を広告なしで利用可能",
+      "最大4つのアカウントで共有可能"
+    ],
+    "highlights": [
+      ["N5基本レッスン", "月3回のテスト", "連続記録とXP獲得"],
+      ["全5レベル完全対応", "2,800問の問題バンク", "AI発音判定（無制限）", "動画オフライン保存"],
+      ["プレミアムの全機能", "子ども向けMinna ABC", "保護者向けダイジェスト", "一括請求"]
+    ],
+    "compare": {
+      "title": "プラン比較",
+      "columns": ["機能", "無料", "プレミアム", "ファミリー"],
+      "rows": [
+        "JLPT N5〜N1対応",
+        "字幕付きビデオ講座",
+        "本番形式の模擬試験",
+        "AI発音判定",
+        "オフラインダウンロード",
+        "子ども向けコース (Minna ABC)",
+        "最大4アカウント",
+        "修了認定証"
+      ]
+    },
+    "guarantee": "受講したレベルに合格すれば、翌年のプレミアムが無料。いつでも解約可能です。",
+    "faq": {
+      "title": "よくある質問",
+      "items": [
+        ["いつでも解約できますか？", "はい。設定からいつでも解約でき、有効期間終了までご利用いただけます。"],
+        ["支払い方法は何がありますか？", "Uzcard、Humo、Visaに対応しており、PaymeまたはClickで決済できます。"],
+        ["ファミリープランは別々のメールアドレスが必要ですか？", "はい。各自のメールアドレスでログインできますが、請求はひとつにまとまります。"],
+        ["ダウングレードした場合、学習進度はどうなりますか？", "データが削除されることはありません。再登録時にそのまま再開できます。"]
+      ]
+    }
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "save": "保存",
+    "confirm": "確認",
+    "delete": "削除",
+    "close": "閉じる",
+    "back": "戻る",
+    "loading": "読み込み中...",
+    "success": "成功",
+    "error": "エラー",
+    "next": "次へ",
+    "prev": "前へ",
+    "all": "すべて",
+    "search": "検索...",
+    "filter": "絞り込み",
+    "retry": "再試行",
+    "open": "開く",
+    "select": "選択",
+    "start": "開始",
+    "viewAll": "すべて見る",
+    "days": "日",
+    "items": "件"
+  },
+  "sidebar": {
+    "home": "ホーム",
+    "courses": "コース",
+    "jlpt": "JLPT",
+    "premium": "プレミアム",
+    "profile": "プロフィール",
+    "admin": "管理者パネル",
+    "logout": "ログアウト",
+    "collapse": "サイドバーを折りたたむ",
+    "expand": "サイドバーを展開する"
+  },
+  "vocab": {
+    "title": "単語・語彙帳",
+    "subtitle": "間隔反復法とフラッシュカードで、JLPT必須語彙を効率的に定着。",
+    "catalog": "単語カタログ",
+    "flashcards": "フラッシュカード暗記",
+    "openWords": "学習可能な単語",
+    "learning": "学習中",
+    "mastered": "習得済み",
+    "saved": "ブックマーク",
+    "searchPlaceholder": "単語、ローマ字、意味で検索...",
+    "allLevels": "全レベル",
+    "flipCard": "タップしてカードをめくる",
+    "markMastered": "覚えた",
+    "markLearning": "もう一度",
+    "emptyCatalog": "検索条件に一致する単語がありません。",
+    "emptyFlashcards": "このデッキには単語がありません。",
+    "exampleSentence": "例文"
+  },
+  "kanji": {
+    "title": "漢字ラボ",
+    "subtitle": "筆順アニメーション、部首、インタラクティブな描画キャンバスでJLPT漢字を完全攻略。",
+    "catalog": "漢字カタログ",
+    "flashcards": "漢字フラッシュカード",
+    "openKanji": "学習可能な漢字",
+    "learning": "学習中",
+    "mastered": "習得済み",
+    "saved": "ブックマーク",
+    "searchPlaceholder": "漢字や意味で検索...",
+    "radicals": "部首",
+    "onyomi": "音読み",
+    "kunyomi": "訓読み",
+    "strokes": "画数",
+    "practiceDraw": "手書き練習",
+    "clearCanvas": "クリア",
+    "animate": "筆順再生",
+    "strokeOrder": "書き順"
+  },
+  "dokkai": {
+    "title": "読解トレーニング",
+    "subtitle": "ふりがな付きの日本語記事、ニュース、JLPT長文を読んで読解力をアップ。",
+    "articles": "記事一覧",
+    "furigana": "ふりがな",
+    "questions": "読解問題",
+    "checkAnswer": "回答を確認",
+    "correct": "正解です！",
+    "incorrect": "不正解です。本文をもう一度確認しましょう。",
+    "explanation": "解説"
+  },
+  "ai": {
+    "title": "AI先生（センスイ）",
+    "subtitle": "AIとリアルタイムで日本語会話。発音の正確さを即座にフィードバック。",
+    "badge": "感情対応AI",
+    "faceToFace": "対面リアルタイム会話",
+    "liveVoiceChat": "AI講師と直接音声で会話できます。間違えると怒り出すかも？気をつけて！",
+    "startSpeaking": "会話を開始",
+    "stopSpeaking": "終了",
+    "listening": "聞き取り中...",
+    "feedback": "AIフィードバック"
+  },
+  "translate": {
+    "title": "AI翻訳ツール",
+    "subtitle": "日本語・ウズベク語・英語・ロシア語に対応。文法解説とふりがな付きスマート翻訳。",
+    "placeholder": "翻訳したいテキストを入力...",
+    "translateBtn": "翻訳する",
+    "translating": "翻訳中...",
+    "copy": "コピー",
+    "copied": "コピー完了！",
+    "swap": "言語を切り替え",
+    "breakdown": "文法・単語の解説"
+  },
+  "store": {
+    "title": "コインショップ",
+    "subtitle": "獲得したコインで、アバターフレーム、連続記録フリーズ、学習ブースターをゲット。",
+    "balance": "所持コイン",
+    "frames": "アバターフレーム",
+    "freezes": "ストリーク・フリーズ",
+    "boosters": "XPブースター",
+    "buy": "購入する",
+    "bought": "購入済み",
+    "equip": "装着",
+    "equipped": "装着中",
+    "unequip": "外す",
+    "insufficientCoins": "コインが不足しています"
+  },
+  "games": {
+    "title": "言語ミニゲーム",
+    "subtitle": "スピード感のあるミニゲームで、かなや語彙の瞬発力を鍛えよう。",
+    "speedMatch": "スピードマッチ",
+    "kanjiBattle": "漢字バトル",
+    "kanaDash": "かなダッシュ",
+    "leaderboard": "ランキング",
+    "play": "プレイ",
+    "score": "スコア",
+    "bestScore": "最高スコア",
+    "playAgain": "もう一度プレイ"
+  },
+  "courses": {
+    "title": "コース一覧",
+    "subtitle": "実績ある講師陣による、N5からN1までの体系的な動画レッスン。",
+    "modules": "モジュール",
+    "lessons": "レッスン",
+    "duration": "再生時間",
+    "startLesson": "レッスンを開始",
+    "completed": "受講完了",
+    "homework": "課題・確認テスト",
+    "notes": "講義ノート"
+  },
+  "tests": {
+    "title": "JLPT模擬試験",
+    "subtitle": "本番JLPT基準に基づいた時間配分と配点で実施されるフルレングス模擬試験。",
+    "mockExam": "フル模擬試験",
+    "timeRemaining": "残り時間",
+    "question": "問題",
+    "next": "次の問題",
+    "prev": "前の問題",
+    "finish": "終了して提出",
+    "resultTitle": "試験結果",
+    "scoreLabel": "獲得スコア",
+    "passed": "合格！",
+    "failed": "不合格",
+    "reviewAnswers": "解答と解説を確認"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "管理者パネル",
+      "dashboard": "ダッシュボード",
+      "banners": "バナー管理",
+      "courses": "コース・講座",
+      "tests": "JLPT模擬試験",
+      "shop": "ショップ管理",
+      "subscriptions": "サブスク・VIP",
+      "users": "ユーザー一覧",
+      "notifications": "お知らせ配信",
+      "studentPanel": "受講生画面へ",
+      "collapse": "サイドバーを折りたたむ",
+      "expand": "サイドバーを展開",
+      "logout": "ログアウト"
+    },
+    "header": {
+      "title": "管理者",
+      "studentPanel": "受講生画面へ",
+      "breadcrumbs": {
+        "dashboard": "ダッシュボード",
+        "dashboardSub": "プラットフォーム統計と全体指標",
+        "users": "ユーザー一覧",
+        "usersSub": "受講生・講師・管理者の管理",
+        "courses": "コース一覧",
+        "coursesSub": "レッスンおよび講座モジュール",
+        "tests": "JLPT模擬試験",
+        "testsSub": "出題問題データベース",
+        "shop": "ショップ管理",
+        "shopSub": "アバターフレーム・商品管理",
+        "subscriptions": "サブスク・VIP",
+        "subscriptionsSub": "PRO会員と決済履歴",
+        "banners": "バナー管理",
+        "bannersSub": "告知バナー・プロモーション管理",
+        "notifications": "お知らせ配信",
+        "notificationsSub": "全ユーザー向け通知の一斉配信"
+      }
+    },
+    "overview": {
+      "title": "管理者ダッシュボード",
+      "welcome": "おかえりなさい",
+      "subtitle": "プラットフォーム利用状況と主要メトリクス:",
+      "refresh": "更新",
+      "totalUsers": "総ユーザー数",
+      "todayRegistered": "本日の新規登録",
+      "proUsers": "PRO有料会員",
+      "activeCourses": "公開中コース",
+      "recentUsers": "最新登録ユーザー",
+      "viewAll": "すべて表示",
+      "tableUser": "ユーザー",
+      "tableRole": "権限",
+      "tableCoins": "コイン",
+      "tableStatus": "ステータス",
+      "tableJoined": "登録日",
+      "tableActions": "操作",
+      "active": "有効",
+      "blocked": "停止中",
+      "noUsers": "ユーザーが見つかりません",
+      "roles": {
+        "superAdmin": "最高管理者",
+        "admin": "管理者",
+        "teacher": "講師",
+        "student": "受講生"
+      }
+    },
+    "common": {
+      "save": "保存",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "edit": "編集",
+      "create": "新規作成",
+      "search": "検索...",
+      "filter": "絞り込み",
+      "actions": "操作",
+      "status": "状態",
+      "success": "正常に保存されました！",
+      "error": "エラーが発生しました"
+    },
+    "users": {
+      "title": "ユーザー管理",
+      "subtitle": "受講生・講師・管理者の管理と権限設定",
+      "searchPlaceholder": "名前またはメールアドレスで検索...",
+      "allRoles": "すべての権限",
+      "filter": "絞り込み",
+      "addUser": "ユーザー追加",
+      "name": "氏名",
+      "email": "メールアドレス",
+      "role": "権限",
+      "avatar": "アバター",
+      "verified": "メール認証済み",
+      "editUser": "ユーザー編集",
+      "deleteUser": "ユーザー削除",
+      "deleteConfirm": "このユーザーを本当に削除しますか？",
+      "devices": "ログイン端末",
+      "activeSessions": "アクティブセッション",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "submitting": "保存中...",
+      "totalCount": "総ユーザー数"
+    },
+    "courses": {
+      "title": "コース管理",
+      "subtitle": "動画講座・レッスン・モジュールの管理",
+      "createCourse": "新規コース作成",
+      "editCourse": "コース編集",
+      "deleteCourse": "コース削除",
+      "courseTitle": "コース名",
+      "level": "対象レベル",
+      "description": "コース概要",
+      "price": "価格",
+      "teacher": "担当講師",
+      "selectTeacher": "講師を選択",
+      "allTeachers": "すべての講師",
+      "isFree": "無料コース",
+      "isPublished": "公開済み",
+      "thumbnail": "サムネイル画像 (URLまたはアップロード)",
+      "lessonsCount": "レッスン数",
+      "manageModules": "モジュール・レッスン管理",
+      "emptyCourses": "登録されたコースはまだありません。"
+    },
+    "tests": {
+      "title": "JLPT試験問題管理",
+      "subtitle": "模擬試験および練習問題データベース",
+      "createTest": "新規テスト作成",
+      "editTest": "テスト編集",
+      "deleteTest": "テスト削除",
+      "testTitle": "テスト名",
+      "level": "JLPTレベル",
+      "duration": "試験時間 (分)",
+      "passingScore": "合格基準点",
+      "category": "種別",
+      "mockExam": "フル模擬試験",
+      "practice": "練習問題",
+      "questionsCount": "問題数",
+      "manageQuestions": "問題編集",
+      "emptyTests": "登録されたテストはまだありません。"
+    },
+    "subscriptions": {
+      "title": "サブスクリプション・VIP管理",
+      "subtitle": "PRO会員および決済履歴の管理",
+      "activeSubs": "アクティブPRO会員",
+      "grantPro": "PRO権限を手動付与",
+      "userEmail": "ユーザーメール",
+      "durationDays": "有効期間 (日数)",
+      "planType": "プラン種別",
+      "monthly": "月額プラン",
+      "yearly": "年額プラン",
+      "lifetime": "無期限",
+      "save": "サブスクを有効化"
+    },
+    "banners": {
+      "title": "バナー管理",
+      "subtitle": "トップページやお知らせバナーの管理",
+      "createBanner": "新規バナー作成",
+      "bannerTitle": "タイトル",
+      "description": "説明文",
+      "image": "画像",
+      "btnText": "ボタン文字",
+      "btnUrl": "遷移先URL",
+      "isActive": "有効",
+      "save": "保存"
+    },
+    "shop": {
+      "title": "デジタルショップ管理",
+      "subtitle": "アバターフレーム・商品・特典の管理",
+      "createItem": "新規商品追加",
+      "itemName": "商品名",
+      "priceCoins": "必要コイン数",
+      "category": "カテゴリ",
+      "frames": "アバターフレーム",
+      "perks": "特典"
+    },
+    "notifications": {
+      "title": "一斉お知らせ配信",
+      "subtitle": "ユーザーへの一斉通知配信",
+      "create": "お知らせ作成",
+      "subject": "件名",
+      "message": "本文",
+      "audience": "配信対象",
+      "allUsers": "全ユーザー",
+      "proUsers": "PRO会員のみ",
+      "send": "送信"
+    }
+  },
+  "profilePage": {
+    "title": "マイプロフィール",
+    "subtitle": "アカウント情報・学習設定・統計データ",
+    "editProfile": "プロフィール編集",
+    "changeAvatar": "アバター変更",
+    "studyPlan": "学習プラン",
+    "activeDevices": "接続端末一覧",
+    "deviceSessions": "セッション履歴",
+    "revokeAll": "他のすべての端末からログアウト",
+    "revoke": "ログアウト",
+    "thisDevice": "この端末",
+    "planTitle": "目標JLPTレベル",
+    "weeklyGoal": "週間目標時間",
+    "minutesPerDay": "分/日",
+    "successUpdated": "プロフィール情報を保存しました！"
+  },
+  "lessonRoom": {
+    "syllabus": "講座カリキュラム",
+    "vocabulary": "語彙・単語 (言葉)",
+    "grammar": "文法解説",
+    "practice": "練習問題",
+    "subtitles": "字幕・テキスト",
+    "nextLesson": "次のレッスン",
+    "prevLesson": "前のレッスン",
+    "completeAndContinue": "完了して次へ",
+    "notes": "受講ノート"
+  },
+  "examRoom": {
+    "title": "JLPT本番形式 模擬試験",
+    "timeLeft": "残り時間",
+    "section1": "1. 言語知識（文字・語彙）",
+    "section2": "2. 読解・文法",
+    "section3": "3. 聴解（リスニング）",
+    "submitExam": "解答を提出する",
+    "confirmSubmit": "試験を終了して結果を送信しますか？",
+    "scoreResult": "試験結果",
+    "passed": "合格おめでとうございます！ 🎉",
+    "failed": "残念ながら今回は基準点に届きませんでした。",
+    "reviewAnswers": "解答解説を確認",
+    "backToTests": "試験一覧へ戻る"
+  }
+}

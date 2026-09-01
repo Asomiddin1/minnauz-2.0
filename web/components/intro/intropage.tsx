@@ -1,8 +1,6 @@
 'use client'
 
 import { useScrollbarAutohide } from '@/lib/hooks'
-import { LangProvider } from '@/lib/i18n'
-import { ThemeProvider } from '@/lib/theme'
 import Nav from '@/components/intro/Nav'
 import Hero from '@/components/intro/Hero'
 import Levels from '@/components/intro/Levels'
@@ -30,11 +28,5 @@ function Content() {
 }
 
 export default function LandingPage() {
-  return (
-    <ThemeProvider>
-      <LangProvider>
-        <Content />
-      </LangProvider>
-    </ThemeProvider>
-  )
+  return <Content />
 }

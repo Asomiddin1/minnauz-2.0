@@ -52,7 +52,7 @@ export function getOfficialJlptPassScore(level: JlptLevel): number {
 }
 
 export default function AdminTestsPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [tests, setTests] = React.useState<AdminJlptTestItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -304,14 +304,14 @@ export default function AdminTestsPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">
-              Admin Boshqaruvi
+              {t?.admin?.sidebar?.title || 'Admin Boshqaruvi'}
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-foreground mt-1">
-            JLPT Mock Imtihonlar Boshqaruvi
+            {t?.admin?.tests?.title || 'JLPT Mock Imtihonlar Boshqaruvi'}
           </h1>
           <p className="text-xs text-muted-foreground">
-            Haqiqiy 3 modulli JLPT imtihonlarini yaratish, tahrirlash va savollarini boshqarish
+            {t?.admin?.tests?.subtitle || 'Haqiqiy 3 modulli JLPT imtihonlarini yaratish, tahrirlash va savollarini boshqarish'}
           </p>
         </div>
 
@@ -321,7 +321,7 @@ export default function AdminTestsPage() {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-xs font-bold text-primary-foreground hover:opacity-90 active:scale-95 shadow-md transition-all cursor-pointer shrink-0"
         >
           <Plus className="h-4 w-4" />
-          <span>Yangi Mock Imtihon</span>
+          <span>{t?.admin?.tests?.createTest || 'Yangi Mock Imtihon'}</span>
         </button>
       </div>
 
