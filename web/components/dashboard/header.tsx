@@ -47,7 +47,7 @@ export function DashboardHeader({
   onTabChange?: (tab: string) => void;
   onMenuClick?: () => void;
 }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const pathname = usePathname();
   const { theme, toggle } = useThemeCtx();
   const { activeTab, setActiveTab } = useDashboardTab();
@@ -98,14 +98,14 @@ export function DashboardHeader({
   const isDashboardHome = pathname ? /^\/([a-z]{2}\/)?dashboard\/?$/.test(pathname) : false;
 
   const tabs: { id: DashboardTabId; label: string; icon: any }[] = [
-    { id: 'home', label: 'Asosiy', icon: Home },
-    { id: 'vocab', label: "Lug'at", icon: BookA },
-    { id: 'games', label: "O'yinlar", icon: Gamepad2 },
-    { id: 'dokkay', label: 'Dokkay', icon: BookOpen },
-    { id: 'kanji', label: 'Kanji', icon: KanjiIcon },
-    { id: 'store', label: "Do'kon", icon: ShoppingBag },
-    { id: 'translate', label: 'Tarjimon', icon: Languages },
-    { id: 'ai', label: 'AI ustoz', icon: Sparkles },
+    { id: 'home', label: t?.dash?.tabs?.[0] || 'Asosiy', icon: Home },
+    { id: 'vocab', label: t?.dash?.tabs?.[1] || "Lug'at", icon: BookA },
+    { id: 'games', label: t?.dash?.tabs?.[2] || "O'yinlar", icon: Gamepad2 },
+    { id: 'dokkay', label: t?.dash?.tabs?.[3] || 'Dokkay', icon: BookOpen },
+    { id: 'kanji', label: t?.dash?.tabs?.[4] || 'Kanji', icon: KanjiIcon },
+    { id: 'store', label: t?.dash?.tabs?.[5] || "Do'kon", icon: ShoppingBag },
+    { id: 'translate', label: t?.dash?.tabs?.[6] || 'Tarjimon', icon: Languages },
+    { id: 'ai', label: t?.dash?.tabs?.[7] || 'AI ustoz', icon: Sparkles },
   ];
 
   const handleTabClick = (tabId: DashboardTabId) => {
@@ -218,7 +218,7 @@ export function DashboardHeader({
               className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-card px-3.5 h-9 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95"
             >
               <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Diqqat rejimi</span>
+              <span>Kengaytirish</span>
             </button>
           </div>
         </div>

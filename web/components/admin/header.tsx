@@ -14,21 +14,57 @@ export function AdminHeader({
 }: {
   onMenuClick?: () => void;
 }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const { theme, toggle } = useThemeCtx();
   const pathname = usePathname();
 
   const getBreadcrumb = () => {
     if (pathname.includes('/admin/users')) {
-      return { title: 'Foydalanuvchilar', sub: 'Barcha oʻquvchilar, ustozlar va adminlar boshqaruvi' };
+      return {
+        title: t?.admin?.header?.breadcrumbs?.users || 'Foydalanuvchilar',
+        sub: t?.admin?.header?.breadcrumbs?.usersSub || 'Barcha oʻquvchilar, ustozlar va adminlar boshqaruvi',
+      };
     }
     if (pathname.includes('/admin/courses')) {
-      return { title: 'Kurslar', sub: 'Darslar va modullar' };
+      return {
+        title: t?.admin?.header?.breadcrumbs?.courses || 'Kurslar',
+        sub: t?.admin?.header?.breadcrumbs?.coursesSub || 'Darslar va modullar',
+      };
     }
     if (pathname.includes('/admin/tests')) {
-      return { title: 'JLPT Testlar', sub: 'Imtihon savollari bazasi' };
+      return {
+        title: t?.admin?.header?.breadcrumbs?.tests || 'JLPT Testlar',
+        sub: t?.admin?.header?.breadcrumbs?.testsSub || 'Imtihon savollari bazasi',
+      };
     }
-    return { title: 'Boshqaruv paneli', sub: 'Platforma statistikasi va umumiy koʻrsatkichlar' };
+    if (pathname.includes('/admin/shop')) {
+      return {
+        title: t?.admin?.header?.breadcrumbs?.shop || 'Raqamli Doʻkon',
+        sub: t?.admin?.header?.breadcrumbs?.shopSub || 'Mahsulotlar va ramkalar boshqaruvi',
+      };
+    }
+    if (pathname.includes('/admin/subscriptions')) {
+      return {
+        title: t?.admin?.header?.breadcrumbs?.subscriptions || 'Obunalar & VIP',
+        sub: t?.admin?.header?.breadcrumbs?.subscriptionsSub || 'PRO foydalanuvchilar va toʻlovlar',
+      };
+    }
+    if (pathname.includes('/admin/banners')) {
+      return {
+        title: t?.admin?.header?.breadcrumbs?.banners || 'Bannerlar',
+        sub: t?.admin?.header?.breadcrumbs?.bannersSub || 'Eʼlonlar va aksiyalar boshqaruvi',
+      };
+    }
+    if (pathname.includes('/admin/notifications')) {
+      return {
+        title: t?.admin?.header?.breadcrumbs?.notifications || 'Xabarnomalar',
+        sub: t?.admin?.header?.breadcrumbs?.notificationsSub || 'Ommaviy bildirishnomalar yuborish',
+      };
+    }
+    return {
+      title: t?.admin?.header?.breadcrumbs?.dashboard || 'Boshqaruv paneli',
+      sub: t?.admin?.header?.breadcrumbs?.dashboardSub || 'Platforma statistikasi va umumiy koʻrsatkichlar',
+    };
   };
 
   const breadcrumb = getBreadcrumb();
@@ -51,7 +87,7 @@ export function AdminHeader({
             href={`/${lang}/admin`}
             className="text-[13px] font-medium text-muted-foreground hover:text-foreground"
           >
-            Admin
+            {t?.admin?.header?.title || 'Admin'}
           </Link>
           <span className="text-[13px] text-muted-foreground/60">/</span>
           <span className="text-[13px] font-semibold text-foreground">
@@ -66,7 +102,7 @@ export function AdminHeader({
           href={`/${lang}/dashboard`}
           className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary"
         >
-          <span>Oʻquvchi paneli</span>
+          <span>{t?.admin?.header?.studentPanel || 'Oʻquvchi paneli'}</span>
           <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
         </Link>
 

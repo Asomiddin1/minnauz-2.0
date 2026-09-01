@@ -21,6 +21,16 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
+        source: '/jp',
+        destination: '/ja',
+        permanent: false,
+      },
+      {
+        source: '/jp/:path*',
+        destination: '/ja/:path*',
+        permanent: false,
+      },
+      {
         source: '/dashboard/:path*',
         destination: '/uz/dashboard/:path*',
         permanent: false,

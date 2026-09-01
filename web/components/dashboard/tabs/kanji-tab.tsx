@@ -33,7 +33,7 @@ import { useLang } from '@/lib/i18n';
 import { KanjiDetailModal } from '../kanji/kanji-detail-modal';
 
 export function KanjiTab() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
 
   // Mode: 'CATALOG' (Kanji qomusi) or 'FLASHCARDS' (Yodlash xonasi)
   const [activeMode, setActiveMode] = React.useState<'CATALOG' | 'FLASHCARDS'>('CATALOG');
@@ -285,7 +285,7 @@ export function KanjiTab() {
             }`}
           >
             <Type className="h-4 w-4 text-primary" />
-            <span>Kanji Qomusi</span>
+            <span>{t?.kanji?.catalog || "Kanji Qomusi"}</span>
           </button>
           <button
             type="button"
@@ -301,7 +301,7 @@ export function KanjiTab() {
             }`}
           >
             <Layers className="h-4 w-4 text-amber-500" />
-            <span>Flashcard Yodlash</span>
+            <span>{t?.kanji?.flashcards || "Flashcard Yodlash"}</span>
             {stats.totalSaved > 0 && (
               <span className="px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-black">
                 {stats.totalSaved}
@@ -319,7 +319,7 @@ export function KanjiTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Ochiq Kanjilar
+              {t?.kanji?.openKanji || "Ochiq Kanjilar"}
             </p>
             <p className="text-base font-black text-foreground">{kanjiList.length} ta</p>
           </div>
@@ -331,7 +331,7 @@ export function KanjiTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Yodlanayotgan
+              {t?.kanji?.learning || "Yodlanayotgan"}
             </p>
             <p className="text-base font-black text-yellow-600 dark:text-yellow-400">
               {stats.totalLearning} ta
@@ -345,7 +345,7 @@ export function KanjiTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Yodlangan
+              {t?.kanji?.mastered || "Yodlangan"}
             </p>
             <p className="text-base font-black text-emerald-600 dark:text-emerald-400">
               {stats.totalMastered} ta
@@ -359,7 +359,7 @@ export function KanjiTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Toʻplamda jami
+              {t?.kanji?.saved || "Toʻplamda jami"}
             </p>
             <p className="text-base font-black text-foreground">{stats.totalSaved} ta</p>
           </div>

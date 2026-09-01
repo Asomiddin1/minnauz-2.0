@@ -35,7 +35,7 @@ import { useLang } from '@/lib/i18n';
 type TabKey = 'video' | 'kotoba' | 'bunpou' | 'kanji' | 'renshuu' | 'kaiwa';
 
 export default function LessonPlayerPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const params = useParams();
   const router = useRouter();
   const courseId = params.courseId as string;
@@ -516,7 +516,7 @@ export default function LessonPlayerPage() {
               className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[12px] font-semibold bg-secondary text-foreground hover:bg-secondary/80 transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Oldingi dars</span>
+              <span className="hidden sm:inline">{t?.lessonRoom?.prevLesson || 'Oldingi dars'}</span>
             </Link>
           )}
 
@@ -532,7 +532,7 @@ export default function LessonPlayerPage() {
             title="Darsni toʻliq yakunlangan deb belgilash va keyingisini ochish"
           >
             <CheckCircle2 className="h-4 w-4 stroke-[2.5]" />
-            <span>{isCompleted ? 'Dars tugatilgan' : completing ? 'Saqlanmoqda...' : 'Darsni tugatish'}</span>
+            <span>{isCompleted ? (t?.common?.verified || 'Dars tugatilgan') : completing ? (t?.admin?.users?.submitting || 'Saqlanmoqda...') : (t?.lessonRoom?.completeAndContinue || 'Darsni tugatish')}</span>
           </button>
 
           {/* Yangi Qo'shilgan: Keyingi Dars Tugmasi */}
@@ -542,7 +542,7 @@ export default function LessonPlayerPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
               title="Keyingi darsga oʻtish"
             >
-              <span className="hidden sm:inline">Keyingi dars</span>
+              <span className="hidden sm:inline">{t?.lessonRoom?.nextLesson || 'Keyingi dars'}</span>
               <ChevronRight className="h-4 w-4" />
             </Link>
           )}

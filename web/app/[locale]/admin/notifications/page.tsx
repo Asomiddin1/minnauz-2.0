@@ -18,8 +18,10 @@ import {
   Send,
 } from 'lucide-react';
 import { api, NotificationItem, CreateNotificationDto } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 export default function AdminNotificationsPage() {
+  const { lang, t } = useLang();
   const [notifications, setNotifications] = React.useState<NotificationItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -129,10 +131,10 @@ export default function AdminNotificationsPage() {
             </span>
           </div>
           <h1 className="headline text-[28px] sm:text-[32px] font-bold text-foreground mt-1">
-            Xabarnomalar Boshqaruvi
+            {t?.admin?.notifications?.title || 'Xabarnomalar Boshqaruvi'}
           </h1>
           <p className="text-[14px] text-muted-foreground mt-0.5">
-            Oʻquvchilar, ustozlar yoki barcha foydalanuvchilarga video, rasm va eʼlon xabarnomalarini joʻnatish.
+            {t?.admin?.notifications?.subtitle || 'Oʻquvchilar, ustozlar yoki barcha foydalanuvchilarga video, rasm va eʼlon xabarnomalarini joʻnatish.'}
           </p>
         </div>
 
@@ -144,7 +146,7 @@ export default function AdminNotificationsPage() {
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            <span>Yangilash</span>
+            <span>{t?.admin?.overview?.refresh || 'Yangilash'}</span>
           </button>
 
           <button
@@ -153,7 +155,7 @@ export default function AdminNotificationsPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-[#0071e3] px-5 py-2.5 text-[13px] font-semibold text-white hover:brightness-110 active:scale-[0.98] transition-all shadow-xs cursor-pointer"
           >
             <Send className="h-4 w-4" />
-            <span>Yangi Xabarnoma</span>
+            <span>{t?.admin?.notifications?.create || 'Yangi Xabarnoma'}</span>
           </button>
         </div>
       </div>

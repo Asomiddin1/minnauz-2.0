@@ -8,7 +8,7 @@ import { useLang } from '@/lib/i18n';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function CoursesPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [courses, setCourses] = React.useState<CourseListItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [selectedLevel, setSelectedLevel] = React.useState<string>('ALL');
@@ -49,25 +49,25 @@ export default function CoursesPage() {
             <span>JLPT Standart Oʻquv Dasturi</span>
           </div>
           <h1 className="text-[28px] sm:text-[36px] font-bold tracking-tight leading-tight">
-            Yapon tili kurslari va darsliklar
+            {t?.courses?.title || 'Yapon tili kurslari va darsliklar'}
           </h1>
           <p className="text-[14px] sm:text-[16px] text-white/80 leading-relaxed">
-            Minna no Nihongo xalqaro darsligi asosida tuzilgan 5 bosqichli toʻliq interaktiv oʻquv tizimi: Lugʻat (Kotoba), Grammatika (Bunpou), Kanji, Mashqlar (Renshuu) va AI suhbat.
+            {t?.courses?.subtitle || 'Minna no Nihongo xalqaro darsligi asosida tuzilgan 5 bosqichli toʻliq interaktiv oʻquv tizimi: Lugʻat (Kotoba), Grammatika (Bunpou), Kanji, Mashqlar (Renshuu) va AI suhbat.'}
           </p>
         </div>
 
         {/* Quick Stats Pill */}
         <div className="relative z-10 mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:w-fit">
           <div className="rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
-            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">Jami kurslar</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">{t?.admin?.courses?.courseTitle || 'Jami kurslar'}</div>
             <div className="text-[20px] font-bold mt-0.5">{courses.length || 3} ta</div>
           </div>
           <div className="rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
-            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">Darslar soni</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">{t?.courses?.lessons || 'Darslar soni'}</div>
             <div className="text-[20px] font-bold mt-0.5">{totalLessons || 80}+ dars</div>
           </div>
           <div className="col-span-2 sm:col-span-1 rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
-            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">Oʻrtacha oʻzlashtirish</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">{t?.dash?.progress?.title || 'Oʻrtacha oʻzlashtirish'}</div>
             <div className="text-[20px] font-bold mt-0.5">{avgProgress}%</div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function CoursesPage() {
                   : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
-              {lvl === 'ALL' ? 'Barcha darajalar' : `JLPT ${lvl}`}
+              {lvl === 'ALL' ? (t?.video?.all || 'Barcha darajalar') : `JLPT ${lvl}`}
             </button>
           ))}
         </div>
@@ -193,11 +193,11 @@ export default function CoursesPage() {
                     {hasStarted ? (
                       <>
                         <Play className="h-3.5 w-3.5 fill-current" />
-                        <span>Davom ettirish</span>
+                        <span>{t?.dash?.goal?.continue || 'Davom ettirish'}</span>
                       </>
                     ) : (
                       <>
-                        <span>Kursni boshlash</span>
+                        <span>{t?.courses?.startLesson || 'Kursni boshlash'}</span>
                         <ArrowRight className="h-3.5 w-3.5" />
                       </>
                     )}

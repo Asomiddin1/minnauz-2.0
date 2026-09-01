@@ -14,6 +14,7 @@ import {
   Cpu,
 } from 'lucide-react';
 import { api, TranslateResponse } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 
 const QUICK_PROMPTS_JA = [
   'こんにちは、お元気ですか？',
@@ -30,6 +31,7 @@ const QUICK_PROMPTS_UZ = [
 ];
 
 export function TranslateTab() {
+  const { lang, t } = useLang();
   const [inputText, setInputText] = React.useState('');
   const [result, setResult] = React.useState<TranslateResponse | null>(null);
   const [isTranslating, setIsTranslating] = React.useState(false);
@@ -203,12 +205,12 @@ export function TranslateTab() {
                 {isTranslating ? (
                   <>
                     <div className="h-3.5 w-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    <span>AI tahlil qilmoqda...</span>
+                    <span>{t?.translate?.translating || "AI tahlil qilmoqda..."}</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-3.5 w-3.5" />
-                    <span>Tarjima qilish</span>
+                    <span>{t?.translate?.translateBtn || "Tarjima qilish"}</span>
                   </>
                 )}
               </button>

@@ -2,8 +2,10 @@
 
 import * as React from 'react';
 import { Sparkles, Settings2, Mic, MicOff, PhoneOff } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 export function AiLiveCallTab() {
+  const { lang, t } = useLang();
   const [isAngry, setIsAngry] = React.useState(false);
   const [isMicMuted, setIsMicMuted] = React.useState(false);
 
@@ -22,13 +24,13 @@ export function AiLiveCallTab() {
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-500">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>Emotsional AI (Domen Kengayishi)</span>
+              <span>{t?.ai?.title || 'AI Ustoz'}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Yuzma-yuz suhbat
+              {t?.ai?.title || 'Yuzma-yuz suhbat'}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Sun'iy intellekt bilan jonli ovozli muloqot. Ehtiyot bo'ling, noto'g'ri gapirsangiz uning jahli tez chiqishi mumkin!
+              {t?.ai?.subtitle || "Sun'iy intellekt bilan jonli ovozli muloqot. Yapon tilida erkin so'zlashishni mashq qiling!"}
             </p>
           </div>
           <button className="h-10 w-10 shrink-0 rounded-full bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all cursor-pointer">

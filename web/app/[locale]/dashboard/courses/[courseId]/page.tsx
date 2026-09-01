@@ -19,7 +19,7 @@ import { api, CourseDetailsResponse, CourseLessonSummary } from '@/lib/api';
 import { useLang } from '@/lib/i18n';
 
 export default function CourseRoadmapPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const params = useParams();
   const courseId = params.courseId as string;
 
@@ -74,7 +74,7 @@ export default function CourseRoadmapPage() {
           className="inline-flex items-center gap-2 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Barcha kurslar</span>
+          <span>{t?.admin?.courses?.title || 'Barcha kurslar'}</span>
         </Link>
       </div>
 
@@ -88,7 +88,7 @@ export default function CourseRoadmapPage() {
               </span>
               <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground font-medium">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                {course.completedLessons} / {course.totalLessons} dars yakunlangan
+                {course.completedLessons} / {course.totalLessons} {t?.admin?.courses?.lessonsCount || 'dars yakunlangan'}
               </span>
             </div>
             <h1 className="text-[22px] sm:text-[28px] font-bold text-foreground tracking-tight">
@@ -103,7 +103,7 @@ export default function CourseRoadmapPage() {
           <div className="flex md:flex-col items-center justify-between md:justify-center gap-2.5 p-4 rounded-xl bg-secondary/40 border border-border/50 min-w-[190px]">
             <div className="text-left md:text-center">
               <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Umumiy progress
+                {t?.dash?.progress?.title || 'Umumiy progress'}
               </div>
               <div className="text-[26px] font-extrabold text-primary font-mono leading-tight mt-0.5">
                 {course.progressPercent}%

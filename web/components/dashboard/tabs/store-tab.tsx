@@ -45,7 +45,7 @@ import { UserAvatar } from '@/components/shared/user-avatar';
 export function StoreTab() {
   const { user, updateUser, equipFrame } = useAuth();
   const router = useRouter();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
 
   const [items, setItems] = React.useState<StoreItem[]>([]);
   const [inventory, setInventory] = React.useState<UserInventoryItem[]>([]);

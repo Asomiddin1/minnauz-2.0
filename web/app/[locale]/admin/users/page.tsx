@@ -21,10 +21,12 @@ import {
 } from 'lucide-react';
 import { api, AdminUserItem, DeviceSession } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useLang } from '@/lib/i18n';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
+  const { lang, t } = useLang();
 
   const [users, setUsers] = React.useState<AdminUserItem[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -195,25 +197,25 @@ export default function AdminUsersPage() {
       case 'SUPER_ADMIN':
         return (
           <span className="inline-flex items-center rounded-md bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-purple-600 dark:text-purple-400 border border-purple-500/20">
-            Super Admin
+            {t?.admin?.overview?.roles?.superAdmin || 'Super Admin'}
           </span>
         );
       case 'ADMIN':
         return (
           <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400 border border-amber-500/20">
-            Admin
+            {t?.admin?.overview?.roles?.admin || 'Admin'}
           </span>
         );
       case 'TEACHER':
         return (
           <span className="inline-flex items-center rounded-md bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-blue-600 dark:text-blue-400 border border-blue-500/20">
-            Ustoz
+            {t?.admin?.overview?.roles?.teacher || 'Ustoz'}
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground border border-border">
-            Oʻquvchi
+            {t?.admin?.overview?.roles?.student || 'Oʻquvchi'}
           </span>
         );
     }
@@ -225,10 +227,10 @@ export default function AdminUsersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="headline text-[28px] font-bold text-foreground">
-            Foydalanuvchilar Boshqaruvi
+            {t?.admin?.users?.title || 'Foydalanuvchilar Boshqaruvi'}
           </h1>
           <p className="text-[14px] text-muted-foreground mt-0.5">
-            Jami {total} ta foydalanuvchi roʻyxatdan oʻtgan
+            {t?.admin?.users?.subtitle || 'Barcha oʻquvchilar, ustozlar va adminlar boshqaruvi'} ({total})
           </p>
         </div>
 
@@ -238,7 +240,7 @@ export default function AdminUsersPage() {
           className="inline-flex items-center gap-2 rounded-xl bg-[#0071e3] px-4 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 shadow-xs"
         >
           <UserPlus className="h-4 w-4" />
-          <span>Yangi Foydalanuvchi</span>
+          <span>{t?.admin?.users?.addUser || 'Yangi Foydalanuvchi'}</span>
         </button>
       </div>
 
@@ -295,12 +297,12 @@ export default function AdminUsersPage() {
           <table className="w-full text-left text-[13px]">
             <thead>
               <tr className="border-b border-border bg-secondary/30 text-muted-foreground">
-                <th className="py-3.5 px-5 font-semibold">Foydalanuvchi</th>
-                <th className="py-3.5 px-4 font-semibold">Rol</th>
-                <th className="py-3.5 px-4 font-semibold">Holat</th>
-                <th className="py-3.5 px-4 font-semibold">Qurilmalar</th>
-                <th className="py-3.5 px-4 font-semibold">Sana</th>
-                <th className="py-3.5 px-5 text-right font-semibold">Amallar</th>
+                <th className="py-3.5 px-5 font-semibold">{t?.admin?.overview?.tableUser || 'Foydalanuvchi'}</th>
+                <th className="py-3.5 px-4 font-semibold">{t?.admin?.overview?.tableRole || 'Rol'}</th>
+                <th className="py-3.5 px-4 font-semibold">{t?.admin?.overview?.tableStatus || 'Holat'}</th>
+                <th className="py-3.5 px-4 font-semibold">{t?.admin?.users?.devices || 'Qurilmalar'}</th>
+                <th className="py-3.5 px-4 font-semibold">{t?.admin?.overview?.tableJoined || 'Sana'}</th>
+                <th className="py-3.5 px-5 text-right font-semibold">{t?.admin?.overview?.tableActions || 'Amallar'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -308,13 +310,13 @@ export default function AdminUsersPage() {
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-muted-foreground">
                     <RefreshCw className="mx-auto h-6 w-6 animate-spin text-muted-foreground mb-2" />
-                    Yuklanmoqda...
+                    {t?.common?.loading || 'Yuklanmoqda...'}
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-muted-foreground">
-                    Hech qanday foydalanuvchi topilmadi
+                    {t?.admin?.overview?.noUsers || 'Hech qanday foydalanuvchi topilmadi'}
                   </td>
                 </tr>
               ) : (

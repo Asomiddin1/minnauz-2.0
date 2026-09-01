@@ -18,6 +18,7 @@ import {
   Layers,
   BookOpen,
 } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 // === AUDIO SYNTHESIZER (No external files needed) ===
 function playSound(type: 'correct' | 'wrong' | 'combo' | 'gameover', soundEnabled = true) {
@@ -225,6 +226,7 @@ const KOTOBA_RUSH_DATA = [
 ];
 
 export function GamesTab() {
+  const { lang, t } = useLang();
   const [selectedGame, setSelectedGame] = React.useState<'speed' | 'kanji-match' | 'word-rush'>('speed');
 
   // Sound effects state
@@ -497,7 +499,7 @@ export function GamesTab() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                 <Gamepad2 className="h-3.5 w-3.5" />
-                <span>Yapon Tili Oʻyinlari</span>
+                <span>{t?.games?.title || 'Yapon Tili Oʻyinlari'}</span>
               </span>
               <button
                 type="button"
@@ -510,17 +512,17 @@ export function GamesTab() {
               </button>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Oʻynab oʻrganing: Interaktiv Mini-Oʻyinlar
+              {t?.games?.title || 'Oʻynab oʻrganing: Interaktiv Mini-Oʻyinlar'}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Xotirani charxlash va reaksiyani oshirish uchun yaponcha mini-oʻyinlar. Har kuni bir necha daqiqa bellashib, tezlik va yangi soʻzlarni mustahkamlang!
+              {t?.games?.subtitle || 'Xotirani charxlash va reaksiyani oshirish uchun yaponcha mini-oʻyinlar. Har kuni bir necha daqiqa bellashib, tezlik va yangi soʻzlarni mustahkamlang!'}
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <div className="rounded-2xl border border-border bg-card/80 p-4 text-center min-w-[120px]">
               <Trophy className="mx-auto h-5 w-5 text-amber-500 mb-1" />
-              <div className="text-xs text-muted-foreground">Eng yuqori ball</div>
+              <div className="text-xs text-muted-foreground">{t?.games?.bestScore || 'Eng yuqori ball'}</div>
               <div className="text-xl font-extrabold text-foreground">{highScore} pts</div>
             </div>
             <div className="rounded-2xl border border-border bg-card/80 p-4 text-center min-w-[120px]">

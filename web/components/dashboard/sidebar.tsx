@@ -59,27 +59,27 @@ export function DashboardSidebar({
 
   const navItems: NavItem[] = [
     {
-      label: t?.dash?.nav?.[0] || 'Bosh sahifa',
+      label: t?.sidebar?.home || t?.dash?.nav?.[0] || 'Bosh sahifa',
       href: `/${lang}/dashboard`,
       icon: LayoutDashboard,
     },
     {
-      label: 'Kurslar',
+      label: t?.sidebar?.courses || 'Kurslar',
       href: `/${lang}/dashboard/courses`,
       icon: BookOpen,
     },
     {
-      label: 'JLPT',
+      label: t?.sidebar?.jlpt || 'JLPT',
       href: `/${lang}/dashboard/tests`,
       icon: FileCheck2,
     },
     {
-      label: 'Premium',
+      label: t?.sidebar?.premium || 'Premium',
       href: `/${lang}/dashboard/premium`,
       icon: Sparkles,
     },
     {
-      label: t?.profile?.title || 'Profil',
+      label: t?.sidebar?.profile || t?.profile?.title || 'Profil',
       href: `/${lang}/dashboard/profile`,
       icon: User,
     },
@@ -242,7 +242,7 @@ export function DashboardSidebar({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4" />
-              <span>Chiqish</span>
+              <span>{t?.sidebar?.logout || t?.dash?.logout || 'Chiqish'}</span>
             </button>
           </>
         ) : (
@@ -257,7 +257,7 @@ export function DashboardSidebar({
             <button
               type="button"
               onClick={logout}
-              title="Chiqish"
+              title={t?.sidebar?.logout || t?.dash?.logout || 'Chiqish'}
               className="grid h-8 w-8 place-items-center rounded-lg text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4" />

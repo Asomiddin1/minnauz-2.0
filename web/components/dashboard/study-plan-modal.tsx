@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { api, UserStudyPlan } from '@/lib/api';
 import { getNextJLPTExamDate } from '@/lib/jlpt';
+import { useLang } from '@/lib/i18n';
 
 interface StudyPlanModalProps {
   isOpen: boolean;
@@ -133,6 +134,9 @@ export function StudyPlanModal({
   );
   const [saving, setSaving] = React.useState(false);
 
+  const { t } = useLang();
+  const spDict = t?.dash?.studyPlanModal;
+
   const examInfo = React.useMemo(() => getNextJLPTExamDate(), []);
 
   React.useEffect(() => {
@@ -184,16 +188,16 @@ export function StudyPlanModal({
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0071e3]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#0071e3]">
                 <Sparkles className="h-3 w-3" />
-                <span>{isOnboarding ? 'Xush kelibsiz · Onboarding' : 'Shaxsiy Reja'}</span>
+                <span>{isOnboarding ? (spDict?.titleWelcome || 'Xush kelibsiz · Onboarding') : (spDict?.titleEdit || 'Shaxsiy Reja')}</span>
               </span>
               <span className="text-[12px] font-medium text-muted-foreground">
-                {step} / 3-qadam
+                {step} / 3{spDict?.stepSuffix || '-qadam'}
               </span>
             </div>
             <h2 className="headline text-[20px] sm:text-[22px] font-bold text-foreground mt-1">
-              {step === 1 && 'Maqsad JLPT darajangizni tanlang'}
-              {step === 2 && 'Haftada necha soat dars qilasiz?'}
-              {step === 3 && 'Tayyorgarlik muddati va Imtihon'}
+              {step === 1 && (spDict?.step1Title || 'Maqsad JLPT darajangizni tanlang')}
+              {step === 2 && (spDict?.step2Title || 'Haftada necha soat dars qilasiz?')}
+              {step === 3 && (spDict?.step3Title || 'Tayyorgarlik muddati va Imtihon')}
             </h2>
           </div>
 
@@ -215,7 +219,7 @@ export function StudyPlanModal({
           {step === 1 && (
             <div className="space-y-3">
               <p className="text-[13px] text-muted-foreground">
-                Oʻrganmoqchi boʻlgan darajangizni belgilang. Dashboard va darslar shu darajaga moslashadi:
+                {spDict?.step1Desc || 'Oʻrganmoqchi boʻlgan darajangizni belgilang. Dashboard va darslar shu darajaga moslashadi:'}
               </p>
 
               <div className="grid gap-3 sm:grid-cols-1">
@@ -248,7 +252,7 @@ export function StudyPlanModal({
                             </span>
                             {lvl.badge && (
                               <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-500">
-                                {lvl.badge}
+                                {spDict?.recommended || lvl.badge}
                               </span>
                             )}
                           </div>
@@ -283,7 +287,7 @@ export function StudyPlanModal({
           {step === 2 && (
             <div className="space-y-4">
               <p className="text-[13px] text-muted-foreground">
-                Oʻzingizga qulay dars jadvalini tanlang. Haftalik maqsad shu asosda hisoblanadi:
+                {spDict?.step2Desc || 'Oʻzingizga qulay dars jadvalini tanlang. Haftalik maqsad shu asosda hisoblanadi:'}
               </p>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -307,7 +311,7 @@ export function StudyPlanModal({
                         </div>
                         {goal.recommended && (
                           <span className="rounded-full bg-[#0071e3]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#0071e3]">
-                            Tavsiya
+                            {spDict?.recommended || 'Tavsiya'}
                           </span>
                         )}
                       </div>
@@ -315,7 +319,7 @@ export function StudyPlanModal({
                       <div>
                         <p className="text-[16px] font-bold text-foreground">{goal.title}</p>
                         <p className="headline text-[22px] font-bold text-[#0071e3] mt-0.5">
-                          {goal.hours} soat <span className="text-[13px] font-normal text-muted-foreground">/ hafta</span>
+                          {goal.hours} {spDict?.hoursSuffix || 'soat'} <span className="text-[13px] font-normal text-muted-foreground">/ {spDict?.summaryWeekly?.toLowerCase() || 'hafta'}</span>
                         </p>
                         <p className="text-[12px] font-semibold text-foreground/90 mt-1">
                           {goal.pace}
@@ -346,12 +350,12 @@ export function StudyPlanModal({
                       {examInfo.formattedDate}
                     </h3>
                     <p className="text-[12px] text-muted-foreground mt-0.5">
-                      JLPT {examInfo.season} imtihoni (Oyning 1-yakshanbasi)
+                      JLPT {examInfo.season} imtihoni
                     </p>
                   </div>
                   <div className="inline-flex items-baseline gap-1 rounded-xl bg-amber-500/20 px-3.5 py-1.5 text-amber-500 font-bold text-[18px]">
                     <span>{examInfo.daysRemaining}</span>
-                    <span className="text-[12px] font-semibold">kun qoldi</span>
+                    <span className="text-[12px] font-semibold">{t?.dash?.stats?.daysSuffix || 'kun'}</span>
                   </div>
                 </div>
               </div>
@@ -359,7 +363,7 @@ export function StudyPlanModal({
               {/* Target timeline */}
               <div className="space-y-3">
                 <p className="text-[13px] font-medium text-foreground">
-                  Qaysi muddatda {targetLevel} darajasiga toʻliq yetishmoqchisiz?
+                  {spDict?.step3Desc || `Qaysi muddatda ${targetLevel} darajasiga toʻliq yetishmoqchisiz?`}
                 </p>
 
                 <div className="grid gap-3 sm:grid-cols-3">
@@ -387,20 +391,20 @@ export function StudyPlanModal({
               {/* Plan Summary Preview */}
               <div className="rounded-2xl bg-secondary/40 p-4 border border-border/50 space-y-2">
                 <p className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  Sizning yakuniy rejangiz
+                  {spDict?.summaryTitle || 'Sizning yakuniy rejangiz'}
                 </p>
                 <div className="grid grid-cols-3 gap-2 text-center pt-1">
                   <div className="rounded-xl bg-card p-2 border border-border/50">
-                    <span className="text-[11px] text-muted-foreground block">Maqsad</span>
+                    <span className="text-[11px] text-muted-foreground block">{spDict?.summaryGoal || 'Maqsad'}</span>
                     <span className="text-[14px] font-bold text-[#0071e3]">{targetLevel}</span>
                   </div>
                   <div className="rounded-xl bg-card p-2 border border-border/50">
-                    <span className="text-[11px] text-muted-foreground block">Haftalik</span>
-                    <span className="text-[14px] font-bold text-foreground">{weeklyHours} soat</span>
+                    <span className="text-[11px] text-muted-foreground block">{spDict?.summaryWeekly || 'Haftalik'}</span>
+                    <span className="text-[14px] font-bold text-foreground">{weeklyHours} {spDict?.hoursSuffix || 'soat'}</span>
                   </div>
                   <div className="rounded-xl bg-card p-2 border border-border/50">
-                    <span className="text-[11px] text-muted-foreground block">Kunlik</span>
-                    <span className="text-[14px] font-bold text-foreground">{dailyMinutes} daq</span>
+                    <span className="text-[11px] text-muted-foreground block">{spDict?.summaryDaily || 'Kunlik'}</span>
+                    <span className="text-[14px] font-bold text-foreground">{dailyMinutes} {spDict?.minSuffix || 'daq'}</span>
                   </div>
                 </div>
               </div>
@@ -418,7 +422,7 @@ export function StudyPlanModal({
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-[13px] font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Orqaga</span>
+              <span>{spDict?.back || 'Orqaga'}</span>
             </button>
           ) : (
             <div />
@@ -430,7 +434,7 @@ export function StudyPlanModal({
               onClick={() => setStep((s) => (s + 1) as any)}
               className="inline-flex items-center gap-1.5 rounded-full bg-[#0071e3] px-6 py-2 text-[13px] font-semibold text-white hover:brightness-110 active:scale-[0.98] cursor-pointer transition-all shadow-xs"
             >
-              <span>Keyingisi</span>
+              <span>{spDict?.next || 'Keyingisi'}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
@@ -443,12 +447,12 @@ export function StudyPlanModal({
               {saving ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>Saqlanmoqda...</span>
+                  <span>{spDict?.saving || 'Saqlanmoqda...'}</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  <span>Rejani tasdiqlash</span>
+                  <span>{spDict?.savePlan || 'Rejani tasdiqlash'}</span>
                 </>
               )}
             </button>

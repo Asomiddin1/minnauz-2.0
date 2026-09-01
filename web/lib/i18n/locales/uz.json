@@ -1,0 +1,843 @@
+{
+  "nav": {
+    "levels": "Darajalar",
+    "practice": "Mashq",
+    "kids": "Bolalar",
+    "premium": "Premium",
+    "schools": "Markazlar",
+    "getStarted": "Boshlash",
+    "language": "Til"
+  },
+  "hero": {
+    "titleA": "Yapon tili:",
+    "titleB": "dan erkin nutqqa.",
+    "sub": "Har bir JLPT darajasi uchun yagona platforma. Haqiqiy imtihon testlari, video darslar va talaffuzingizni eshitadigan sun'iy intellekt — Toshkentda, o'zbek o'quvchilari uchun yaratilgan.",
+    "cta1": "Bepul boshlash",
+    "cta2": "Daraja testini yeching →",
+    "stats": ["faol oʻquvchi", "JLPT darajasi", "talaffuz aniqligi", "imtihon savoli"]
+  },
+  "levels": {
+    "eyebrow": "Yoʻl",
+    "heading": "Besh daraja. Bitta uzluksiz yoʻl.",
+    "kanji": "Kanji",
+    "words": "Soʻz boyligi",
+    "hours": "Oʻquv soati",
+    "items": [
+      {
+        "title": "Birinchi yuz kun",
+        "blurb": "Hiragana, katakana va 103 ta kanji. Oxirida ovqat buyurtma qilasiz, o'zingizni tanishtirasiz va poyezd yozuvini bemalol o'qiysiz."
+      },
+      {
+        "title": "Kundalik yapon tili",
+        "blurb": "Oddiy shakl, te-forma zanjirlari va norasmiy nutq. Tanish mavzudagi sekin suhbatni tushunasiz va qisqa xabar yozasiz."
+      },
+      {
+        "title": "Koʻprik daraja",
+        "blurb": "Aksariyat o'quvchi shu yerda to'xtaydi — shuning uchun eng ko'p vaqtni shu yerga ajratamiz. Keigo asoslari, gazeta sarlavhalari va tabiiy tinglash tezligi."
+      },
+      {
+        "title": "Ishga tayyor",
+        "blurb": "Biznes xat, suhbat uchun yapon tili va to'liq maqolalarni o'qish. Yapon ish beruvchilari eng ko'p so'raydigan daraja."
+      },
+      {
+        "title": "Subtitrsiz",
+        "blurb": "Mavhum esselar, shevalar, akademik tinglash. Endi ichingizda tarjima qilmay, yapon tilida o'ylaysiz."
+      }
+    ]
+  },
+  "practice": {
+    "eyebrow": "Mashq",
+    "heading": "Imtihon kuni kerak boʻlgan hamma narsa. Ortiqchasi yoʻq.",
+    "speech": {
+      "eyebrow": "AI talaffuz",
+      "title": "U xuddi ustoz kabi tinglaydi.",
+      "body": "Iborani ayting. Biz ohang, cho'ziqlik va ritmni baholaymiz — so'ng qaysi mora xato ketganini aniq aytamiz."
+    },
+    "streak": {
+      "eyebrow": "Kunlik seriya",
+      "title": "Oʻn ikki daqiqa oʻn ikki soatdan afzal.",
+      "strong": "27 kunlik seriya.",
+      "body": "XP darslar, testlar va mini-oʻyinlar boʻylab yigʻiladi."
+    },
+    "tests": {
+      "eyebrow": "Test bazasi",
+      "title": "Haqiqiy JLPT sharoiti.",
+      "body": "Rasmiy tuzilma asosida yozilgan 2 800 ta savol, daqiqagacha vaqt cheklovi va Yaponiyadagidek baholash.",
+      "rows": ["Til bilimi", "Oʻqish", "Tinglash"]
+    },
+    "video": {
+      "eyebrow": "Video darslar",
+      "title": "Imtihondan oʻtganlar oʻrgatadi.",
+      "body": "O'zbek va rus tilida 412 ta dars — kana chiziqlaridan keigogacha, gap o'rtasidan qidiriladigan transkript bilan."
+    }
+  },
+  "kids": {
+    "eyebrow": "Minna ABC · 8–13 yosh",
+    "heading": "Bolalar oʻqimaydi. Ular oʻynaydi va esda qoladi.",
+    "body": "Avval tovush, keyin bola tanigan har bir belgini qayta ishlatadigan rasmli hikoyalar. Ota-onaga haftalik xabar keladi — hech kim o'qimaydigan jadval emas.",
+    "caption": "Chiziq tartibi, barmoq bilan chiziladi. 46 ta belgi, bir hafta.",
+    "items": [
+      ["Tovush", "Belgidan oldin tovush — o'qish birinchi kundan boshlanadi."],
+      ["Hikoya rejimi", "Rasmli 38 ta kitobcha, har biri keyingisini ochadi."],
+      ["Husnixat", "Yoʻnaltirilgan chiziqlar va bir zumda tuzatish."]
+    ]
+  },
+  "premium": {
+    "eyebrow": "Premium",
+    "heading": "Yiliga bir marta toʻlang. Keyin unuting.",
+    "monthly": "Oylik",
+    "yearly": "Yillik",
+    "perYear": "yil",
+    "perMonth": "oy",
+    "free": "Bepul",
+    "trial": "7 kunlik sinovni boshlash",
+    "choose": "Tanlash:",
+    "footnote": "Biz bilan darajangizni topshiring — keyingi yilgi Premium bepul. Sozlamalardan istalgan payt bekor qilish mumkin.",
+    "plans": [
+      {
+        "note": "Boshlash uchun kerak boʻlgan hamma narsa",
+        "features": [
+          "N5 dars yoʻnalishi",
+          "Oyiga 3 ta sinov testi",
+          "Seriyalar va XP",
+          "Hamjamiyat javoblari"
+        ]
+      },
+      {
+        "note": "Butun kutubxona, reklamasiz",
+        "features": [
+          "Barcha besh JLPT darajasi",
+          "2 800 ta savoldan iborat toʻliq baza",
+          "AI talaffuz baholash, cheksiz",
+          "412 ta video dars, oflayn",
+          "Barcha mini-oʻyinlar",
+          "Tugatganlik sertifikati"
+        ]
+      },
+      {
+        "note": "Toʻrttagacha oʻquvchi uchun",
+        "features": [
+          "SUPERMINNAʼdagi hamma narsa",
+          "Bolalar uchun Minna ABC",
+          "Ota-ona uchun hisobot",
+          "Yagona toʻlov"
+        ]
+      }
+    ]
+  },
+  "schools": {
+    "eyebrow": "Markazlar uchun",
+    "heading": "Siz boshqarayotgan har bir sinf uchun bitta boshqaruv paneli.",
+    "demo": "Demo soʻrash",
+    "overview": "Guruhlar koʻrinishi",
+    "updated": "Kuz 2026 · 4 daqiqa oldin yangilandi",
+    "columns": ["Markaz", "Shahar", "Oʻquvchilar", "Yoʻnalish", "Topshirish koʻrsatkichi"],
+    "cities": ["Toshkent", "Samarqand", "Buxoro", "Respublika boʻylab"],
+    "mixed": "Aralash"
+  },
+  "footer": {
+    "heading": "Birinchi yapon soʻzingiz — bepul.",
+    "cta1": "Bepul boshlash",
+    "cta2": "Darajalarni koʻrish",
+    "tagline": "Oʻzbekiston uchun yapon tili. Toshkentda yaratilgan.",
+    "columns": [
+      { "title": "Oʻrganish", "links": ["JLPT N5", "JLPT N4", "JLPT N3", "JLPT N2", "JLPT N1", "Minna ABC"] },
+      {
+        "title": "Mahsulot",
+        "links": ["Sinov testlari", "Video darslar", "Nutqni baholash", "Mini-oʻyinlar"]
+      },
+      { "title": "Kompaniya", "links": ["Biz haqimizda", "Natijalar", "Yordam markazi", "Bogʻlanish"] },
+      { "title": "Huquqiy", "links": ["Qoidalar", "Ommaviy oferta", "Maxfiylik", "Toʻlovlar"] }
+    ],
+    "rights": "© 2026 Minna.Uz. Barcha huquqlar himoyalangan.",
+    "address": "Toshkent, Oʻzbekiston · support@minna.uz"
+  },
+  "auth": {
+    "back": "Orqaga",
+    "title": "Minnaga kirish",
+    "sub": "Seriyangiz, darajalaringiz, testlaringiz — har bir qurilmada.",
+    "google": "Google orqali kirish",
+    "or": "yoki",
+    "emailLabel": "Email",
+    "emailPlaceholder": "siz@misol.uz",
+    "emailInvalid": "Toʻgʻri email manzilini kiriting.",
+    "sendCode": "Menga kod yuboring",
+    "sending": "Yuborilmoqda…",
+    "codeTitle": "Xatlaringizni tekshiring",
+    "codeSub": "Biz olti xonali kodni yubordik:",
+    "codeIncomplete": "Olti xonali kodni toʻliq kiriting.",
+    "codeWrong": "Kod notoʻgʻri. Qaytadan urinib koʻring.",
+    "verify": "Tasdiqlash va davom etish",
+    "verifying": "Tekshirilmoqda…",
+    "resend": "Yangi kod yuborish",
+    "resendIn": "Yangi kodni soʻrashingiz mumkin:",
+    "seconds": "soniya",
+    "changeEmail": "Boshqa email ishlatish",
+    "successTitle": "Muvaffaqiyatli kirdingiz.",
+    "successSub": "Sizni panelga oʻtkazmoqdamiz…",
+    "terms": "Davom etish orqali Foydalanish shartlari va Maxfiylik siyosatiga rozilik bildirasiz.",
+    "callbackLoading": "Google orqali ulanmoqda...",
+    "callbackChecking": "Sessiyangiz tekshirilmoqda, iltimos kuting",
+    "callbackError": "Kirishda xatolik",
+    "backToLogin": "Login sahifasiga qaytish"
+  },
+  "notFound": {
+    "title": "Bu sahifa topilmadi.",
+    "sub": "Havola notoʻgʻri yoki sahifa koʻchirilgan.",
+    "home": "Bosh sahifaga qaytish"
+  },
+  "dash": {
+    "search": "Qidirish…",
+    "collapse": "Yon panelni yopish",
+    "menu": "Menyu",
+    "nav": ["Bosh sahifa", "Kurslar", "JLPT", "Premium", "Profil"],
+    "tabs": [
+      "Bosh sahifa",
+      "Lugʻat",
+      "Oʻyinlar",
+      "Dokkay",
+      "Kanji",
+      "Doʻkon",
+      "Tarjimon",
+      "AI ustoz",
+      "Premium"
+    ],
+    "pageTitle": "Bosh sahifa",
+    "expand": "Fokus rejimi",
+    "soon": {
+      "title": "Bu boʻlim tez kunda ochiladi",
+      "body": "Biz uni hali tayyorlayapmiz. Ungacha seriyangizni Bosh sahifadan davom ettiring.",
+      "back": "Bosh sahifaga qaytish"
+    },
+    "goal": {
+      "title": "Maqsadingizga oz qoldi.",
+      "level": "Daraja",
+      "continue": "Davom etish"
+    },
+    "admin": "Admin paneli",
+    "logout": "Chiqish",
+    "hero": {
+      "chip": "Bugungi maqsad",
+      "title": "JLPT ga tayyormisiz?",
+      "sub": "N5 dan N1 gacha yapon tilini haqiqiy imtihon testlari va har kungi mashqlar bilan oʻrganing.",
+      "cta1": "Darsni ochish",
+      "cta2": "Haftamni rejalashtirish"
+    },
+    "levelLabels": [
+      "Boshlangʻich daraja",
+      "Bazaviy daraja",
+      "Oʻrta daraja",
+      "Yuqori daraja",
+      "Eng yuqori daraja"
+    ],
+    "calendar": {
+      "title": "Taqvim",
+      "streakDays": "{streakDays} kunlik streak",
+      "weekdays": ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"],
+      "months": [
+        "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
+        "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"
+      ],
+      "done": "Bajarildi",
+      "missed": "Qoldirildi",
+      "prev": "Oldingi oy",
+      "next": "Keyingi oy"
+    },
+    "progress": {
+      "title": "Umumiy natija",
+      "period": "Bu hafta",
+      "todayLabel": "Bugungi dars vaqti",
+      "goalLabel": "Haftalik maqsad"
+    },
+    "stats": {
+      "streak": "Streak (kunlar)",
+      "wordsLearned": "Yodlangan soʻzlar",
+      "lessonsCompleted": "Yakunlangan darslar",
+      "levelGoal": "tayyorgarlik",
+      "daysSuffix": "kun",
+      "itemsSuffix": "ta"
+    },
+    "countdown": {
+      "untilExam": "JLPT {season} Imtihonigacha",
+      "title": "Vaqt ketyapti! Bilimingizni muntazam mustahkamlab boring.",
+      "officialDate": "Rasmiy imtihon sanasi:",
+      "mockTestBtn": "Mock Test",
+      "units": {
+        "days": "KUN",
+        "hours": "SOAT",
+        "minutes": "DAQ",
+        "seconds": "SON"
+      }
+    },
+    "banner": {
+      "weeklyGoalTag": "Haftalik maqsad",
+      "weeklyGoalTitle": "Haftalik rejangiz qanday ketyapti?",
+      "weeklyGoalDesc": "Siz bu hafta rejangizning {percent}% qismini bajardingiz. Belgilangan maqsadga yetishish uchun oz qoldi!",
+      "details": "Batafsil",
+      "dismiss": "Bannerni yopish",
+      "prevSlide": "Oldingi slayd",
+      "nextSlide": "Keyingi slayd",
+      "slide": "Slayd",
+      "announcement": "Eʼlon",
+      "go": "Oʻtish",
+      "understood": "Tushunarli"
+    },
+    "activeCourse": {
+      "badge": "Joriy Kurs",
+      "defaultTitle": "Minna no Nihongo I (N5)",
+      "lessonsCount": "{completed} / {total} Dars",
+      "nextLesson": "Navbatdagi dars:",
+      "defaultNextLesson": "1-dars: Tanishtiruv va asoslar",
+      "defaultCategory": "Grammatika",
+      "progress": "Kurs oʻzlashtirilishi",
+      "goToLesson": "Darsga oʻtish"
+    },
+    "testsWidget": {
+      "eyebrow": "Imtihon",
+      "title": "JLPT Mock Testlar",
+      "all": "Barchasi",
+      "allTestsBtn": "Barcha testlar",
+      "examTitle": "JLPT {season} Imtihoni",
+      "daysRemaining": "{days} kun qoldi",
+      "historyTitle": "Topshirilgan testlar tarixi",
+      "attempts": "{count} ta urinish",
+      "emptyTitle": "Hali mock test topshirmadingiz",
+      "emptyDesc": "Haqiqiy imtihon andozasidagi testni yechib, bilimingizni sinab koʻring.",
+      "takeTestBtn": "Test topshirish",
+      "today": "Bugun",
+      "yesterday": "Kecha",
+      "daysAgo": "{days} kun oldin",
+      "minutes": "daq",
+      "passed": "Oʻtdi",
+      "failed": "Oʻtmadi",
+      "viewResults": "Natijalar va tahlilni koʻrish"
+    },
+    "progressWidget": {
+      "title": "Umumiy progress",
+      "period": "Bu hafta",
+      "todayStudyTime": "Bugungi oʻrganish vaqti",
+      "hourUnit": "h",
+      "minUnit": "m",
+      "weeklyGoal": "Haftalik maqsad ({hours} soat)"
+    },
+    "studyPlanModal": {
+      "titleWelcome": "Xush kelibsiz · Onboarding",
+      "titleEdit": "Shaxsiy Reja",
+      "stepSuffix": "-qadam",
+      "step1Title": "Maqsad JLPT darajangizni tanlang",
+      "step2Title": "Haftada necha soat dars qilasiz?",
+      "step3Title": "Tayyorgarlik muddati va Imtihon",
+      "step1Desc": "Oʻrganmoqchi boʻlgan darajangizni belgilang. Dashboard va darslar shu darajaga moslashadi:",
+      "step2Desc": "Muntazamlik — muvaffaqiyat garovi. Oʻzingizga qulay tezlikni tanlang:",
+      "step3Desc": "Qachon imtihon topshirishni rejalashtiryapsiz?",
+      "recommended": "Tavsiya etiladi",
+      "approxHours": "≈ {hours} soat",
+      "summaryTitle": "Sizning yakuniy rejangiz",
+      "summaryGoal": "Maqsad",
+      "summaryWeekly": "Haftalik",
+      "summaryDaily": "Kunlik",
+      "hoursSuffix": "soat",
+      "minSuffix": "daq",
+      "back": "Orqaga",
+      "next": "Keyingisi",
+      "saving": "Saqlanmoqda...",
+      "savePlan": "Rejani tasdiqlash"
+    },
+    "courses": {
+      "title": "Toʻxtagan joyingizdan davom eting",
+      "items": [
+        ["Bir haftada Hiragana", "12 darsdan 6-dars"],
+        ["N5 kanji · 3-toʻplam", "9 darsdan 2-dars"],
+        ["N4 tinglab tushunish", "14 darsdan 8-dars"]
+      ]
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "joined": "Minna bilan birga:",
+    "edit": "Profilni tahrirlash",
+    "stats": [
+      ["Yechilgan testlar", "24"],
+      ["Muvaffaqiyatli", "19"],
+      ["Oʻrtacha ball", "142/180"],
+      ["Eng uzun seriya", "41 kun"]
+    ],
+    "history": {
+      "title": "Testlar tarixi",
+      "sub": "Har bir urinish JLPT baholash tizimi asosida hisoblangan.",
+      "filters": ["Hammasi", "Oʻtgan", "Yiqilgan"],
+      "columns": ["Sana", "Test", "Daraja", "Ball", "Natija", "Vaqt"],
+      "passed": "Oʻtdi",
+      "failed": "Yiqildi",
+      "empty": "Bu filtrda hali urinishlar yoʻq.",
+      "more": "Koʻproq koʻrsatish",
+      "names": [
+        "Toʻliq sinov imtihoni",
+        "Til bilimi",
+        "Tinglash",
+        "Oʻqish",
+        "Kanji marafon",
+        "Grammatika mashqi"
+      ]
+    },
+    "devices": {
+      "title": "Qurilmalar",
+      "sub": "Akkauntingizga kirilgan qurilmalar roʻyxati.",
+      "current": "Ushbu qurilma",
+      "lastActive": "Oxirgi faollik",
+      "now": "hozir",
+      "revoke": "Chiqarish",
+      "revokeAll": "Boshqa barcha qurilmalardan chiqish",
+      "empty": "Boshqa qurilmalar ulanmagan."
+    }
+  },
+  "video": {
+    "title": "Video darslar",
+    "sub": "Koʻring, oʻzbekcha subtitrlarni oʻqing, ovoz chiqarib qaytaring.",
+    "search": "Darslarni qidirish",
+    "all": "Hammasi",
+    "empty": "Bu qidiruvga mos dars topilmadi.",
+    "lessons": "dars",
+    "minutes": "daq",
+    "views": "koʻrish",
+    "back": "Barcha videolar",
+    "watchNext": "Keyingisi",
+    "transcript": {
+      "title": "Subtitrlar",
+      "sub": "Qatorga bosib oʻsha joyga oʻting.",
+      "bilingual": "Yaponcha matnni ham koʻrsatish",
+      "auto": "Videoni kuzatib borish",
+      "empty": "Bu dars uchun subtitrlar tayyorlanmoqda."
+    }
+  },
+  "plans": {
+    "title": "Premium",
+    "sub": "Yagona obuna. Barcha darajalar, testlar va videolar.",
+    "monthly": "Oylik",
+    "yearly": "Yillik",
+    "save": "20% tejang",
+    "perMonth": "/oy",
+    "billedYearly": "yiliga bir marta toʻlanadi",
+    "currency": "soʻm",
+    "current": "Joriy tarif",
+    "choose": "Ulanish",
+    "popular": "Eng ommabop",
+    "names": ["Bepul", "Premium", "Oila"],
+    "notes": [
+      "Yapon tili sizga toʻgʻri kelishini bilish uchun yetarli",
+      "Toʻliq kutubxona, cheklovlarsiz, reklamasiz",
+      "Bitta hisobda toʻrttagacha oʻquvchi"
+    ],
+    "highlights": [
+      ["N5 darslari", "Oyiga 3 ta test", "Seriyalar va XP"],
+      ["Barcha 5 ta JLPT darajasi", "2 800 ta savoldan iborat test bazasi", "AI talaffuz baholash", "Oflayn videolar"],
+      ["Premiumʼdagi barcha imkoniyatlar", "Bolalar uchun Minna ABC", "Ota-ona uchun haftalik hisobot", "Umumiy hisob-kitob"]
+    ],
+    "compare": {
+      "title": "Nimalar beriladi",
+      "columns": ["Imkoniyat", "Bepul", "Premium", "Oila"],
+      "rows": [
+        "JLPT N5–N1 darajalari",
+        "Subtitrli video darslar",
+        "Toʻliq sinov imtihonlari",
+        "AI talaffuz baholash",
+        "Oflayn yuklab olish",
+        "Bolalar yoʻnalishi (Minna ABC)",
+        "4 tagacha akkaunt",
+        "Tugatganlik sertifikati"
+      ]
+    },
+    "guarantee": "Biz bilan darajangizni topshiring — keyingi yil bepul. Istalgan payt bekor qilish mumkin.",
+    "faq": {
+      "title": "Savollar",
+      "items": [
+        ["Istalgan payt bekor qilsam boʻladimi?", "Ha. Sozlamalardan bekor qilasiz, toʻlangan davr oxirigacha kirish saqlanadi."],
+        ["Qanday toʻlayman?", "Payme yoki Click orqali Uzcard, Humo va Visa kartalari bilan. Toʻlov soʻmda yechiladi."],
+        ["Oila tarifi uchun alohida emaillar kerakmi?", "Har bir oʻquvchi oʻz emaili bilan kiradi, lekin toʻlov bitta kartadan olinadi."],
+        ["Tarifni pasaytirsam yutuqlarim nima boʻladi?", "Hech narsa oʻchmaydi. Yopiq darslar faqat obuna qayta tiklangunicha kutib turadi."]
+      ]
+    }
+  },
+  "common": {
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "confirm": "Tasdiqlash",
+    "delete": "Oʻchirish",
+    "close": "Yopish",
+    "back": "Orqaga",
+    "loading": "Yuklanmoqda...",
+    "success": "Muvaffaqiyatli",
+    "error": "Xatolik",
+    "next": "Keyingisi",
+    "prev": "Oldingisi",
+    "all": "Barchasi",
+    "search": "Qidirish...",
+    "filter": "Filtr",
+    "retry": "Qayta urinish",
+    "open": "Ochish",
+    "select": "Tanlash",
+    "start": "Boshlash",
+    "viewAll": "Barchasini koʻrish",
+    "days": "kun",
+    "items": "ta"
+  },
+  "sidebar": {
+    "home": "Bosh sahifa",
+    "courses": "Kurslar",
+    "jlpt": "JLPT",
+    "premium": "Premium",
+    "profile": "Profil",
+    "admin": "Admin paneli",
+    "logout": "Chiqish",
+    "collapse": "Yon panelni yopish",
+    "expand": "Yon panelni kengaytirish"
+  },
+  "vocab": {
+    "title": "Lugʻat va Kotoba",
+    "subtitle": "JLPT soʻz boyligini aqlli takrorlash va interaktiv flashcardlar orqali mustahkamlang.",
+    "catalog": "Lugʻat Qomusi",
+    "flashcards": "Flashcard Yodlash",
+    "openWords": "Ochiq soʻzlar",
+    "learning": "Yodlanayotgan",
+    "mastered": "Yodlangan",
+    "saved": "Saqlangan",
+    "searchPlaceholder": "Soʻz, romaji yoki ma'no boʻyicha qidiring...",
+    "allLevels": "Barcha darajalar",
+    "flipCard": "Kartani aylantirish uchun bosing",
+    "markMastered": "Balaman",
+    "markLearning": "Qayta takrorlash",
+    "emptyCatalog": "Qidiruvga mos keladigan soʻz topilmadi.",
+    "emptyFlashcards": "Ushbu toʻplamda soʻzlar mavjud emas.",
+    "exampleSentence": "Misol gap"
+  },
+  "kanji": {
+    "title": "Kanji Laboratoriyasi",
+    "subtitle": "JLPT kanjilarini chiziq tartibi animatsiyasi, radikallar va interaktiv chizish taxtasi orqali oʻrganing.",
+    "catalog": "Kanji Qomusi",
+    "flashcards": "Kanji Flashcardlar",
+    "openKanji": "Ochiq Kanjilar",
+    "learning": "Yodlanayotgan",
+    "mastered": "Yodlangan",
+    "saved": "Saqlangan",
+    "searchPlaceholder": "Kanji yoki ma'no boʻyicha qidiring...",
+    "radicals": "Radikallar",
+    "onyomi": "On'yomi",
+    "kunyomi": "Kun'yomi",
+    "strokes": "Chiziqlar",
+    "practiceDraw": "Chizishni mashq qilish",
+    "clearCanvas": "Tozalash",
+    "animate": "Animatsiya",
+    "strokeOrder": "Chiziq tartibi"
+  },
+  "dokkai": {
+    "title": "Dokkay (Oʻqib tushunish)",
+    "subtitle": "Yaponcha maqolalar, yangiliklar va JLPT matnlarini furigana bilan oʻqib mashq qiling.",
+    "articles": "Matnlar",
+    "furigana": "Furigana",
+    "questions": "Matn savollari",
+    "checkAnswer": "Javobni tekshirish",
+    "correct": "Toʻgʻri!",
+    "incorrect": "Notoʻgʻri, matnni qayta oʻqing.",
+    "explanation": "Tushuntirish"
+  },
+  "ai": {
+    "title": "AI Ustoz (Sensei)",
+    "subtitle": "Haqiqiy vaqt rejimida AI bilan gaplashib, talaffuzingiz boʻyicha tezkor baho oling.",
+    "badge": "Emotsional AI",
+    "faceToFace": "Yuzma-yuz suhbat",
+    "liveVoiceChat": "Sun'iy intellekt bilan jonli ovozli muloqot. Ehtiyot bo'ling, noto'g'ri gapirsangiz uning jahli tez chiqishi mumkin!",
+    "startSpeaking": "Gapirishni boshlash",
+    "stopSpeaking": "Gapirishni toʻxtatish",
+    "listening": "Eshitilmoqda...",
+    "feedback": "AI Xulosasi"
+  },
+  "translate": {
+    "title": "AI Tarjimon",
+    "subtitle": "Yapon-oʻzbek tillari oʻrtasida grammatika va furigana tahlili bilan aqlli tarjima.",
+    "placeholder": "Tarjima qilish uchun matn kiriting...",
+    "translateBtn": "Tarjima qilish",
+    "translating": "Tarjima qilinmoqda...",
+    "copy": "Nusxa olish",
+    "copied": "Nusxalandi!",
+    "swap": "Tillarni almashtirish",
+    "breakdown": "Grammatika va soʻzlar tahlili"
+  },
+  "store": {
+    "title": "Tangalar Doʻkoni",
+    "subtitle": "Toʻplagan tangalaringizni profil ramkalari, seriya muzlatgichlari va boosterlarga almashtiring.",
+    "balance": "Sizning balansingiz",
+    "frames": "Avatar ramkalari",
+    "freezes": "Seriya muzlatgichlari",
+    "boosters": "XP Kuchaytirgichlar",
+    "buy": "Sotib olish",
+    "bought": "Sotib olingan",
+    "equip": "Taqish",
+    "equipped": "Taqilgan",
+    "unequip": "Yechish",
+    "insufficientCoins": "Tangalar yetarli emas"
+  },
+  "games": {
+    "title": "Til Mini-Oʻyinlari",
+    "subtitle": "Kana va soʻzlarni tezkor mini-oʻyinlar orqali xotirangizda mustahkamlang.",
+    "speedMatch": "Tezkor moslashtirish",
+    "kanjiBattle": "Kanji Jangi",
+    "kanaDash": "Kana Poygasi",
+    "leaderboard": "Yetakchilar jadvali",
+    "play": "Oʻynash",
+    "score": "Ball",
+    "bestScore": "Eng yaxshi natija",
+    "playAgain": "Qayta oʻynash"
+  },
+  "courses": {
+    "title": "Kurslar",
+    "subtitle": "Tajribali ustozlar tomonidan tayyorlangan N5 dan N1 gacha tizimli video darslar.",
+    "modules": "Modullar",
+    "lessons": "Darslar",
+    "duration": "Davomiyligi",
+    "startLesson": "Darsni boshlash",
+    "completed": "Bajarildi",
+    "homework": "Vazifalar va Testlar",
+    "notes": "Dars qaydlari"
+  },
+  "tests": {
+    "title": "JLPT Sinov Imtihonlari",
+    "subtitle": "Rasmiy JLPT standarti asosida vaqt va ball hisoblanadigan toʻliq imtihon simulyatsiyasi.",
+    "mockExam": "Toʻliq sinov imtihoni",
+    "timeRemaining": "Qolgan vaqt",
+    "question": "Savol",
+    "next": "Keyingi savol",
+    "prev": "Oldingi savol",
+    "finish": "Yakunlash va topshirish",
+    "resultTitle": "Imtihon natijalari",
+    "scoreLabel": "Toʻplangan ball",
+    "passed": "Oʻtdingiz!",
+    "failed": "Yiqildingiz",
+    "reviewAnswers": "Javoblarni koʻrib chiqish"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Admin Panel",
+      "dashboard": "Boshqaruv paneli",
+      "banners": "Bannerlar",
+      "courses": "Kurslar & Darslar",
+      "tests": "JLPT Testlar",
+      "shop": "Raqamli Doʻkon",
+      "subscriptions": "Obunalar & VIP",
+      "users": "Foydalanuvchilar",
+      "notifications": "Xabarnomalar",
+      "studentPanel": "Oʻquvchi paneli",
+      "collapse": "Sidebarni kichraytirish",
+      "expand": "Sidebarni kengaytirish",
+      "logout": "Chiqish"
+    },
+    "header": {
+      "title": "Admin",
+      "studentPanel": "Oʻquvchi paneli",
+      "breadcrumbs": {
+        "dashboard": "Boshqaruv paneli",
+        "dashboardSub": "Platforma statistikasi va umumiy koʻrsatkichlar",
+        "users": "Foydalanuvchilar",
+        "usersSub": "Barcha oʻquvchilar, ustozlar va adminlar boshqaruvi",
+        "courses": "Kurslar",
+        "coursesSub": "Darslar va modullar",
+        "tests": "JLPT Testlar",
+        "testsSub": "Imtihon savollari bazasi",
+        "shop": "Raqamli Doʻkon",
+        "shopSub": "Mahsulotlar va ramkalar boshqaruvi",
+        "subscriptions": "Obunalar & VIP",
+        "subscriptionsSub": "PRO foydalanuvchilar va toʻlovlar",
+        "banners": "Bannerlar",
+        "bannersSub": "Eʼlonlar va aksiyalar boshqaruvi",
+        "notifications": "Xabarnomalar",
+        "notificationsSub": "Ommaviy bildirishnomalar yuborish"
+      }
+    },
+    "overview": {
+      "title": "Boshqaruv Paneli",
+      "welcome": "Xush kelibsiz",
+      "subtitle": "Platforma koʻrsatkichlari va foydalanuvchilar holati:",
+      "refresh": "Yangilash",
+      "totalUsers": "Jami oʻquvchilar",
+      "todayRegistered": "Bugun roʻyxatdan oʻtganlar",
+      "proUsers": "PRO aʼzolar",
+      "activeCourses": "Faol kurslar",
+      "recentUsers": "Soʻnggi foydalanuvchilar",
+      "viewAll": "Barchasini koʻrish",
+      "tableUser": "Foydalanuvchi",
+      "tableRole": "Roli",
+      "tableCoins": "Coinlar",
+      "tableStatus": "Holati",
+      "tableJoined": "Qoʻshilgan sana",
+      "tableActions": "Amallar",
+      "active": "Faol",
+      "blocked": "Bloklangan",
+      "noUsers": "Foydalanuvchilar topilmadi",
+      "roles": {
+        "superAdmin": "Super Admin",
+        "admin": "Admin",
+        "teacher": "Ustoz",
+        "student": "Oʻquvchi"
+      }
+    },
+    "common": {
+      "save": "Saqlash",
+      "cancel": "Bekor qilish",
+      "delete": "Oʻchirish",
+      "edit": "Tahrirlash",
+      "create": "Yaratish",
+      "search": "Qidirish...",
+      "filter": "Filtr",
+      "actions": "Amallar",
+      "status": "Holat",
+      "success": "Muvaffaqiyatli saqlandi!",
+      "error": "Xatolik yuz berdi"
+    },
+    "users": {
+      "title": "Foydalanuvchilar Boshqaruvi",
+      "subtitle": "Barcha oʻquvchilar, ustozlar va adminlar boshqaruvi",
+      "searchPlaceholder": "Ism yoki email boʻyicha qidirish...",
+      "allRoles": "Barcha rollar",
+      "filter": "Filtr",
+      "addUser": "Foydalanuvchi qoʻshish",
+      "name": "Ism familiya",
+      "email": "Email manzili",
+      "role": "Roli",
+      "avatar": "Avatar rasmi",
+      "verified": "Email tasdiqlangan",
+      "editUser": "Foydalanuvchini tahrirlash",
+      "deleteUser": "Foydalanuvchini oʻchirish",
+      "deleteConfirm": "Haqiqatan ham bu foydalanuvchini oʻchirmoqchimisiz?",
+      "devices": "Qurilmalar",
+      "activeSessions": "Faol sessiyalar",
+      "save": "Saqlash",
+      "cancel": "Bekor qilish",
+      "delete": "Oʻchirish",
+      "submitting": "Saqlanmoqda...",
+      "totalCount": "Jami foydalanuvchilar"
+    },
+    "courses": {
+      "title": "Kurslar Boshqaruvi",
+      "subtitle": "Barcha video kurslar, darslar va modullar",
+      "createCourse": "Yangi kurs yaratish",
+      "editCourse": "Kursni tahrirlash",
+      "deleteCourse": "Kursni oʻchirish",
+      "courseTitle": "Kurs nomi",
+      "level": "Daraja",
+      "description": "Kurs tavsifi",
+      "price": "Narxi (soʻm)",
+      "teacher": "Ustoz",
+      "selectTeacher": "Ustozni tanlang",
+      "allTeachers": "Barcha ustozlar",
+      "isFree": "Bepul kurs",
+      "isPublished": "Platformada eʼlon qilingan",
+      "thumbnail": "Kurs muqovasi (URL yoki yuklash)",
+      "lessonsCount": "Darslar soni",
+      "manageModules": "Modullar va Darslar",
+      "emptyCourses": "Hozircha kurslar mavjud emas."
+    },
+    "tests": {
+      "title": "JLPT Testlar Boshqaruvi",
+      "subtitle": "Imtihon savollari va sinov testlari bazasi",
+      "createTest": "Yangi test yaratish",
+      "editTest": "Testni tahrirlash",
+      "deleteTest": "Testni oʻchirish",
+      "testTitle": "Test nomi",
+      "level": "Daraja",
+      "duration": "Davomiyligi (daqiqa)",
+      "passingScore": "Oʻtish bali",
+      "category": "Kategoriya",
+      "mockExam": "Mock Imtihon (Toʻliq)",
+      "practice": "Mashq testi",
+      "questionsCount": "Savollar soni",
+      "manageQuestions": "Savollarni tahrirlash",
+      "emptyTests": "Hozircha testlar mavjud emas."
+    },
+    "subscriptions": {
+      "title": "Obunalar va VIP Aʼzolar",
+      "subtitle": "Foydalanuvchilarning PRO obunalari va toʻlovlar tarixi",
+      "activeSubs": "Faol PRO aʼzolar",
+      "grantPro": "PRO obuna berish",
+      "userEmail": "Foydalanuvchi emaili",
+      "durationDays": "Muddat (kun)",
+      "planType": "Tarif turi",
+      "monthly": "Oylik",
+      "yearly": "Yillik",
+      "lifetime": "Cheksiz",
+      "save": "Obunani faollashtirish"
+    },
+    "banners": {
+      "title": "Bannerlar Boshqaruvi",
+      "subtitle": "Bosh sahifa va ilovadagi eʼlon bannerlari",
+      "createBanner": "Yangi banner",
+      "bannerTitle": "Sarlavha",
+      "description": "Tavsif",
+      "image": "Rasm",
+      "btnText": "Tugma matni",
+      "btnUrl": "Havola URL",
+      "isActive": "Faol",
+      "save": "Saqlash"
+    },
+    "shop": {
+      "title": "Raqamli Doʻkon Boshqaruvi",
+      "subtitle": "Doʻkondagi mahsulotlar, avatarlar va ramkalar",
+      "createItem": "Yangi mahsulot",
+      "itemName": "Nomi",
+      "priceCoins": "Narxi (Coin)",
+      "category": "Kategoriya",
+      "frames": "Avatar ramkalari",
+      "perks": "Imtiyozlar"
+    },
+    "notifications": {
+      "title": "Xabarnomalar Boshqaruvi",
+      "subtitle": "Foydalanuvchilarga ommaviy bildirishnomalar yuborish",
+      "create": "Xabarnoma yaratish",
+      "subject": "Sarlavha",
+      "message": "Xabar matni",
+      "audience": "Kimlarga",
+      "allUsers": "Barcha foydalanuvchilar",
+      "proUsers": "Faqat PRO aʼzolar",
+      "send": "Yuborish"
+    }
+  },
+  "profilePage": {
+    "title": "Mening Profilim",
+    "subtitle": "Shaxsiy maʼlumotlar, sozlamalar va oʻqish statistikasi",
+    "editProfile": "Profilni tahrirlash",
+    "changeAvatar": "Avatarni oʻzgartirish",
+    "studyPlan": "Oʻqish Rejasi",
+    "activeDevices": "Ulangan Qurilmalar",
+    "deviceSessions": "Sessiyalar tarixi",
+    "revokeAll": "Barcha qurilmalardan chiqish",
+    "revoke": "Chiqarish",
+    "thisDevice": "Ushbu qurilma",
+    "planTitle": "JLPT Maqsadi",
+    "weeklyGoal": "Haftalik oʻqish maqsadi",
+    "minutesPerDay": "daq/kun",
+    "successUpdated": "Profil maʼlumotlari muvaffaqiyatli saqlandi!"
+  },
+  "lessonRoom": {
+    "syllabus": "Kurs mundarijasi",
+    "vocabulary": "Lugʻat (Kotoba)",
+    "grammar": "Grammatika (Bunpou)",
+    "practice": "Mashqlar (Renshuu)",
+    "subtitles": "Subtitrlar",
+    "nextLesson": "Keyingi dars",
+    "prevLesson": "Oldingi dars",
+    "completeAndContinue": "Tugatish va keyingisi",
+    "notes": "Dars qaydlari"
+  },
+  "examRoom": {
+    "title": "JLPT Mock Imtihoni",
+    "timeLeft": "Qolgan vaqt",
+    "section1": "1. Soʻz boyligi & Kanji",
+    "section2": "2. Grammatika & Oʻqish",
+    "section3": "3. Tinglab tushunish",
+    "submitExam": "Imtihonni topshirish",
+    "confirmSubmit": "Haqiqatan ham imtihonni yakunlab topshirmoqchimisiz?",
+    "scoreResult": "Natijangiz",
+    "passed": "Tabriklaymiz! Siz imtihondan oʻtdingiz! 🎉",
+    "failed": "Afsuski, yetarli ball toʻplay olmadingiz.",
+    "reviewAnswers": "Javoblar tahlili",
+    "backToTests": "Testlar roʻyxatiga qaytish"
+  }
+}
