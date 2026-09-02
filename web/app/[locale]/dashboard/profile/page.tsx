@@ -96,6 +96,12 @@ export default function ProfilePage() {
     setTimeout(() => setShowSuccessToast(false), 3000);
   };
 
+  const pDict = t?.profilePage;
+  const userDict = pDict?.userInfo;
+  const planDict = pDict?.studyPlanSection;
+  const devDict = pDict?.devicesSection;
+  const actDict = pDict?.actions;
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20 px-4 sm:px-0 animate-in fade-in duration-300">
       {/* Modals */}
@@ -127,14 +133,14 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide uppercase">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>{t?.profilePage?.title || 'Shaxsiy Kabinet'}</span>
+                <span>{pDict?.badge || 'Shaxsiy Kabinet'}</span>
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {t?.profilePage?.title || 'Profil & Sozlamalar'}
+              {pDict?.title || 'Profil & Sozlamalar'}
             </h1>
             <p className="text-sm text-muted-foreground max-w-lg">
-              {t?.profilePage?.subtitle || 'Shaxsiy maʼlumotlar, oʻrganish surʼati va qurilmalar xavfsizligini boshqaring.'}
+              {pDict?.subtitle || 'Shaxsiy maʼlumotlar, oʻrganish surʼati va qurilmalar xavfsizligini boshqaring.'}
             </p>
           </div>
 
@@ -144,10 +150,10 @@ export default function ProfilePage() {
               onClick={handleRefresh}
               disabled={refreshing}
               className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-card border border-border/60 hover:bg-secondary text-foreground text-xs font-medium transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
-              title={t?.admin?.overview?.refresh || 'Yangilash'}
+              title={pDict?.refresh || t?.admin?.overview?.refresh || 'Yangilash'}
             >
               <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span>{t?.admin?.overview?.refresh || 'Yangilash'}</span>
+              <span>{pDict?.refresh || t?.admin?.overview?.refresh || 'Yangilash'}</span>
             </button>
           </div>
         </div>
@@ -161,7 +167,7 @@ export default function ProfilePage() {
               type="button"
               onClick={() => setIsAvatarModalOpen(true)}
               className="relative group cursor-pointer rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40"
-              title="Profil rasmini oʻzgartirish"
+              title={userDict?.avatarTip || 'Profil rasmini oʻzgartirish'}
             >
               <UserAvatar
                 user={user}
@@ -179,7 +185,7 @@ export default function ProfilePage() {
             <div className="space-y-1.5 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">
-                  {user?.fullName || 'Ism kiritilmagan'}
+                  {user?.fullName || userDict?.noName || 'Ism kiritilmagan'}
                 </h2>
                 <button
                   type="button"
@@ -187,12 +193,12 @@ export default function ProfilePage() {
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-border/60 bg-secondary/30 hover:bg-secondary text-xs font-semibold text-foreground transition-all cursor-pointer active:scale-95 shadow-xs"
                 >
                   <Edit3 className="h-3 w-3 text-primary" />
-                  <span>Tahrirlash</span>
+                  <span>{userDict?.edit || 'Tahrirlash'}</span>
                 </button>
                 {showSuccessToast && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 animate-in fade-in">
                     <Check className="h-3 w-3" />
-                    Saqlandi
+                    {userDict?.saved || 'Saqlandi'}
                   </span>
                 )}
               </div>
@@ -207,7 +213,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-500">
               <Shield className="h-3.5 w-3.5" />
-              <span>Rol: {user?.role || 'USER'}</span>
+              <span>{userDict?.role ? `${userDict.role}: ${user?.role || 'USER'}` : `Rol: ${user?.role || 'USER'}`}</span>
             </span>
           </div>
         </div>
@@ -221,21 +227,24 @@ export default function ProfilePage() {
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  Obuna holati
+                  {userDict?.subStatus || 'Obuna holati'}
                 </p>
                 {subLoading ? (
-                  <p className="text-xs text-muted-foreground mt-0.5">Yuklanmoqda...</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{userDict?.loading || 'Yuklanmoqda...'}</p>
                 ) : mySub?.isPro ? (
                   <p className="text-sm sm:text-base font-bold text-foreground mt-0.5 truncate">
                     {mySub.subscription?.plan?.name || mySub.subscription?.tier || 'Pro'}{' '}
                     ·{' '}
                     <span className="text-emerald-500 font-bold">
-                      Faol ({mySub.subscription?.daysRemaining ?? 0} kun qoldi)
+                      {(userDict?.activeDays || 'Faol ({days} kun qoldi)').replace(
+                        '{days}',
+                        String(mySub.subscription?.daysRemaining ?? 0)
+                      )}
                     </span>
                   </p>
                 ) : (
                   <p className="text-sm sm:text-base font-bold text-muted-foreground mt-0.5">
-                    Standart · <span className="text-muted-foreground font-normal">Bepul tarif</span>
+                    {userDict?.standard || 'Standart'} · <span className="text-muted-foreground font-normal">{userDict?.freeTier || 'Bepul tarif'}</span>
                   </p>
                 )}
               </div>
@@ -249,7 +258,7 @@ export default function ProfilePage() {
                   : 'bg-yellow-500 hover:bg-yellow-400 text-black font-black'
               }`}
             >
-              {mySub?.isPro ? 'Boshqarish' : 'Pro ga oʻtish 👑'}
+              {mySub?.isPro ? (userDict?.manageSub || 'Boshqarish') : (userDict?.upgradePro || 'Pro ga oʻtish 👑')}
             </Link>
           </div>
 
@@ -259,10 +268,13 @@ export default function ProfilePage() {
             </div>
             <div>
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Asosiy Maqsad
+                {userDict?.mainGoal || 'Asosiy Maqsad'}
               </p>
               <p className="text-sm sm:text-base font-bold text-foreground mt-0.5">
-                JLPT {studyPlan?.targetLevel || 'N5'} Sertifikati
+                {(userDict?.jlptCert || 'JLPT {level} Sertifikati').replace(
+                  '{level}',
+                  studyPlan?.targetLevel || 'N5'
+                )}
               </p>
             </div>
           </div>
@@ -278,14 +290,14 @@ export default function ProfilePage() {
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
               <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                Shaxsiy Oʻrganish Rejasi
+                {planDict?.title || 'Shaxsiy Oʻrganish Rejasi'}
               </h3>
               <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                 {studyPlan?.targetLevel || 'N5'}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Haftalik dars soati, kunlik reja va JLPT imtihoniga tayyorgarlik surʼati.
+              {planDict?.desc || 'Haftalik dars soati, kunlik reja va JLPT imtihoniga tayyorgarlik surʼati.'}
             </p>
           </div>
 
@@ -295,7 +307,7 @@ export default function ProfilePage() {
             className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-95 shadow-xs cursor-pointer self-start sm:self-auto"
           >
             <Edit3 className="h-3.5 w-3.5" />
-            <span>Rejani tahrirlash</span>
+            <span>{planDict?.editPlan || 'Rejani tahrirlash'}</span>
           </button>
         </div>
 
@@ -304,37 +316,43 @@ export default function ProfilePage() {
           <div className="rounded-2xl bg-secondary/30 p-4 border border-border/40 space-y-2">
             <div className="flex items-center gap-2 text-primary">
               <Target className="h-4 w-4" />
-              <span className="text-[11px] uppercase font-bold tracking-wider">Maqsad Daraja</span>
+              <span className="text-[11px] uppercase font-bold tracking-wider">{planDict?.targetLevel || 'Maqsad Daraja'}</span>
             </div>
             <p className="text-2xl font-extrabold text-foreground">
               JLPT {studyPlan?.targetLevel || 'N5'}
             </p>
             <p className="text-xs text-muted-foreground">
-              {studyPlan?.targetMonths || 6} oylik reja
+              {(planDict?.targetMonths || '{months} oylik reja').replace(
+                '{months}',
+                String(studyPlan?.targetMonths || 6)
+              )}
             </p>
           </div>
 
           <div className="rounded-2xl bg-secondary/30 p-4 border border-border/40 space-y-2">
             <div className="flex items-center gap-2 text-emerald-500">
               <Clock className="h-4 w-4" />
-              <span className="text-[11px] uppercase font-bold tracking-wider">Haftalik Vaqt</span>
+              <span className="text-[11px] uppercase font-bold tracking-wider">{planDict?.weeklyTime || 'Haftalik Vaqt'}</span>
             </div>
             <p className="text-2xl font-extrabold text-foreground">
               {studyPlan?.weeklyGoalHours || 4}{' '}
-              <span className="text-sm font-medium text-muted-foreground">soat / hafta</span>
+              <span className="text-sm font-medium text-muted-foreground">{planDict?.hoursPerWeek || 'soat / hafta'}</span>
             </p>
             <p className="text-xs text-muted-foreground">
-              Kuniga ~{studyPlan?.dailyMinutes || 35} daqiqa
+              {(planDict?.dailyPace || 'Kuniga ~{mins} daqiqa').replace(
+                '{mins}',
+                String(studyPlan?.dailyMinutes || 35)
+              )}
             </p>
           </div>
 
           <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 border border-amber-500/20 space-y-2">
             <div className="flex items-center gap-2 text-amber-500">
               <Calendar className="h-4 w-4" />
-              <span className="text-[11px] uppercase font-bold tracking-wider">JLPT Imtihoni</span>
+              <span className="text-[11px] uppercase font-bold tracking-wider">{planDict?.jlptExam || 'JLPT Imtihoni'}</span>
             </div>
             <p className="text-2xl font-extrabold text-amber-500">
-              {examInfo.daysRemaining} <span className="text-sm font-medium">kun qoldi</span>
+              {examInfo.daysRemaining} <span className="text-sm font-medium">{planDict?.daysLeft || 'kun qoldi'}</span>
             </p>
             <p className="text-xs text-muted-foreground">{examInfo.formattedDate}</p>
           </div>
@@ -347,14 +365,14 @@ export default function ProfilePage() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                Ulangan Qurilmalar
+                {devDict?.title || 'Ulangan Qurilmalar'}
               </h3>
               <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-foreground">
                 {devices.length} / 3
               </span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Bitta akkauntda bir vaqtning oʻzida maksimal 3 ta qurilma faol boʻlishi mumkin.
+              {devDict?.limitDesc || 'Bitta akkauntda bir vaqtning oʻzida maksimal 3 ta qurilma faol boʻlishi mumkin.'}
             </p>
           </div>
         </div>
@@ -363,7 +381,7 @@ export default function ProfilePage() {
         <div className="space-y-3">
           {devices.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border/70 bg-secondary/10 p-8 text-center text-muted-foreground">
-              <p className="text-xs sm:text-sm">Qurilmalar yuklanmoqda yoki mavjud emas...</p>
+              <p className="text-xs sm:text-sm">{devDict?.empty || 'Qurilmalar yuklanmoqda yoki mavjud emas...'}</p>
             </div>
           ) : (
             devices.map((device) => {
@@ -395,12 +413,12 @@ export default function ProfilePage() {
                     <div className="space-y-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-bold text-foreground truncate">
-                          {device.deviceName || 'Nomaʼlum qurilma'}
+                          {device.deviceName || devDict?.unknownDevice || 'Nomaʼlum qurilma'}
                         </p>
                         {device.isCurrent && (
                           <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[11px] font-semibold text-emerald-500">
                             <CheckCircle2 className="h-3 w-3" />
-                            <span>Joriy qurilma</span>
+                            <span>{devDict?.currentDevice || 'Joriy qurilma'}</span>
                           </span>
                         )}
                       </div>
@@ -413,7 +431,7 @@ export default function ProfilePage() {
 
                   <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t border-border/40 sm:border-0">
                     <span className="text-xs text-muted-foreground">
-                      Faol: {new Date(device.lastActiveAt).toLocaleDateString()}
+                      {devDict?.active || 'Faol'}: {new Date(device.lastActiveAt).toLocaleDateString()}
                     </span>
 
                     {!device.isCurrent && (
@@ -424,7 +442,7 @@ export default function ProfilePage() {
                         className="inline-flex items-center gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive transition-all hover:bg-destructive hover:text-destructive-foreground active:scale-95 disabled:opacity-50 cursor-pointer"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>Sessiyani yopish</span>
+                        <span>{devDict?.revokeSession || 'Sessiyani yopish'}</span>
                       </button>
                     )}
                   </div>
@@ -443,7 +461,7 @@ export default function ProfilePage() {
           className="inline-flex items-center gap-2 rounded-2xl bg-destructive/10 border border-destructive/20 px-5 py-2.5 text-xs sm:text-sm font-semibold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all cursor-pointer shadow-xs active:scale-95"
         >
           <LogOut className="h-4 w-4" />
-          <span>Tizimdan chiqish</span>
+          <span>{actDict?.logout || 'Tizimdan chiqish'}</span>
         </button>
       </div>
     </div>

@@ -137,10 +137,10 @@ export function AdminSidebar({
         >
           {isMobileDrawer || !isCollapsed ? (
             <>
-              <Link href={`/${lang}/admin`} onClick={onMobileClose} className="flex items-center gap-2.5">
-                <LogoMark className="h-7 w-7" />
+              <Link href={`/${lang}/admin`} onClick={onMobileClose} className="flex items-center gap-3">
+                <LogoMark className="h-10 w-10" />
                 <div className="space-y-0.5">
-                  <span className="text-[17px] font-bold tracking-tight text-foreground block leading-none">
+                  <span className="text-[18px] font-bold tracking-tight text-foreground block leading-none">
                     MinnaUz
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 block">
@@ -174,8 +174,8 @@ export function AdminSidebar({
             </>
           ) : (
             <div className="flex flex-col items-center gap-4">
-              <Link href={`/${lang}/admin`} title="MinnaUz Admin" className="grid place-items-center">
-                <LogoMark className="h-7 w-7" />
+              <Link href={`/${lang}/admin`} title={t?.admin?.sidebar?.title || "MinnaUz Admin"} className="grid place-items-center">
+                <LogoMark className="h-9 w-9" />
               </Link>
               <button
                 type="button"

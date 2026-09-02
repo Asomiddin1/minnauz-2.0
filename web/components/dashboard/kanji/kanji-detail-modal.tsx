@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { UserKanjiItem, FlashcardStatus } from '@/lib/api';
+import { useLang } from '@/lib/i18n';
 import { KanjiStrokeAnimator } from './kanji-stroke-animator';
 import { KanjiDrawingCanvas } from './kanji-drawing-canvas';
 
@@ -30,6 +31,8 @@ export function KanjiDetailModal({
   onClose,
   onToggleFlashcard,
 }: KanjiDetailModalProps) {
+  const { lang, t } = useLang();
+  const kDict = t?.kanji;
   const [activeTab, setActiveTab] = React.useState<'ANIMATION' | 'DRAWING'>('ANIMATION');
 
   if (!isOpen || !kanji) return null;
@@ -59,17 +62,17 @@ export function KanjiDetailModal({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl font-black text-foreground truncate">
-                  {kanji.meaningUz}
+                  {lang === 'ru' && kanji.meaningRu ? kanji.meaningRu : kanji.meaningUz}
                 </h3>
                 <span className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-[10px] font-black shrink-0">
                   {kanji.courseLevel}
                 </span>
                 <span className="text-xs font-semibold text-muted-foreground hidden sm:inline">
-                  {kanji.strokeCount} chiziq
+                  {(kDict?.strokesCount || '{count} chiziq').replace('{count}', String(kanji.strokeCount))}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground truncate">
-                {kanji.meaningRu || 'Iyeroglif laboratoriyasi'}
+                {lang !== 'ru' && kanji.meaningRu ? kanji.meaningRu : (kDict?.modalTitleFallback || 'Iyeroglif laboratoriyasi')}
               </p>
             </div>
           </div>
@@ -81,30 +84,30 @@ export function KanjiDetailModal({
                 type="button"
                 onClick={() => onToggleFlashcard(kanji, 'LEARNING')}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all cursor-pointer shadow-2xs"
-                title="Yodlangan"
+                title={kDict?.statusMastered || 'Yodlangan'}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Yodlandi</span>
+                <span className="hidden sm:inline">{kDict?.btnMastered || 'Yodlandi'}</span>
               </button>
             ) : kanji.flashcardStatus === 'LEARNING' ? (
               <button
                 type="button"
                 onClick={() => onToggleFlashcard(kanji, 'MASTERED')}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/25 transition-all cursor-pointer shadow-2xs"
-                title="Yodlanmoqda"
+                title={kDict?.statusLearning || 'Yodlanmoqda'}
               >
                 <RotateCw className="h-3.5 w-3.5 text-yellow-500" />
-                <span className="hidden sm:inline">Yodlanmoqda</span>
+                <span className="hidden sm:inline">{kDict?.btnLearning || 'Yodlanmoqda'}</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => onToggleFlashcard(kanji, 'LEARNING')}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-secondary hover:bg-secondary/80 text-foreground border border-border/60 transition-all cursor-pointer shadow-2xs"
-                title="Flashcardga qo'shish"
+                title={kDict?.batchAddTooltip || "Flashcardga qo'shish"}
               >
                 <Plus className="h-3.5 w-3.5 text-primary" />
-                <span className="hidden sm:inline">Flashcard</span>
+                <span className="hidden sm:inline">{kDict?.btnAddToFlashcards || 'Flashcard'}</span>
               </button>
             )}
 
@@ -132,7 +135,7 @@ export function KanjiDetailModal({
               }`}
             >
               <Play className="h-3.5 w-3.5 text-primary" />
-              <span>Chizilish Animatsiyasi</span>
+              <span>{kDict?.tabAnimation || 'Chizilish Animatsiyasi'}</span>
             </button>
 
             <button
@@ -145,7 +148,7 @@ export function KanjiDetailModal({
               }`}
             >
               <PenTool className="h-3.5 w-3.5 text-amber-500" />
-              <span>Oʻzing Chizib Koʻr</span>
+              <span>{kDict?.tabDrawing || 'Oʻzing Chizib Koʻr'}</span>
             </button>
           </div>
         </div>
@@ -169,14 +172,14 @@ export function KanjiDetailModal({
                 <div className="p-3 rounded-2xl bg-secondary/30 border border-border/50 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Onyomi (音)
+                      {kDict?.onyomiLabel || 'Onyomi (音)'}
                     </span>
                     {kanji.onyomi && (
                       <button
                         type="button"
                         onClick={() => playPronunciation(kanji.onyomi)}
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        title="Tinglash"
+                        className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        title={kDict?.listenTooltip || 'Tinglash'}
                       >
                         <Volume2 className="h-3 w-3" />
                       </button>
@@ -190,14 +193,14 @@ export function KanjiDetailModal({
                 <div className="p-3 rounded-2xl bg-secondary/30 border border-border/50 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Kunyomi (訓)
+                      {kDict?.kunyomiLabel || 'Kunyomi (訓)'}
                     </span>
                     {kanji.kunyomi && (
                       <button
                         type="button"
                         onClick={() => playPronunciation(kanji.kunyomi)}
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        title="Tinglash"
+                        className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        title={kDict?.listenTooltip || 'Tinglash'}
                       >
                         <Volume2 className="h-3 w-3" />
                       </button>
@@ -212,7 +215,9 @@ export function KanjiDetailModal({
               {/* Radical / Ildiz */}
               {kanji.radical && (
                 <div className="p-2.5 rounded-xl bg-secondary/20 border border-border/40 flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground font-semibold">Radikal (Ildizi):</span>
+                  <span className="text-muted-foreground font-semibold">
+                    {kDict?.radicalFull || 'Radikal (Ildizi):'}
+                  </span>
                   <span className="font-bold text-foreground font-japanese">
                     {kanji.radical}
                   </span>
@@ -223,7 +228,7 @@ export function KanjiDetailModal({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Namunaviy soʻzlar
+                    {kDict?.sampleWords || 'Namunaviy soʻzlar'}
                   </span>
                 </div>
 
@@ -239,7 +244,7 @@ export function KanjiDetailModal({
                             type="button"
                             onClick={() => playPronunciation(ex.word)}
                             className="text-muted-foreground hover:text-primary shrink-0 cursor-pointer"
-                            title="Tinglash"
+                            title={kDict?.listenTooltip || 'Tinglash'}
                           >
                             <Volume2 className="h-3 w-3" />
                           </button>
@@ -260,7 +265,7 @@ export function KanjiDetailModal({
                   </div>
                 ) : (
                   <div className="p-3 rounded-xl bg-secondary/10 text-center text-xs text-muted-foreground">
-                    Namunaviy soʻzlar tez orada kiritiladi.
+                    {kDict?.sampleWordsEmpty || 'Namunaviy soʻzlar tez orada kiritiladi.'}
                   </div>
                 )}
               </div>

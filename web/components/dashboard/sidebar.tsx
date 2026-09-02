@@ -108,7 +108,7 @@ export function DashboardSidebar({
           {isMobileDrawer || !isCollapsed ? (
             <>
               <Link href={`/`} onClick={onMobileClose} className="flex items-center gap-2.5">
-                <LogoMark className="h-7 w-7" />
+                <LogoMark className="h-10 w-10" />
                 <span className="text-[19px] font-semibold tracking-[-0.045em] text-foreground">
                   MinnaUz
                 </span>
@@ -118,9 +118,9 @@ export function DashboardSidebar({
                   <button
                     type="button"
                     onClick={toggleCollapse}
-                    title="Sidebarni kichraytirish"
+                    title={t?.sidebar?.collapse || 'Sidebarni kichraytirish'}
                     aria-label="Collapse sidebar"
-                    className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
                   >
                     <PanelLeftClose className="h-4 w-4" />
                   </button>
@@ -128,7 +128,7 @@ export function DashboardSidebar({
                   <button
                     type="button"
                     onClick={onMobileClose}
-                    className="grid h-8 w-8 place-items-center rounded-full border border-border text-foreground hover:bg-secondary"
+                    className="grid h-8 w-8 place-items-center rounded-full border border-border text-foreground hover:bg-secondary cursor-pointer"
                     aria-label="Close sidebar"
                   >
                     <X className="h-4 w-4" />
@@ -139,14 +139,14 @@ export function DashboardSidebar({
           ) : (
             <div className="flex flex-col items-center gap-4">
               <Link href={`/${lang}/dashboard`} title="Minna" className="grid place-items-center">
-                <LogoMark className="h-7 w-7" />
+                <LogoMark className="h-9 w-9" />
               </Link>
               <button
                 type="button"
                 onClick={toggleCollapse}
-                title="Sidebarni kengaytirish"
+                title={t?.sidebar?.expand || 'Sidebarni kengaytirish'}
                 aria-label="Expand sidebar"
-                className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="hidden md:grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
               >
                 <PanelLeft className="h-4 w-4" />
               </button>
@@ -195,13 +195,13 @@ export function DashboardSidebar({
           <Link
             href={`/${lang}/admin`}
             onClick={onMobileClose}
-            title={!isMobileDrawer && isCollapsed ? 'Admin Panel' : undefined}
+            title={!isMobileDrawer && isCollapsed ? (t?.sidebar?.admin || 'Admin Paneli') : undefined}
             className={`flex items-center rounded-xl text-[13px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 transition-colors ${
               !isMobileDrawer && isCollapsed ? 'h-10 w-10 justify-center mx-auto' : 'gap-2.5 px-3 py-2'
             }`}
           >
             <Shield className="h-4 w-4 shrink-0" />
-            {(isMobileDrawer || !isCollapsed) && <span>Admin Panel</span>}
+            {(isMobileDrawer || !isCollapsed) && <span>{t?.sidebar?.admin || 'Admin Paneli'}</span>}
           </Link>
         )}
 

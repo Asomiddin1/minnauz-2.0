@@ -532,7 +532,7 @@ export default function LessonPlayerPage() {
             title="Darsni toʻliq yakunlangan deb belgilash va keyingisini ochish"
           >
             <CheckCircle2 className="h-4 w-4 stroke-[2.5]" />
-            <span>{isCompleted ? (t?.common?.verified || 'Dars tugatilgan') : completing ? (t?.admin?.users?.submitting || 'Saqlanmoqda...') : (t?.lessonRoom?.completeAndContinue || 'Darsni tugatish')}</span>
+            <span>{isCompleted ? (t?.lessonRoom?.completed || 'Dars tugatilgan') : completing ? (t?.admin?.users?.submitting || 'Saqlanmoqda...') : (t?.lessonRoom?.completeAndContinue || 'Darsni tugatish')}</span>
           </button>
 
           {/* Yangi Qo'shilgan: Keyingi Dars Tugmasi */}

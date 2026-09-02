@@ -32,7 +32,8 @@ type SearchCategory = 'ALL' | 'LESSONS' | 'VOCAB' | 'KANJI' | 'TESTS' | 'PAGES';
 
 export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
   const router = useRouter();
-  const { lang } = useLang();
+  const { lang, t } = useLang();
+  const sDict = t?.globalSearch;
 
   const [query, setQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState<SearchCategory>('ALL');
@@ -127,7 +128,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           type: 'lesson',
           id: `lesson-${l.id}`,
           title: l.title,
-          subtitle: `${l.courseTitle} • ${l.japaneseTitle || `${l.order}-dars`}`,
+          subtitle: `${l.courseTitle} • ${l.japaneseTitle || (sDict?.orderLesson || `${l.order}-dars`).replace('{order}', String(l.order))}`,
           badge: l.courseLevel,
           url: `/${lang}/dashboard/courses/${l.courseId}/lessons/${l.id}`,
           extra: l,
@@ -168,11 +169,12 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
     // Tests
     if (selectedCategory === 'ALL' || selectedCategory === 'TESTS') {
       res.tests.forEach((t) => {
+        const minLabel = sDict?.minutes ? sDict.minutes.replace('{minutes}', '').trim() : 'daqiqa';
         items.push({
           type: 'test',
           id: `test-${t.id}`,
           title: t.title,
-          subtitle: `JLPT ${t.level} • ${t.durationMinutes} daqiqa`,
+          subtitle: `JLPT ${t.level} • ${t.durationMinutes} ${minLabel}`,
           badge: t.level,
           url: `/${lang}/dashboard/tests/${t.slug}`,
           extra: t,
@@ -188,7 +190,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           id: `page-${p.id}`,
           title: p.title,
           subtitle: p.subtitle,
-          badge: 'Boʻlim',
+          badge: sDict?.pageBadge || 'Boʻlim',
           url: p.url.startsWith('/') ? `/${lang}${p.url}` : p.url,
           extra: p,
         });
@@ -196,7 +198,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
     }
 
     return items;
-  }, [data, selectedCategory, lang]);
+  }, [data, selectedCategory, lang, sDict]);
 
   // Keyboard navigation inside results
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -249,7 +251,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Platformadan qidiring: darslar, soʻzlar, kanji, testlar..."
+            placeholder={sDict?.placeholder || 'Platformadan qidiring: darslar, soʻzlar, kanji, testlar...'}
             className="flex-1 bg-transparent text-sm sm:text-base font-medium text-foreground placeholder:text-muted-foreground/70 outline-none"
           />
 
@@ -257,7 +259,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -271,12 +273,12 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
         {/* Categories Bar */}
         <div className="px-4 py-2 border-b border-border/40 bg-secondary/30 flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
           {[
-            { id: 'ALL', label: 'Barchasi' },
-            { id: 'LESSONS', label: '📚 Darslar' },
-            { id: 'VOCAB', label: '📖 Lugʻat' },
-            { id: 'KANJI', label: '🈸 Kanji' },
-            { id: 'TESTS', label: '📝 Testlar' },
-            { id: 'PAGES', label: '🧭 Sahifalar' },
+            { id: 'ALL', label: sDict?.catAll || 'Barchasi' },
+            { id: 'LESSONS', label: sDict?.catLessons || '📚 Darslar' },
+            { id: 'VOCAB', label: sDict?.catVocab || '📖 Lugʻat' },
+            { id: 'KANJI', label: sDict?.catKanji || '🈸 Kanji' },
+            { id: 'TESTS', label: sDict?.catTests || '📝 Testlar' },
+            { id: 'PAGES', label: sDict?.catPages || '🧭 Sahifalar' },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -301,11 +303,11 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           {flatItems.length === 0 ? (
             <div className="py-14 text-center space-y-2">
               <Search className="h-8 w-8 mx-auto text-muted-foreground/50" />
-              <p className="text-sm font-bold text-foreground">Hech narsa topilmadi</p>
+              <p className="text-sm font-bold text-foreground">{sDict?.emptyTitle || 'Hech narsa topilmadi'}</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
                 {query
-                  ? `«${query}» boʻyicha natija topilmadi. Boshqa soʻz bilan urinib koʻring.`
-                  : 'Qidiruv soʻzini kiriting.'}
+                  ? (sDict?.emptyDescQuery || '«{query}» boʻyicha natija topilmadi. Boshqa soʻz bilan urinib koʻring.').replace('{query}', query)
+                  : (sDict?.emptyDescNoQuery || 'Qidiruv soʻzini kiriting.')}
               </p>
             </div>
           ) : (
@@ -375,7 +377,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                   <div className="flex items-center gap-2 shrink-0">
                     {isSelected && (
                       <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
-                        <span>Oʻtish</span>
+                        <span>{sDict?.btnGo || 'Oʻtish'}</span>
                         <CornerDownLeft className="h-3 w-3" />
                       </span>
                     )}
@@ -397,19 +399,19 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <kbd className="px-1.5 py-0.2 rounded bg-card border border-border text-[10px] font-mono">
                 ↓
               </kbd>
-              <span>harakatlanish</span>
+              <span>{sDict?.navigateHint || 'harakatlanish'}</span>
             </span>
 
             <span className="hidden sm:inline-flex items-center gap-1">
               <kbd className="px-1.5 py-0.2 rounded bg-card border border-border text-[10px] font-mono">
                 ↵
               </kbd>
-              <span>tanlash</span>
+              <span>{sDict?.selectHint || 'tanlash'}</span>
             </span>
           </div>
 
           <span>
-            {flatItems.length > 0 && `${flatItems.length} ta natija`}
+            {flatItems.length > 0 && (sDict?.resultsCount || '{count} ta natija').replace('{count}', String(flatItems.length))}
           </span>
         </div>
       </div>

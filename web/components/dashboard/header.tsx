@@ -48,6 +48,7 @@ export function DashboardHeader({
   onMenuClick?: () => void;
 }) {
   const { lang, t } = useLang();
+  const hDict = t?.dashboardHeader;
   const pathname = usePathname();
   const { theme, toggle } = useThemeCtx();
   const { activeTab, setActiveTab } = useDashboardTab();
@@ -151,7 +152,7 @@ export function DashboardHeader({
             <button
               type="button"
               onClick={onMenuClick}
-              aria-label="Menyu"
+              aria-label={hDict?.menuLabel || 'Menyu'}
               className="grid h-9 w-9 place-items-center rounded-xl border border-border/70 text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer"
             >
               <Menu className="h-4 w-4" />
@@ -167,12 +168,12 @@ export function DashboardHeader({
               type="button"
               onClick={() => setIsSearchModalOpen(true)}
               className="group relative flex h-9 w-full items-center justify-between rounded-xl border border-border/70 bg-secondary/35 px-3 text-left transition-all duration-200 hover:border-border hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.99] shadow-2xs"
-              title="Universal qidiruv (Cmd+K / Ctrl+K)"
+              title={hDict?.searchTitle || 'Universal qidiruv (Cmd+K / Ctrl+K)'}
             >
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
                 <span className="truncate text-[12px] sm:text-[13px] font-normal text-muted-foreground/80 group-hover:text-foreground/90 transition-colors">
-                  Lug'at, kanji, bo'limlarni qidirish...
+                  {hDict?.searchPlaceholder || "Lug'at, kanji, bo'limlarni qidirish..."}
                 </span>
               </div>
 
@@ -192,7 +193,7 @@ export function DashboardHeader({
                 type="button"
                 onClick={() => setActiveTab('store')}
                 className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 transition-colors text-xs font-bold cursor-pointer shadow-2xs active:scale-95"
-                title="Minna Coin Balansi — Doʻkonga oʻtish"
+                title={hDict?.coinsTooltip || 'Minna Coin Balansi — Doʻkonga oʻtish'}
               >
                 <span className="text-sm">🪙</span>
                 <span>{headerCoins}</span>
@@ -206,7 +207,7 @@ export function DashboardHeader({
             <button
               type="button"
               onClick={toggle}
-              aria-label="Toggle theme"
+              aria-label={hDict?.themeToggle || 'Toggle theme'}
               className="grid h-9 w-9 place-items-center rounded-xl border border-border/70 text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95"
             >
               {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -218,7 +219,7 @@ export function DashboardHeader({
               className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-card px-3.5 h-9 text-[12px] font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95"
             >
               <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Kengaytirish</span>
+              <span>{hDict?.fullscreen || 'Kengaytirish'}</span>
             </button>
           </div>
         </div>

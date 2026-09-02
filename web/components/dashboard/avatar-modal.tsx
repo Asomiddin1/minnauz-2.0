@@ -14,6 +14,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useLang } from '@/lib/i18n';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
 function GoogleIcon() {
@@ -46,6 +47,8 @@ interface AvatarModalProps {
 
 export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
   const { user, uploadAvatar, selectGoogleAvatar, removeAvatar } = useAuth();
+  const { t } = useLang();
+  const aDict = t?.profilePage?.avatarModal;
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const [pendingAction, setPendingAction] = React.useState<
@@ -109,14 +112,16 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
 
     // Validate size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Rasm hajmi 5MB dan oshmasligi kerak');
+      setError(aDict?.sizeError || 'Rasm hajmi 5MB dan oshmasligi kerak');
       return;
     }
 
     // Validate type
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     if (!validTypes.includes(file.type)) {
-      setError('Faqat JPEG, PNG yoki WEBP formatidagi rasmlar qabul qilinadi');
+      setError(
+        aDict?.formatError || 'Faqat JPEG, PNG yoki WEBP formatidagi rasmlar qabul qilinadi'
+      );
       return;
     }
 
@@ -175,20 +180,20 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
     try {
       if (pendingAction === 'UPLOAD' && pendingFile) {
         await uploadAvatar(pendingFile);
-        setSuccess('Profil rasmi muvaffaqiyatli saqlandi!');
+        setSuccess(aDict?.savedUpload || 'Profil rasmi muvaffaqiyatli saqlandi!');
       } else if (pendingAction === 'GOOGLE') {
         await selectGoogleAvatar();
-        setSuccess('Google rasmi muvaffaqiyatli tanlandi!');
+        setSuccess(aDict?.savedGoogle || 'Google rasmi muvaffaqiyatli tanlandi!');
       } else if (pendingAction === 'REMOVE') {
         await removeAvatar();
-        setSuccess('Rasm oʻchirildi va standart holatga qaytarildi!');
+        setSuccess(aDict?.savedRemove || 'Rasm oʻchirildi va standart holatga qaytarildi!');
       }
 
       setTimeout(() => {
         onClose();
       }, 1200);
     } catch (err: any) {
-      setError(err?.message || 'Amalni bajarishda xatolik yuz berdi');
+      setError(err?.message || aDict?.errorGeneral || 'Amalni bajarishda xatolik yuz berdi');
     } finally {
       setLoading(false);
     }
@@ -201,10 +206,10 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
         <div className="flex items-center justify-between pb-3 border-b border-border/50">
           <div className="space-y-0.5">
             <h2 className="text-lg font-bold text-foreground">
-              Profil rasmini sozlash
+              {aDict?.title || 'Profil rasmini sozlash'}
             </h2>
             <p className="text-xs text-muted-foreground">
-              Rasm tanlang va &quot;Saqlash&quot; tugmasini bosing
+              {aDict?.subtitle || 'Rasm tanlang va "Saqlash" tugmasini bosing'}
             </p>
           </div>
           <button
@@ -255,28 +260,28 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
 
           <div className="text-center space-y-1">
             <p className="text-sm font-semibold text-foreground">
-              {user?.fullName || 'Foydalanuvchi'}
+              {user?.fullName || aDict?.userFallback || 'Foydalanuvchi'}
             </p>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border">
               {pendingAction ? (
                 <span className="text-amber-500 border-amber-500/20 bg-amber-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold">
                   <RotateCcw className="h-3 w-3" />
-                  Kutilayotgan oʻzgarish (Saqlanmagan)
+                  {aDict?.pendingChange || 'Kutilayotgan oʻzgarish (Saqlanmagan)'}
                 </span>
               ) : isGoogleActive ? (
                 <span className="text-blue-500 border-blue-500/20 bg-blue-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <GoogleIcon />
-                  Hozirgi: Google rasmi
+                  {aDict?.currentGoogle || 'Hozirgi: Google rasmi'}
                 </span>
               ) : isCustomActive ? (
                 <span className="text-emerald-500 border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" />
-                  Hozirgi: Yuklangan rasm
+                  {aDict?.currentUpload || 'Hozirgi: Yuklangan rasm'}
                 </span>
               ) : (
                 <span className="text-muted-foreground border-border bg-secondary/50 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <Sparkles className="h-3 w-3" />
-                  Hozirgi: Standart gradient
+                  {aDict?.currentDefault || 'Hozirgi: Standart gradient'}
                 </span>
               )}
             </div>
@@ -332,23 +337,26 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
               </div>
               <div>
                 <p className="text-xs sm:text-sm font-semibold text-foreground">
-                  Qurilmadan yangi rasm yuklash
+                  {aDict?.uploadTitle || 'Qurilmadan yangi rasm yuklash'}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   {pendingAction === 'UPLOAD' && pendingFile
-                    ? `Tanlandi: ${pendingFile.name}`
-                    : 'JPEG, PNG yoki WEBP (maks. 5MB)'}
+                    ? (aDict?.uploadSelected || 'Tanlandi: {name}').replace(
+                        '{name}',
+                        pendingFile.name
+                      )
+                    : aDict?.uploadSub || 'JPEG, PNG yoki WEBP (maks. 5MB)'}
                 </p>
               </div>
             </div>
             {pendingAction === 'UPLOAD' ? (
               <span className="flex items-center gap-1 text-xs font-bold text-primary">
                 <Check className="h-4 w-4" />
-                Tanlandi
+                {aDict?.badgeSelected || 'Tanlandi'}
               </span>
             ) : (
               <span className="text-xs font-semibold text-primary group-hover:translate-x-0.5 transition-transform">
-                Tanlash →
+                {aDict?.btnChoose || 'Tanlash →'}
               </span>
             )}
           </button>
@@ -383,19 +391,19 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
                 <div>
                   <div className="flex items-center gap-1.5">
                     <p className="text-xs sm:text-sm font-semibold text-foreground">
-                      Google profil rasmi
+                      {aDict?.googleTitle || 'Google profil rasmi'}
                     </p>
                     <GoogleIcon />
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Google hisobingizdagi rasmni oʻrnatish
+                    {aDict?.googleSub || 'Google hisobingizdagi rasmni oʻrnatish'}
                   </p>
                 </div>
               </div>
               {pendingAction === 'GOOGLE' ? (
                 <span className="flex items-center gap-1 text-xs font-bold text-blue-500">
                   <Check className="h-4 w-4" />
-                  Tanlandi
+                  {aDict?.badgeSelected || 'Tanlandi'}
                 </span>
               ) : isGoogleActive ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-500">
@@ -404,7 +412,7 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
                 </span>
               ) : (
                 <span className="text-xs font-semibold text-blue-500 group-hover:translate-x-0.5 transition-transform">
-                  Tanlash →
+                  {aDict?.btnChoose || 'Tanlash →'}
                 </span>
               )}
             </button>
@@ -428,20 +436,22 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm font-semibold">
-                    Rasmni oʻchirish
+                    {aDict?.removeTitle || 'Rasmni oʻchirish'}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    Bosh harfli standart gradientga qaytish
+                    {aDict?.removeSub || 'Bosh harfli standart gradientga qaytish'}
                   </p>
                 </div>
               </div>
               {pendingAction === 'REMOVE' ? (
                 <span className="flex items-center gap-1 text-xs font-bold text-destructive">
                   <Check className="h-4 w-4" />
-                  Tanlandi
+                  {aDict?.badgeSelected || 'Tanlandi'}
                 </span>
               ) : (
-                <span className="text-xs font-medium">Tanlash</span>
+                <span className="text-xs font-medium">
+                  {aDict?.btnChoose ? aDict.btnChoose.replace(' →', '') : 'Tanlash'}
+                </span>
               )}
             </button>
           )}
@@ -456,7 +466,7 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
               disabled={loading}
               className="px-3.5 py-2 rounded-2xl border border-border/60 bg-secondary/30 hover:bg-secondary text-xs font-medium text-muted-foreground hover:text-foreground transition-all cursor-pointer active:scale-95 disabled:opacity-50"
             >
-              Tiklash
+              {aDict?.btnReset || 'Tiklash'}
             </button>
           )}
 
@@ -466,7 +476,7 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
             disabled={loading}
             className="px-4 py-2.5 rounded-2xl border border-border/60 bg-card hover:bg-secondary text-xs font-semibold text-foreground transition-all cursor-pointer active:scale-95 disabled:opacity-50 shadow-xs"
           >
-            Bekor qilish
+            {aDict?.btnCancel || 'Bekor qilish'}
           </button>
 
           <button
@@ -478,12 +488,12 @@ export function AvatarModal({ isOpen, onClose }: AvatarModalProps) {
             {loading ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                <span>Saqlanmoqda...</span>
+                <span>{aDict?.saving || 'Saqlanmoqda...'}</span>
               </>
             ) : (
               <>
                 <Check className="h-3.5 w-3.5" />
-                <span>Saqlash</span>
+                <span>{aDict?.btnSave || 'Saqlash'}</span>
               </>
             )}
           </button>

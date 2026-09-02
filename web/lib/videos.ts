@@ -14,8 +14,8 @@ export type Video = {
   kana: string
   minutes: number
   views: number
-  title: Record<Lang, string>
-  sub: Record<Lang, string>
+  title: Record<string, string>
+  sub: Record<string, string>
   cues: Cue[]
 }
 
