@@ -37,6 +37,7 @@ import { useLang } from '@/lib/i18n';
 
 export function VocabTab() {
   const { lang, t } = useLang();
+  const vDict = t?.vocab;
 
   // Mode: 'CATALOG' (Lug'atlar ro'yxati) or 'FLASHCARDS' (Yodlash xonasi)
   const [activeMode, setActiveMode] = React.useState<'CATALOG' | 'FLASHCARDS'>('CATALOG');
@@ -282,14 +283,14 @@ export function VocabTab() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-black text-foreground">
-              Yapon Tili Lugʻati
+              {vDict?.title || 'Yapon Tili Lugʻati'}
             </h1>
             <span className="text-xs font-bold text-muted-foreground px-2 py-0.5 rounded-lg bg-secondary/80">
-              {words.length} ta ochiq soʻz
+              {(vDict?.openWordsCount || '{count} ta ochiq soʻz').replace('{count}', String(words.length))}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Kurslardagi barcha yangi soʻzlarni oʻrganing va Flashcard orqali mustahkamlang.
+            {vDict?.subtitle || 'Kurslardagi barcha yangi soʻzlarni oʻrganing va Flashcard orqali mustahkamlang.'}
           </p>
         </div>
 
@@ -305,7 +306,7 @@ export function VocabTab() {
             }`}
           >
             <BookA className="h-4 w-4 text-primary" />
-            <span>{t?.vocab?.catalog || "Lugʻat Qomusi"}</span>
+            <span>{vDict?.catalog || 'Lugʻat Qomusi'}</span>
           </button>
           <button
             type="button"
@@ -321,7 +322,7 @@ export function VocabTab() {
             }`}
           >
             <Layers className="h-4 w-4 text-amber-500" />
-            <span>{t?.vocab?.flashcards || "Flashcard Yodlash"}</span>
+            <span>{vDict?.flashcards || 'Flashcard Yodlash'}</span>
             {stats.totalSaved > 0 && (
               <span className="px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-black">
                 {stats.totalSaved}
@@ -339,7 +340,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {t?.vocab?.openWords || "Ochiq soʻzlar"}
+              {vDict?.openWords || 'Ochiq soʻzlar'}
             </p>
             <p className="text-base font-black text-foreground">{words.length} ta</p>
           </div>
@@ -351,7 +352,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {t?.vocab?.learning || "Yodlanayotgan"}
+              {vDict?.learning || 'Yodlanayotgan'}
             </p>
             <p className="text-base font-black text-yellow-600 dark:text-yellow-400">
               {stats.totalLearning} ta
@@ -365,7 +366,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {t?.vocab?.mastered || "Yodlangan"}
+              {vDict?.mastered || 'Yodlangan'}
             </p>
             <p className="text-base font-black text-emerald-600 dark:text-emerald-400">
               {stats.totalMastered} ta
@@ -379,7 +380,7 @@ export function VocabTab() {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {t?.vocab?.saved || "Toʻplamda jami"}
+              {vDict?.saved || 'Toʻplamda jami'}
             </p>
             <p className="text-base font-black text-foreground">{stats.totalSaved} ta</p>
           </div>
@@ -395,10 +396,10 @@ export function VocabTab() {
             </div>
             <div className="space-y-0.5 min-w-0">
               <p className="text-xs sm:text-sm font-bold text-foreground truncate">
-                Yana {lockedWordCount} ta yuqori bosqich darslaridagi soʻzlar mavjud
+                {(vDict?.proBannerTitle || 'Yana {count} ta yuqori bosqich darslaridagi soʻzlar mavjud').replace('{count}', String(lockedWordCount))}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Minna no Nihongo va yuqori bosqich barcha kurs lugʻatlarini toʻliq ochish uchun Pro obunani faollashtiring.
+                {vDict?.proBannerDesc || 'Minna no Nihongo va yuqori bosqich barcha kurs lugʻatlarini toʻliq ochish uchun Pro obunani faollashtiring.'}
               </p>
             </div>
           </div>
@@ -408,7 +409,7 @@ export function VocabTab() {
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
           >
             <Crown className="h-3.5 w-3.5" />
-            <span>Pro Obuna</span>
+            <span>{vDict?.proBtn || 'Pro Obuna'}</span>
           </Link>
         </div>
       )}
@@ -417,7 +418,9 @@ export function VocabTab() {
       {loading ? (
         <div className="py-16 text-center space-y-3">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-xs font-semibold text-muted-foreground">Lugʻatlar yuklanmoqda...</p>
+          <p className="text-xs font-semibold text-muted-foreground">
+            {vDict?.loading || 'Lugʻatlar yuklanmoqda...'}
+          </p>
         </div>
       ) : activeMode === 'CATALOG' ? (
         /* ========================================================
@@ -434,16 +437,16 @@ export function VocabTab() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Yaponcha soʻz, furigana, romaji yoki oʻzbekcha maʼno qidirish..."
+                  placeholder={vDict?.searchPlaceholder || 'Yaponcha soʻz, furigana, romaji yoki oʻzbekcha maʼno qidirish...'}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border/60 bg-secondary/30 text-xs sm:text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/70"
                 />
                 {search && (
                   <button
                     type="button"
                     onClick={() => setSearch('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs font-bold"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs font-bold cursor-pointer"
                   >
-                    Tozalash
+                    {vDict?.clearSearch || 'Tozalash'}
                   </button>
                 )}
               </div>
@@ -455,14 +458,14 @@ export function VocabTab() {
                   onClick={handleBatchAddFiltered}
                   disabled={batchAdding || batchRemoving}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
-                  title="Ushbu ro'yxatdagi barcha so'zlarni Flashcard to'plamiga qo'shish"
+                  title={vDict?.batchAddTooltip || 'Ushbu roʻyxatdagi barcha soʻzlarni Flashcard toʻplamiga qoʻshish'}
                 >
                   {batchAdding ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <Plus className="h-3.5 w-3.5" />
                   )}
-                  <span>Barchasini qoʻshish</span>
+                  <span>{vDict?.batchAdd || 'Barchasini qoʻshish'}</span>
                 </button>
               )}
 
@@ -473,14 +476,14 @@ export function VocabTab() {
                   onClick={handleBatchRemoveFiltered}
                   disabled={batchAdding || batchRemoving}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-secondary/80 hover:bg-destructive/15 text-muted-foreground hover:text-destructive border border-border/60 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
-                  title="Ushbu ro'yxatdagi barcha so'zlarni Flashcard to'plamidan chiqarish"
+                  title={vDict?.batchRemoveTooltip || 'Ushbu roʻyxatdagi barcha soʻzlarni Flashcard toʻplamidan chiqarish'}
                 >
                   {batchRemoving ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <Trash2 className="h-3.5 w-3.5" />
                   )}
-                  <span>Barchasini chiqarish</span>
+                  <span>{vDict?.batchRemove || 'Barchasini chiqarish'}</span>
                 </button>
               )}
             </div>
@@ -489,7 +492,9 @@ export function VocabTab() {
             <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40">
               {/* JLPT Levels */}
               <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-                <span className="text-[11px] font-bold text-muted-foreground mr-1">Daraja:</span>
+                <span className="text-[11px] font-bold text-muted-foreground mr-1">
+                  {vDict?.levelLabel || 'Daraja:'}
+                </span>
                 {['ALL', 'N5', 'N4', 'N3', 'N2', 'N1'].map((lvl) => (
                   <button
                     key={lvl}
@@ -501,20 +506,22 @@ export function VocabTab() {
                         : 'bg-secondary/40 text-muted-foreground hover:text-foreground hover:bg-secondary'
                     }`}
                   >
-                    {lvl === 'ALL' ? 'Barchasi' : lvl}
+                    {lvl === 'ALL' ? (vDict?.allLevels || 'Barchasi') : lvl}
                   </button>
                 ))}
               </div>
 
               {/* Flashcard Status Filter */}
               <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-                <span className="text-[11px] font-bold text-muted-foreground mr-1">Toʻplam:</span>
+                <span className="text-[11px] font-bold text-muted-foreground mr-1">
+                  {vDict?.collectionLabel || 'Toʻplam:'}
+                </span>
                 {[
-                  { id: 'ALL', label: 'Barchasi' },
-                  { id: 'SAVED', label: 'Toʻplamdagi' },
-                  { id: 'LEARNING', label: '🟡 Yodlanmoqda' },
-                  { id: 'MASTERED', label: '🟢 Yodlangan' },
-                  { id: 'UNSAVED', label: '➕ Qoʻshilmagan' },
+                  { id: 'ALL', label: vDict?.statusAll || 'Barchasi' },
+                  { id: 'SAVED', label: vDict?.statusSaved || 'Toʻplamdagi' },
+                  { id: 'LEARNING', label: vDict?.statusLearning || '🟡 Yodlanmoqda' },
+                  { id: 'MASTERED', label: vDict?.statusMastered || '🟢 Yodlangan' },
+                  { id: 'UNSAVED', label: vDict?.statusUnsaved || '➕ Qoʻshilmagan' },
                 ].map((st) => (
                   <button
                     key={st.id}
@@ -536,9 +543,9 @@ export function VocabTab() {
           {/* Words Count Indicator */}
           <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-1">
             <span>
-              Topilgan soʻzlar: <strong className="text-foreground font-bold">{filteredWords.length} ta</strong>
+              {vDict?.foundWords || 'Topilgan soʻzlar:'} <strong className="text-foreground font-bold">{filteredWords.length} ta</strong>
             </span>
-            <span>Jisho minimalist koʻrinishida</span>
+            <span>{vDict?.styleBadge || 'Jisho minimalist koʻrinishida'}</span>
           </div>
 
           {/* Compact Rows List (Apple Dictionary Style) */}
@@ -546,9 +553,11 @@ export function VocabTab() {
             {filteredWords.length === 0 ? (
               <div className="py-12 text-center space-y-2">
                 <BookA className="h-8 w-8 mx-auto text-muted-foreground/60" />
-                <p className="text-sm font-bold text-foreground">Hech qanday soʻz topilmadi</p>
+                <p className="text-sm font-bold text-foreground">
+                  {vDict?.emptyCatalogTitle || 'Hech qanday soʻz topilmadi'}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Qidiruv soʻzini oʻzgartirib yoki filtrlarni tozalab koʻring.
+                  {vDict?.emptyCatalogDesc || 'Qidiruv soʻzini oʻzgartirib yoki filtrlarni tozalab koʻring.'}
                 </p>
               </div>
             ) : (
@@ -577,7 +586,7 @@ export function VocabTab() {
                           type="button"
                           onClick={(e) => playWordAudio(word, e)}
                           className="h-8 w-8 rounded-lg bg-secondary/60 hover:bg-primary hover:text-white text-muted-foreground flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-2xs active:scale-90"
-                          title="Talaffuzni tinglash"
+                          title={vDict?.listenAudio || 'Talaffuzni tinglash'}
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
@@ -602,15 +611,17 @@ export function VocabTab() {
 
                           {/* Lesson badge */}
                           <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-secondary/80 text-muted-foreground hidden sm:inline">
-                            {word.courseLevel} • {word.lessonOrder}-dars
+                            {(vDict?.lessonBadge || '{level} • {order}-dars')
+                              .replace('{level}', word.courseLevel)
+                              .replace('{order}', String(word.lessonOrder))}
                           </span>
                         </div>
                       </div>
 
-                      {/* Middle / Right: Uzbek meaning */}
+                      {/* Middle / Right: Translated meaning */}
                       <div className="text-right sm:text-left sm:flex-1 min-w-0 pr-2">
                         <span className="text-xs sm:text-sm font-bold text-foreground truncate block">
-                          {word.meaningUz}
+                          {lang === 'ru' && word.meaningRu ? word.meaningRu : word.meaningUz}
                         </span>
                       </div>
 
@@ -624,8 +635,8 @@ export function VocabTab() {
                           <button
                             type="button"
                             onClick={() => setExpandedWordId(isExpanded ? null : word.id)}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-all hidden sm:flex"
-                            title={isExpanded ? 'Misolni yopish' : 'Misol gapni koʻrish'}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-all hidden sm:flex cursor-pointer"
+                            title={isExpanded ? (vDict?.hideExample || 'Misolni yopish') : (vDict?.showExample || 'Misol gapni koʻrish')}
                           >
                             {isExpanded ? (
                               <ChevronUp className="h-3.5 w-3.5" />
@@ -642,14 +653,14 @@ export function VocabTab() {
                             onClick={(e) => handleSetFlashcardStatus(word, 'LEARNING', e)}
                             disabled={updatingWordId === word.id}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all cursor-pointer shadow-2xs active:scale-95"
-                            title="Yodlangan deb belgilangan. Qaytarishga o'tkazish uchun bosing."
+                            title={vDict?.tooltipMastered || "Yodlangan deb belgilangan. Qaytarishga oʻtkazish uchun bosing."}
                           >
                             {updatingWordId === word.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
                               <CheckCircle2 className="h-3 w-3" />
                             )}
-                            <span className="hidden sm:inline">Yodlandi</span>
+                            <span className="hidden sm:inline">{vDict?.btnMastered || 'Yodlandi'}</span>
                           </button>
                         ) : word.flashcardStatus === 'LEARNING' ? (
                           <button
@@ -657,14 +668,14 @@ export function VocabTab() {
                             onClick={(e) => handleSetFlashcardStatus(word, 'MASTERED', e)}
                             disabled={updatingWordId === word.id}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/25 transition-all cursor-pointer shadow-2xs active:scale-95"
-                            title="Yodlanmoqda. Yodladim deb belgilash uchun bosing."
+                            title={vDict?.tooltipLearning || "Yodlanmoqda. Yodladim deb belgilash uchun bosing."}
                           >
                             {updatingWordId === word.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
                               <RotateCw className="h-3 w-3 text-yellow-500" />
                             )}
-                            <span className="hidden sm:inline">Yodlanmoqda</span>
+                            <span className="hidden sm:inline">{vDict?.btnLearning || 'Yodlanmoqda'}</span>
                           </button>
                         ) : (
                           <button
@@ -672,14 +683,14 @@ export function VocabTab() {
                             onClick={(e) => handleSetFlashcardStatus(word, 'LEARNING', e)}
                             disabled={updatingWordId === word.id}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground border border-border/60 transition-all cursor-pointer shadow-2xs active:scale-95"
-                            title="Flashcard to'plamiga qo'shish"
+                            title={vDict?.tooltipAdd || "Flashcard toʻplamiga qoʻshish"}
                           >
                             {updatingWordId === word.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
                               <Plus className="h-3 w-3 text-primary" />
                             )}
-                            <span className="hidden sm:inline">Flashcard</span>
+                            <span className="hidden sm:inline">{vDict?.btnAddToFlashcards || 'Flashcard'}</span>
                           </button>
                         )}
 
@@ -690,7 +701,7 @@ export function VocabTab() {
                             onClick={(e) => handleRemoveFlashcard(word, e)}
                             disabled={updatingWordId === word.id}
                             className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                            title="To'plamdan olib tashlash"
+                            title={vDict?.removeFromCollection || "Toʻplamdan olib tashlash"}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -703,15 +714,15 @@ export function VocabTab() {
                       <div className="px-4 py-3 bg-secondary/15 border-t border-border/40 text-xs space-y-1.5 animate-in fade-in-50 duration-150">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                            Misol gap:
+                            {vDict?.exampleSentence || 'Misol gap:'}
                           </span>
                           <button
                             type="button"
                             onClick={() => speechFallback(word.sampleSentence!)}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline cursor-pointer"
                           >
                             <Volume2 className="h-3 w-3" />
-                            <span>Misolni tinglash</span>
+                            <span>{vDict?.listenExample || 'Misolni tinglash'}</span>
                           </button>
                         </div>
                         <p className="font-bold text-foreground font-japanese text-[13px] leading-relaxed">
@@ -750,7 +761,7 @@ export function VocabTab() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Barchasi ({stats.totalSaved})
+              {vDict?.statusAll || 'Barchasi'} ({stats.totalSaved})
             </button>
             <button
               type="button"
@@ -765,7 +776,7 @@ export function VocabTab() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              🔄 Yodlanayotgan ({stats.totalLearning})
+              {vDict?.statusLearning || '🔄 Yodlanmoqda'} ({stats.totalLearning})
             </button>
             <button
               type="button"
@@ -780,7 +791,7 @@ export function VocabTab() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              ✅ Yodlangan ({stats.totalMastered})
+              {vDict?.statusMastered || '✅ Yodlangan'} ({stats.totalMastered})
             </button>
           </div>
 
@@ -792,10 +803,10 @@ export function VocabTab() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-foreground">
-                  Ushbu toifada hozircha soʻzlar yoʻq
+                  {vDict?.emptyFlashcardsTitle || 'Ushbu toifada hozircha soʻzlar yoʻq'}
                 </h3>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                  Lugʻatlar qomusiga oʻtib, xohlagan soʻzlaringizni <strong>«➕ Flashcard»</strong> tugmasi orqali toʻplamga qoʻshing va bu yerda yodlang.
+                  {vDict?.emptyFlashcardsDesc || 'Lugʻatlar qomusiga oʻtib, xohlagan soʻzlaringizni «➕ Flashcard» tugmasi orqali toʻplamga qoʻshing va bu yerda yodlang.'}
                 </p>
               </div>
 
@@ -805,7 +816,7 @@ export function VocabTab() {
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
               >
                 <BookA className="h-4 w-4" />
-                <span>Lugʻatlar qomusiga oʻtish</span>
+                <span>{vDict?.goToCatalog || 'Lugʻatlar qomusiga oʻtish'}</span>
               </button>
             </div>
           ) : (
@@ -816,7 +827,7 @@ export function VocabTab() {
                   <span className="text-foreground">
                     {currentCardIndex + 1} / {flashcardWords.length}
                   </span>
-                  <span>ta soʻz</span>
+                  <span>{vDict?.wordsCountSuffix || 'ta soʻz'}</span>
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -824,10 +835,10 @@ export function VocabTab() {
                     type="button"
                     onClick={handleShuffleCards}
                     className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                    title="Tasodifiy tartibda aralashtirish"
+                    title={vDict?.shuffle || 'Aralashtirish'}
                   >
                     <Shuffle className="h-3 w-3" />
-                    <span>Aralashtirish</span>
+                    <span>{vDict?.shuffle || 'Aralashtirish'}</span>
                   </button>
                 </div>
               </div>
@@ -862,21 +873,23 @@ export function VocabTab() {
                       {currentFlashcard?.courseLevel}
                     </span>
                     <span className="text-xs font-bold text-muted-foreground">
-                      {currentFlashcard?.lessonOrder}-dars
+                      {(vDict?.lessonBadge || '{level} • {order}-dars')
+                        .replace('{level}', currentFlashcard?.courseLevel || '')
+                        .replace('{order}', String(currentFlashcard?.lessonOrder || ''))}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-secondary/80 text-muted-foreground">
                       {currentFlashcard?.flashcardStatus === 'MASTERED'
-                        ? '🟢 Yodlangan'
-                        : '🟡 Yodlanmoqda'}
+                        ? (vDict?.statusMastered || '🟢 Yodlangan')
+                        : (vDict?.statusLearning || '🟡 Yodlanmoqda')}
                     </span>
                     <button
                       type="button"
                       onClick={(e) => playWordAudio(currentFlashcard!, e)}
                       className="h-8 w-8 rounded-xl bg-secondary hover:bg-primary hover:text-white text-foreground flex items-center justify-center transition-all cursor-pointer shadow-2xs"
-                      title="Talaffuzni tinglash"
+                      title={vDict?.listenAudio || 'Talaffuzni tinglash'}
                     >
                       <Volume2 className="h-4 w-4" />
                     </button>
@@ -902,19 +915,21 @@ export function VocabTab() {
                         </p>
                       )}
                       <p className="text-[11px] text-muted-foreground pt-4 animate-pulse">
-                        Maʼnosini koʻrish uchun bosing 👆
+                        {vDict?.flipHint || 'Maʼnosini koʻrish uchun bosing 👆'}
                       </p>
                     </div>
                   ) : (
-                    /* BACK: Uzbek Meaning & Example Sentence */
+                    /* BACK: Meaning & Example Sentence */
                     <div className="space-y-3 animate-in zoom-in-95 duration-150">
                       <span className="text-[11px] font-bold uppercase text-primary tracking-wider px-2 py-0.5 rounded-md bg-primary/10">
                         {currentFlashcard?.partOfSpeech}
                       </span>
                       <h3 className="text-2xl sm:text-3xl font-black text-foreground">
-                        {currentFlashcard?.meaningUz}
+                        {lang === 'ru' && currentFlashcard?.meaningRu
+                          ? currentFlashcard.meaningRu
+                          : currentFlashcard?.meaningUz}
                       </h3>
-                      {currentFlashcard?.meaningRu && (
+                      {lang !== 'ru' && currentFlashcard?.meaningRu && (
                         <p className="text-xs text-muted-foreground font-medium">
                           {currentFlashcard.meaningRu}
                         </p>
@@ -939,7 +954,7 @@ export function VocabTab() {
                 {/* Card Footer Hint */}
                 <div className="flex items-center justify-between pt-2 border-t border-border/40 text-[11px] text-muted-foreground font-medium">
                   <span>
-                    {isCardFlipped ? 'Yodlaganingizni tasdiqlang 👇' : 'Old tomoni'}
+                    {isCardFlipped ? (vDict?.confirmHint || 'Yodlaganingizni tasdiqlang 👇') : (vDict?.frontLabel || 'Old tomoni')}
                   </span>
                   <button
                     type="button"
@@ -947,10 +962,10 @@ export function VocabTab() {
                       e.stopPropagation();
                       if (currentFlashcard) handleRemoveFlashcard(currentFlashcard);
                     }}
-                    className="hover:text-destructive flex items-center gap-1 transition-colors"
+                    className="hover:text-destructive flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <Trash2 className="h-3 w-3" />
-                    <span>Toʻplamdan chiqarish</span>
+                    <span>{vDict?.removeFromCollection || 'Toʻplamdan chiqarish'}</span>
                   </button>
                 </div>
               </div>
@@ -963,7 +978,7 @@ export function VocabTab() {
                   className="py-3 px-4 rounded-2xl bg-card hover:bg-secondary text-yellow-600 dark:text-yellow-400 border border-yellow-500/30 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
                 >
                   <RotateCw className="h-4 w-4" />
-                  <span>Hali yodlanmadi</span>
+                  <span>{vDict?.btnStillLearning || 'Hali yodlanmadi'}</span>
                 </button>
 
                 <button
@@ -972,7 +987,7 @@ export function VocabTab() {
                   className="py-3 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md active:scale-95"
                 >
                   <Check className="h-4 w-4 stroke-[3]" />
-                  <span>Yodladim!</span>
+                  <span>{vDict?.btnLearned || 'Yodladim!'}</span>
                 </button>
               </div>
 
@@ -984,14 +999,14 @@ export function VocabTab() {
                   className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  <span>Oldingisi</span>
+                  <span>{vDict?.btnPrev || 'Oldingisi'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleCardNext}
                   className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
-                  <span>Keyingisi</span>
+                  <span>{vDict?.btnNext || 'Keyingisi'}</span>
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>

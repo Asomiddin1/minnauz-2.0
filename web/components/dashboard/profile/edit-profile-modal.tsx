@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { X, User, Check, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useLang } from '@/lib/i18n';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -12,6 +13,9 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModalProps) {
   const { user, updateProfile } = useAuth();
+  const { t } = useLang();
+  const mDict = t?.profilePage?.editModal;
+
   const [fullName, setFullName] = React.useState(user?.fullName || '');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -30,12 +34,12 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
     const trimmed = fullName.trim();
 
     if (!trimmed) {
-      setError('Ism va familiyani kiritishingiz shart');
+      setError(mDict?.errRequired || 'Ism va familiyani kiritishingiz shart');
       return;
     }
 
     if (trimmed.length > 80) {
-      setError('Ism uzunligi 80 ta belgidan oshmasligi kerak');
+      setError(mDict?.errTooLong || 'Ism uzunligi 80 ta belgidan oshmasligi kerak');
       return;
     }
 
@@ -46,7 +50,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
       onSuccess?.();
       onClose();
     } catch (err: any) {
-      setError(err?.message || 'Ismni yangilashda xatolik yuz berdi');
+      setError(err?.message || mDict?.errGeneral || 'Ismni yangilashda xatolik yuz berdi');
     } finally {
       setLoading(false);
     }
@@ -65,8 +69,12 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
               <User className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-foreground">Profilni tahrirlash</h3>
-              <p className="text-xs text-muted-foreground">Ism va familiyangizni yangilang</p>
+              <h3 className="text-base font-bold text-foreground">
+                {mDict?.title || 'Profilni tahrirlash'}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                {mDict?.subtitle || 'Ism va familiyangizni yangilang'}
+              </p>
             </div>
           </div>
           <button
@@ -82,7 +90,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
         <form onSubmit={handleSubmit} className="space-y-4 pt-5">
           <div className="space-y-1.5">
             <label htmlFor="fullName" className="text-xs font-semibold text-foreground">
-              Toʻliq ism
+              {mDict?.nameLabel || 'Toʻliq ism'}
             </label>
             <div className="relative">
               <input
@@ -93,7 +101,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
                   setFullName(e.target.value);
                   if (error) setError(null);
                 }}
-                placeholder="Masalan: Asomiddin Qarshiyev"
+                placeholder={mDict?.placeholder || 'Masalan: Asomiddin Qarshiyev'}
                 maxLength={80}
                 className="w-full h-11 px-3.5 rounded-2xl border border-border/60 bg-secondary/20 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 autoFocus
@@ -119,7 +127,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
               disabled={loading}
               className="px-4 py-2.5 rounded-2xl border border-border/60 bg-secondary/40 hover:bg-secondary text-xs font-semibold text-muted-foreground hover:text-foreground transition-all active:scale-95 cursor-pointer disabled:opacity-50"
             >
-              Bekor qilish
+              {mDict?.cancel || 'Bekor qilish'}
             </button>
             <button
               type="submit"
@@ -129,12 +137,12 @@ export function EditProfileModal({ isOpen, onClose, onSuccess }: EditProfileModa
               {loading ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span>Saqlanmoqda...</span>
+                  <span>{mDict?.saving || 'Saqlanmoqda...'}</span>
                 </>
               ) : (
                 <>
                   <Check className="h-3.5 w-3.5" />
-                  <span>Saqlash</span>
+                  <span>{mDict?.save || 'Saqlash'}</span>
                 </>
               )}
             </button>

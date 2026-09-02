@@ -10,6 +10,7 @@ import {
   Loader2,
   Gauge,
 } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 interface KanjiStrokeAnimatorProps {
   character: string;
@@ -17,6 +18,8 @@ interface KanjiStrokeAnimatorProps {
 }
 
 export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimatorProps) {
+  const { t } = useLang();
+  const kDict = t?.kanji;
   const [paths, setPaths] = React.useState<string[]>([]);
   const [numbers, setNumbers] = React.useState<{ text: string; x: number; y: number }[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -260,7 +263,7 @@ export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimat
               onClick={handlePrevStroke}
               disabled={currentStroke <= 1}
               className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card disabled:opacity-40 transition-colors cursor-pointer"
-              title="Oldingi chiziq"
+              title={kDict?.animPrev || 'Oldingi chiziq'}
             >
               <SkipBack className="h-4 w-4" />
             </button>
@@ -269,10 +272,10 @@ export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimat
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
               className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
-              title={isPlaying ? 'Pauza' : 'Animatsiyani davom ettirish'}
+              title={isPlaying ? (kDict?.animPause || 'Pauza') : (kDict?.animPlay || 'Ijro')}
             >
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
-              <span>{isPlaying ? 'Pauza' : 'Ijro'}</span>
+              <span>{isPlaying ? (kDict?.animPause || 'Pauza') : (kDict?.animPlay || 'Ijro')}</span>
             </button>
 
             <button
@@ -280,7 +283,7 @@ export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimat
               onClick={handleNextStroke}
               disabled={currentStroke >= paths.length}
               className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card disabled:opacity-40 transition-colors cursor-pointer"
-              title="Keyingi chiziq"
+              title={kDict?.animNext || 'Keyingi chiziq'}
             >
               <SkipForward className="h-4 w-4" />
             </button>
@@ -289,7 +292,7 @@ export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimat
               type="button"
               onClick={handleRestart}
               className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card transition-colors cursor-pointer"
-              title="Boshidan qayta koʻrsatish"
+              title={kDict?.animRestart || 'Boshidan qayta koʻrsatish'}
             >
               <RotateCcw className="h-4 w-4" />
             </button>
@@ -299,7 +302,9 @@ export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimat
           <div className="flex items-center justify-between w-full text-xs font-semibold px-1">
             {/* Speed buttons */}
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-muted-foreground mr-1">Tezlik:</span>
+              <span className="text-[10px] font-bold text-muted-foreground mr-1">
+                {kDict?.animSpeed || 'Tezlik:'}
+              </span>
               {[
                 { val: 0.6, label: '0.6x' },
                 { val: 1, label: '1x' },
@@ -330,7 +335,9 @@ export function KanjiStrokeAnimator({ character, size = 260 }: KanjiStrokeAnimat
                   : 'border-border/60 text-muted-foreground'
               }`}
             >
-              {showNumbers ? 'Raqamlar: Yoqiq' : 'Raqamlar: Oʻchiq'}
+              {showNumbers
+                ? (kDict?.animNumbersOn || 'Raqamlar: Yoqiq')
+                : (kDict?.animNumbersOff || 'Raqamlar: Oʻchiq')}
             </button>
           </div>
         </div>

@@ -12,6 +12,7 @@ import {
   Eraser,
   PenTool,
 } from 'lucide-react';
+import { useLang } from '@/lib/i18n';
 
 interface Point {
   x: number;
@@ -30,6 +31,8 @@ interface KanjiDrawingCanvasProps {
 }
 
 export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvasProps) {
+  const { t } = useLang();
+  const kDict = t?.kanji;
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
   // Drawing state
@@ -207,16 +210,18 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
             <div className="h-12 w-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg mb-2 animate-bounce">
               <CheckCircle2 className="h-6 w-6 stroke-[2.5]" />
             </div>
-            <p className="text-sm font-black text-foreground">Ajoyib mashq! 🎉</p>
+            <p className="text-sm font-black text-foreground">
+              {kDict?.canvasCongrats || 'Ajoyib mashq! 🎉'}
+            </p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              Siz {strokes.length} ta chiziq bilan chizib koʻrdingiz
+              {(kDict?.canvasStrokesDrawn || 'Siz {count} ta chiziq bilan chizib koʻrdingiz').replace('{count}', String(strokes.length))}
             </p>
             <button
               type="button"
               onClick={() => setCompleted(false)}
               className="mt-3 px-3 py-1 rounded-xl bg-card border border-border text-[11px] font-bold text-foreground hover:bg-secondary cursor-pointer shadow-xs"
             >
-              Yopish
+              {kDict?.canvasClose || 'Yopish'}
             </button>
           </div>
         )}
@@ -232,7 +237,7 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
               onClick={handleUndo}
               disabled={strokes.length === 0}
               className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card disabled:opacity-40 transition-colors cursor-pointer"
-              title="Oxirgi chiziqni bekor qilish (Undo)"
+              title={kDict?.canvasUndo || 'Oxirgi chiziqni bekor qilish (Undo)'}
             >
               <Undo2 className="h-4 w-4" />
             </button>
@@ -242,7 +247,7 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
               onClick={handleClear}
               disabled={strokes.length === 0}
               className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-40 transition-colors cursor-pointer"
-              title="Tozalash (Clear)"
+              title={kDict?.canvasClear || 'Tozalash (Clear)'}
             >
               <RotateCcw className="h-4 w-4" />
             </button>
@@ -257,10 +262,10 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
                 ? 'bg-primary/10 text-primary border border-primary/20'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
-            title="Xira yordamchi shablonni koʻrsatish yoki yashirish"
+            title={showOutline ? (kDict?.canvasOutlineOn || 'Shablon: Bor') : (kDict?.canvasOutlineOff || 'Yoddan')}
           >
             {showOutline ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-            <span>{showOutline ? 'Shablon: Bor' : 'Yoddan'}</span>
+            <span>{showOutline ? (kDict?.canvasOutlineOn || 'Shablon: Bor') : (kDict?.canvasOutlineOff || 'Yoddan')}</span>
           </button>
 
           {/* Finish & Compare */}
@@ -269,9 +274,9 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
             onClick={handleFinish}
             disabled={strokes.length === 0}
             className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-black transition-all cursor-pointer shadow-xs disabled:opacity-40 active:scale-95"
-            title="Chizishni yakunlash"
+            title={kDict?.canvasCheck || 'Tekshirish'}
           >
-            Tekshirish
+            {kDict?.canvasCheck || 'Tekshirish'}
           </button>
         </div>
 
@@ -280,9 +285,9 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
           {/* Colors */}
           <div className="flex items-center gap-1.5">
             {[
-              { color: '#0f172a', label: 'Qora siyoh (Sumi)' },
-              { color: '#2563eb', label: 'Moviy' },
-              { color: '#dc2626', label: 'Qizil' },
+              { color: '#0f172a', label: kDict?.canvasInkBlack || 'Qora siyoh (Sumi)' },
+              { color: '#2563eb', label: kDict?.canvasInkBlue || 'Moviy' },
+              { color: '#dc2626', label: kDict?.canvasInkRed || 'Qizil' },
             ].map((c) => (
               <button
                 key={c.color}
@@ -300,9 +305,9 @@ export function KanjiDrawingCanvas({ character, size = 280 }: KanjiDrawingCanvas
           {/* Width pills */}
           <div className="flex items-center gap-1">
             {[
-              { val: 6, label: 'Yupqa' },
-              { val: 10, label: 'Oʻrtacha' },
-              { val: 14, label: 'Kalin' },
+              { val: 6, label: kDict?.canvasWidthThin || 'Yupqa' },
+              { val: 10, label: kDict?.canvasWidthMedium || 'Oʻrtacha' },
+              { val: 14, label: kDict?.canvasWidthThick || 'Kalin' },
             ].map((w) => (
               <button
                 key={w.val}

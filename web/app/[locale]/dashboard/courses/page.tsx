@@ -9,6 +9,7 @@ import { UserAvatar } from '@/components/shared/user-avatar';
 
 export default function CoursesPage() {
   const { lang, t } = useLang();
+  const cpDict = t?.coursesPage;
   const [courses, setCourses] = React.useState<CourseListItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [selectedLevel, setSelectedLevel] = React.useState<string>('ALL');
@@ -46,28 +47,38 @@ export default function CoursesPage() {
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 text-[12px] font-semibold tracking-wide backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
-            <span>JLPT Standart Oʻquv Dasturi</span>
+            <span>{cpDict?.badge || 'JLPT Standart Oʻquv Dasturi'}</span>
           </div>
           <h1 className="text-[28px] sm:text-[36px] font-bold tracking-tight leading-tight">
-            {t?.courses?.title || 'Yapon tili kurslari va darsliklar'}
+            {cpDict?.title || t?.courses?.title || 'Yapon tili kurslari va darsliklar'}
           </h1>
           <p className="text-[14px] sm:text-[16px] text-white/80 leading-relaxed">
-            {t?.courses?.subtitle || 'Minna no Nihongo xalqaro darsligi asosida tuzilgan 5 bosqichli toʻliq interaktiv oʻquv tizimi: Lugʻat (Kotoba), Grammatika (Bunpou), Kanji, Mashqlar (Renshuu) va AI suhbat.'}
+            {cpDict?.subtitle || t?.courses?.subtitle || 'Minna no Nihongo xalqaro darsligi asosida tuzilgan 5 bosqichli toʻliq interaktiv oʻquv tizimi: Lugʻat (Kotoba), Grammatika (Bunpou), Kanji, Mashqlar (Renshuu) va AI suhbat.'}
           </p>
         </div>
 
         {/* Quick Stats Pill */}
         <div className="relative z-10 mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:w-fit">
           <div className="rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
-            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">{t?.admin?.courses?.courseTitle || 'Jami kurslar'}</div>
-            <div className="text-[20px] font-bold mt-0.5">{courses.length || 3} ta</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
+              {cpDict?.totalCourses || t?.admin?.courses?.courseTitle || 'Jami kurslar'}
+            </div>
+            <div className="text-[20px] font-bold mt-0.5">
+              {(cpDict?.totalCoursesUnit || '{count} ta').replace('{count}', String(courses.length || 3))}
+            </div>
           </div>
           <div className="rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
-            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">{t?.courses?.lessons || 'Darslar soni'}</div>
-            <div className="text-[20px] font-bold mt-0.5">{totalLessons || 80}+ dars</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
+              {cpDict?.lessonsCount || t?.courses?.lessons || 'Darslar soni'}
+            </div>
+            <div className="text-[20px] font-bold mt-0.5">
+              {(cpDict?.lessonsCountUnit || '{count}+ dars').replace('{count}', String(totalLessons || 80))}
+            </div>
           </div>
           <div className="col-span-2 sm:col-span-1 rounded-2xl bg-white/10 backdrop-blur-md px-4 py-2.5 border border-white/10">
-            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">{t?.dash?.progress?.title || 'Oʻrtacha oʻzlashtirish'}</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
+              {cpDict?.avgProgress || t?.dash?.progress?.title || 'Oʻrtacha oʻzlashtirish'}
+            </div>
             <div className="text-[20px] font-bold mt-0.5">{avgProgress}%</div>
           </div>
         </div>
@@ -85,19 +96,19 @@ export default function CoursesPage() {
               key={lvl}
               type="button"
               onClick={() => setSelectedLevel(lvl)}
-              className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 ${
+              className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 selectedLevel === lvl
                   ? 'bg-foreground text-background shadow-xs'
                   : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
-              {lvl === 'ALL' ? (t?.video?.all || 'Barcha darajalar') : `JLPT ${lvl}`}
+              {lvl === 'ALL' ? (cpDict?.allLevels || t?.video?.all || 'Barcha darajalar') : `JLPT ${lvl}`}
             </button>
           ))}
         </div>
 
         <div className="text-[13px] text-muted-foreground font-medium">
-          {filteredCourses.length} ta kurs mavjud
+          {(cpDict?.coursesAvailable || '{count} ta kurs mavjud').replace('{count}', String(filteredCourses.length))}
         </div>
       </div>
 
@@ -129,11 +140,11 @@ export default function CoursesPage() {
                     <div className="flex items-center gap-3 text-[12px] text-muted-foreground font-medium">
                       <span className="flex items-center gap-1">
                         <Layers className="h-3.5 w-3.5" />
-                        {course.totalModules || 3} modul
+                        {(cpDict?.modulesCount || '{count} modul').replace('{count}', String(course.totalModules || 3))}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
-                        {course.totalLessons || 25} dars
+                        {(cpDict?.lessonsCountShort || '{count} dars').replace('{count}', String(course.totalLessons || 25))}
                       </span>
                     </div>
                   </div>
@@ -144,7 +155,7 @@ export default function CoursesPage() {
                       {course.title}
                     </h3>
                     <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground line-clamp-2">
-                      {course.description || 'Yapon tilini samarali va bosqichma-bosqich oʻrganish uchun moʻljallangan interaktiv kurs.'}
+                      {course.description || cpDict?.defaultDescription || 'Yapon tilini samarali va bosqichma-bosqich oʻrganish uchun moʻljallangan interaktiv kurs.'}
                     </p>
                   </div>
 
@@ -156,9 +167,9 @@ export default function CoursesPage() {
                       size="xs"
                     />
                     <div className="text-[12px] truncate">
-                      <span className="text-muted-foreground">Muallif: </span>
+                      <span className="text-muted-foreground">{cpDict?.authorLabel || 'Muallif:'} </span>
                       <span className="font-semibold text-foreground">
-                        {course.author?.fullName || 'MinnaUz Sensei (Rasmiy)'}
+                        {course.author?.fullName || cpDict?.authorFallback || 'MinnaUz Sensei (Rasmiy)'}
                       </span>
                     </div>
                   </div>
@@ -169,7 +180,7 @@ export default function CoursesPage() {
                   {hasStarted ? (
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-[12px] text-muted-foreground font-medium">
-                        <span>Oʻzlashtirish</span>
+                        <span>{cpDict?.progressLabel || 'Oʻzlashtirish'}</span>
                         <span className="font-bold text-foreground">{course.progress}%</span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
@@ -182,22 +193,22 @@ export default function CoursesPage() {
                   ) : (
                     <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                       <Flame className="h-3.5 w-3.5 text-amber-500" />
-                      <span>Yangi boshlovchilar uchun tavsiya etiladi</span>
+                      <span>{cpDict?.recommendedBeginners || 'Yangi boshlovchilar uchun tavsiya etiladi'}</span>
                     </div>
                   )}
 
                   <Link
                     href={`/${lang}/dashboard/courses/${course.slug || course.id}`}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-[14px] font-semibold text-background transition-all hover:bg-primary hover:text-white"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-[14px] font-semibold text-background transition-all hover:bg-primary hover:text-white cursor-pointer"
                   >
                     {hasStarted ? (
                       <>
                         <Play className="h-3.5 w-3.5 fill-current" />
-                        <span>{t?.dash?.goal?.continue || 'Davom ettirish'}</span>
+                        <span>{cpDict?.btnContinue || t?.dash?.goal?.continue || 'Davom ettirish'}</span>
                       </>
                     ) : (
                       <>
-                        <span>{t?.courses?.startLesson || 'Kursni boshlash'}</span>
+                        <span>{cpDict?.btnStart || t?.courses?.startLesson || 'Kursni boshlash'}</span>
                         <ArrowRight className="h-3.5 w-3.5" />
                       </>
                     )}

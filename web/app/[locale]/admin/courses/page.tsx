@@ -311,9 +311,9 @@ export default function AdminCoursesPage() {
 
                   <button
                     type="button"
-                    onClick={() => handleDelete(c.id)}
+                    onClick={() => handleDeleteCourse(c.id, c.title)}
                     className="p-2 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
-                    title="Oʻchirish"
+                    title={t?.common?.delete || 'Oʻchirish'}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
