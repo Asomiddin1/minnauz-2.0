@@ -70,6 +70,16 @@ export class CreateTestDto {
   @IsOptional()
   @IsBoolean()
   isPremium?: boolean;
+
+  @ApiPropertyOptional({ description: 'Bogʻlangan kurs ID' })
+  @IsOptional()
+  @IsString()
+  courseId?: string;
+
+  @ApiPropertyOptional({ description: 'Muallif ID' })
+  @IsOptional()
+  @IsString()
+  authorId?: string;
 }
 
 export class UpdateTestDto {
@@ -101,6 +111,7 @@ export class UpdateTestDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
+  @Min(1)
   durationMinutes?: number;
 
   @ApiPropertyOptional()
@@ -132,6 +143,11 @@ export class UpdateTestDto {
   @IsOptional()
   @IsBoolean()
   isPremium?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  courseId?: string;
 }
 
 export class CreateQuestionDto {
