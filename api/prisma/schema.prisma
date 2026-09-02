@@ -99,6 +99,8 @@ model User {
   inventory       UserInventoryItem[]
   subscriptions   UserSubscription[]
   paymentTransactions PaymentTransaction[]
+  feedbacksGiven    TeacherFeedback[] @relation("TeacherFeedbackGiven")
+  feedbacksReceived TeacherFeedback[] @relation("StudentFeedbackReceived")
 
   @@map("users")
 }
@@ -242,6 +244,8 @@ model Course {
   author      User?        @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: SetNull)
   modules     CourseModule[]
   groups      Group[]
+  feedbacks   TeacherFeedback[]
+  tests       JlptTest[]
 
   @@map("courses")
 }
@@ -262,26 +266,30 @@ model CourseModule {
 }
 
 model Lesson {
-  id            String       @id @default(uuid())
-  moduleId      String
-  title         String
-  japaneseTitle String?      // e.g. "第1課"
-  slug          String?
-  order         Int          @default(1)
-  videoUrl      String?
-  summary       String?
-  kaiwaScenario Json?        // AI conversational prompt and guidelines
-  isPublished   Boolean      @default(true)
-  isFree        Boolean      @default(false)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id              String       @id @default(uuid())
+  moduleId        String
+  title           String
+  japaneseTitle   String?      // e.g. "第1課"
+  slug            String?
+  order           Int          @default(1)
+  videoUrl        String?
+  summary         String?
+  attachments     Json?        // Array of { title: string, fileUrl: string, type: string }
+  deleteRequested Boolean      @default(false)
+  deleteReason    String?
+  kaiwaScenario   Json?        // AI conversational prompt and guidelines
+  isPublished     Boolean      @default(true)
+  isFree          Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
-  module        CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  kotobaItems   KotobaItem[]
-  bunpouItems   BunpouItem[]
-  kanjiItems    KanjiItem[]
-  renshuuItems  RenshuuItem[]
-  userProgress  UserLessonProgress[]
+  module          CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  kotobaItems     KotobaItem[]
+  bunpouItems     BunpouItem[]
+  kanjiItems      KanjiItem[]
+  renshuuItems    RenshuuItem[]
+  userProgress    UserLessonProgress[]
+  feedbacks       TeacherFeedback[]
 
   @@map("lessons")
 }
@@ -459,9 +467,12 @@ model JlptTest {
   order           Int            @default(1)
   isPublished     Boolean        @default(true)
   isPremium       Boolean        @default(false)
+  authorId        String?
+  courseId        String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
+  course          Course?        @relation(fields: [courseId], references: [id], onDelete: SetNull)
   questions       JlptQuestion[]
   userResults     UserTestResult[]
 
@@ -660,5 +671,27 @@ model PaymentTransaction {
 
   @@index([userId, status])
   @@map("payment_transactions")
+}
+
+model TeacherFeedback {
+  id        String   @id @default(uuid())
+  teacherId String
+  studentId String
+  courseId  String?
+  lessonId  String?
+  title     String?
+  comment   String
+  rating    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher   User     @relation("TeacherFeedbackGiven", fields: [teacherId], references: [id], onDelete: Cascade)
+  student   User     @relation("StudentFeedbackReceived", fields: [studentId], references: [id], onDelete: Cascade)
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+
+  @@index([teacherId])
+  @@index([studentId])
+  @@map("teacher_feedbacks")
 }
 

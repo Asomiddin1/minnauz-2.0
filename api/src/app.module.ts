@@ -14,6 +14,7 @@ import { ShopModule } from './shop/shop.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SearchModule } from './search/search.module';
 import { AiModule } from './ai/ai.module';
+import { TeacherModule } from './teacher/teacher.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -32,6 +33,7 @@ import { AppService } from './app.service';
     PrismaModule,
     AuthModule,
     AdminModule,
+    TeacherModule,
     CoursesModule,
     UploadModule,
     BannersModule,
