@@ -846,8 +846,9 @@
       "title": "管理者パネル",
       "dashboard": "ダッシュボード",
       "banners": "バナー管理",
-      "courses": "コース・講座",
-      "tests": "JLPT模擬試験",
+      "courses": "コース・レッスン",
+      "teachers": "先生一覧",
+      "tests": "JLPT試験",
       "shop": "ショップ管理",
       "subscriptions": "サブスク・VIP",
       "users": "ユーザー一覧",
@@ -1198,5 +1199,38 @@
     "failed": "残念ながら今回は基準点に届きませんでした。",
     "reviewAnswers": "解答解説を確認",
     "backToTests": "試験一覧へ戻る"
+  },
+  "sidebar": {
+    "home": "ホーム",
+    "courses": "コース",
+    "jlpt": "JLPT",
+    "premium": "プレミアム",
+    "profile": "プロフィール",
+    "collapse": "サイドバーを閉じる",
+    "expand": "サイドバーを開く",
+    "logout": "ログアウト",
+    "admin": "管理者パネル",
+    "teacher": "先生ポータル"
+  },
+  "teacher": {
+    "sidebar": {
+      "dashboard": "ダッシュボード",
+      "courses": "担当コースとレッスン",
+      "tests": "テストと問題",
+      "students": "受講生一覧",
+      "announcements": "お知らせ配信"
+    },
+    "header": {
+      "dashboard": "先生ダッシュボード",
+      "dashboardSub": "統計、学習状況、クイック操作",
+      "courses": "担当コースとレッスン",
+      "coursesSub": "担当コース、モジュール、教材の管理",
+      "tests": "テストと問題",
+      "testsSub": "模擬試験および問題バンクの管理",
+      "students": "受講生一覧",
+      "studentsSub": "受講生の学習進捗確認とフィードバック",
+      "announcements": "お知らせ配信",
+      "announcementsSub": "受講生へのお知らせ・通知の一斉配信"
+    }
   }
 }

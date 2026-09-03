@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Shield,
   Crown,
+  GraduationCap,
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
@@ -202,6 +203,21 @@ export function DashboardSidebar({
           >
             <Shield className="h-4 w-4 shrink-0" />
             {(isMobileDrawer || !isCollapsed) && <span>{t?.sidebar?.admin || 'Admin Paneli'}</span>}
+          </Link>
+        )}
+
+        {/* Teacher Link if role is TEACHER */}
+        {(user?.role === 'TEACHER' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+          <Link
+            href={`/${lang}/teacher`}
+            onClick={onMobileClose}
+            title={!isMobileDrawer && isCollapsed ? (t?.sidebar?.teacher || 'Oʻqituvchi Paneli') : undefined}
+            className={`flex items-center rounded-xl text-[13px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors ${
+              !isMobileDrawer && isCollapsed ? 'h-10 w-10 justify-center mx-auto' : 'gap-2.5 px-3 py-2'
+            }`}
+          >
+            <GraduationCap className="h-4 w-4 shrink-0" />
+            {(isMobileDrawer || !isCollapsed) && <span>{t?.sidebar?.teacher || 'Oʻqituvchi Paneli'}</span>}
           </Link>
         )}
 

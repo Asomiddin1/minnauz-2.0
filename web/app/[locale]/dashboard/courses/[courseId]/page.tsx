@@ -171,15 +171,15 @@ export default function CourseRoadmapPage() {
                   </thead>
                   <tbody className="divide-y divide-border/40">
                     {mod.lessons.map((lesson) => {
-                      const isCompleted = lesson.isCompleted;
-                      const isCurrent = lesson.status === 'CURRENT';
-                      const isLocked = lesson.status === 'LOCKED';
+                      const isCompleted = Boolean(lesson.isCompleted || lesson.status === 'COMPLETED');
+                      const isLocked = Boolean(lesson.status === 'LOCKED' || lesson.isLocked || lesson.lockReason === 'PRO_REQUIRED');
+                      const isActive = !isCompleted && !isLocked;
 
                       return (
                         <tr
                           key={lesson.id}
                           className={`hover:bg-secondary/20 transition-colors ${
-                            isCurrent ? 'bg-primary/5' : ''
+                            isActive ? 'bg-primary/5' : ''
                           }`}
                         >
                           {/* Order / Number */}
@@ -188,7 +188,7 @@ export default function CourseRoadmapPage() {
                               className={`inline-grid h-7 w-7 place-items-center rounded-lg text-[11px] font-bold ${
                                 isCompleted
                                   ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                                  : isCurrent
+                                  : isActive
                                   ? 'bg-primary/15 text-primary'
                                   : 'bg-secondary text-muted-foreground'
                               }`}
@@ -232,15 +232,10 @@ export default function CourseRoadmapPage() {
                                 <Check className="h-3 w-3 stroke-[2.5]" />
                                 <span>{dDict?.statusCompleted || 'Bajarildi'}</span>
                               </span>
-                            ) : isCurrent ? (
+                            ) : isActive ? (
                               <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                                 <Sparkles className="h-3 w-3" />
                                 <span>{dDict?.statusActive || 'Faol'}</span>
-                              </span>
-                            ) : lesson.lockReason === 'PRO_REQUIRED' ? (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-yellow-500/10 px-2 py-0.5 text-[11px] font-bold text-yellow-600 dark:text-yellow-400">
-                                <Crown className="h-3 w-3" />
-                                <span>{dDict?.statusPro || 'Pro Obuna'}</span>
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
@@ -257,7 +252,7 @@ export default function CourseRoadmapPage() {
                                 href={`/${lang}/dashboard/premium`}
                                 className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold bg-yellow-500/10 hover:bg-yellow-500 text-yellow-600 dark:text-yellow-400 hover:text-black transition-all border border-yellow-500/30 shadow-xs cursor-pointer"
                               >
-                                <Crown className="h-3 w-3" />
+                                <Lock className="h-3 w-3" />
                                 <span>{dDict?.btnUnlockPro || 'Pro ochish'}</span>
                               </Link>
                             ) : isLocked ? (
