@@ -20,6 +20,7 @@ import {
   Bell,
   ShoppingBag,
   Crown,
+  GraduationCap,
 } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
@@ -75,6 +76,11 @@ export function AdminSidebar({
       label: t?.admin?.sidebar?.courses || 'Kurslar & Darslar',
       href: `/${lang}/admin/courses`,
       icon: BookOpen,
+    },
+    {
+      label: t?.admin?.sidebar?.teachers || 'Oʻqituvchilar',
+      href: `/${lang}/admin/teachers`,
+      icon: GraduationCap,
     },
     {
       label: t?.admin?.sidebar?.tests || 'JLPT Testlar',

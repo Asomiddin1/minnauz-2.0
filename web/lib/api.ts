@@ -1233,9 +1233,6 @@ class ApiClient {
   }
 
   // === ADMIN COURSES CRUD ===
-  async getAdminTeachers() {
-    return this.request<{ id: string; fullName?: string; email: string; avatarUrl?: string; role: string }[]>('/admin/courses/teachers');
-  }
 
   async getAdminCourses() {
     return this.request<any[]>('/admin/courses');
@@ -1736,6 +1733,291 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // ==========================================
+  // TEACHER PORTAL METHODS
+  // ==========================================
+  async getTeacherStats(): Promise<TeacherStatsResponse> {
+    return this.request<TeacherStatsResponse>('/teacher/stats');
+  }
+
+  async getTeacherCourses(): Promise<any[]> {
+    return this.request<any[]>('/teacher/courses');
+  }
+
+  async getTeacherCourse(id: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/${id}`);
+  }
+
+  async updateTeacherCourse(id: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createTeacherModule(courseId: string, data: { title: string; description?: string; order?: number }): Promise<any> {
+    return this.request<any>(`/teacher/courses/${courseId}/modules`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherModule(courseId: string, moduleId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/${courseId}/modules/${moduleId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherModule(courseId: string, moduleId: string): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/teacher/courses/${courseId}/modules/${moduleId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async createTeacherLesson(courseId: string, moduleId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/${courseId}/modules/${moduleId}/lessons`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherLesson(courseId: string, lessonId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/${courseId}/lessons/${lessonId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async requestDeleteTeacherLesson(courseId: string, lessonId: string, reason: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/${courseId}/lessons/${lessonId}/request-delete`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async cancelDeleteTeacherLesson(courseId: string, lessonId: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/${courseId}/lessons/${lessonId}/cancel-delete`, {
+      method: 'POST',
+    });
+  }
+
+  async getTeacherLessonContent(lessonId: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/${lessonId}/content`);
+  }
+
+  async addTeacherKotoba(lessonId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/${lessonId}/kotoba`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherKotoba(id: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/kotoba/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherKotoba(id: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/kotoba/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async addTeacherBunpou(lessonId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/${lessonId}/bunpou`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherBunpou(id: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/bunpou/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherBunpou(id: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/bunpou/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async addTeacherKanji(lessonId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/${lessonId}/kanji`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherKanji(id: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/kanji/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherKanji(id: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/kanji/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async addTeacherRenshuu(lessonId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/${lessonId}/renshuu`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherRenshuu(id: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/renshuu/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherRenshuu(id: string): Promise<any> {
+    return this.request<any>(`/teacher/courses/lessons/renshuu/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTeacherStudents(params?: { courseId?: string; search?: string }): Promise<TeacherStudentItem[]> {
+    const query = new URLSearchParams();
+    if (params?.courseId) query.set('courseId', params.courseId);
+    if (params?.search) query.set('search', params.search);
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return this.request<TeacherStudentItem[]>(`/teacher/students${qs}`);
+  }
+
+  async getTeacherStudentDetail(studentId: string): Promise<any> {
+    return this.request<any>(`/teacher/students/${studentId}`);
+  }
+
+  async sendTeacherFeedback(data: {
+    studentId: string;
+    courseId?: string;
+    lessonId?: string;
+    title?: string;
+    comment: string;
+    rating?: number;
+  }): Promise<{ success: boolean; message: string; feedback: any }> {
+    return this.request<{ success: boolean; message: string; feedback: any }>('/teacher/students/feedback', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTeacherFeedbacks(studentId?: string): Promise<any[]> {
+    const qs = studentId ? `?studentId=${studentId}` : '';
+    return this.request<any[]>(`/teacher/feedbacks${qs}`);
+  }
+
+  async sendTeacherAnnouncement(data: {
+    courseId: string;
+    title: string;
+    message: string;
+  }): Promise<{ success: boolean; message: string; sentCount: number }> {
+    return this.request<{ success: boolean; message: string; sentCount: number }>('/teacher/announcements', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTeacherTests(): Promise<any[]> {
+    return this.request<any[]>('/teacher/tests');
+  }
+
+  async getTeacherTest(id: string): Promise<any> {
+    return this.request<any>(`/teacher/tests/${id}`);
+  }
+
+  async createTeacherTest(data: any): Promise<any> {
+    return this.request<any>('/teacher/tests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherTest(id: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/tests/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherTest(id: string): Promise<any> {
+    return this.request<any>(`/teacher/tests/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async createTeacherQuestion(testId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/tests/${testId}/questions`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTeacherQuestion(questionId: string, data: any): Promise<any> {
+    return this.request<any>(`/teacher/tests/questions/${questionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTeacherQuestion(questionId: string): Promise<any> {
+    return this.request<any>(`/teacher/tests/questions/${questionId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ==========================================
+  // ADMIN TEACHERS MANAGEMENT METHODS
+  // ==========================================
+  async getAdminTeachers(): Promise<AdminTeacherItem[]> {
+    return this.request<AdminTeacherItem[]>('/admin/teachers');
+  }
+
+  async assignAdminTeacherRole(userId: string): Promise<any> {
+    return this.request<any>(`/admin/teachers/${userId}/assign-role`, {
+      method: 'POST',
+    });
+  }
+
+  async removeAdminTeacherRole(userId: string): Promise<any> {
+    return this.request<any>(`/admin/teachers/${userId}/remove-role`, {
+      method: 'POST',
+    });
+  }
+
+  async assignAdminCourseToTeacher(courseId: string, teacherId: string): Promise<any> {
+    return this.request<any>('/admin/teachers/assign-course', {
+      method: 'PATCH',
+      body: JSON.stringify({ courseId, teacherId }),
+    });
+  }
+
+  async getAdminDeletionRequests(): Promise<AdminDeletionRequestItem[]> {
+    return this.request<AdminDeletionRequestItem[]>('/admin/teachers/deletion-requests');
+  }
+
+  async approveAdminDeletionRequest(lessonId: string): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/admin/teachers/deletion-requests/${lessonId}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  async rejectAdminDeletionRequest(lessonId: string): Promise<{ success: boolean; message: string; lesson: any }> {
+    return this.request<{ success: boolean; message: string; lesson: any }>(`/admin/teachers/deletion-requests/${lessonId}/reject`, {
+      method: 'POST',
+    });
+  }
 }
 
 export interface TranslateResponse {
@@ -1888,6 +2170,81 @@ export interface AdminSubscriptionStats {
   totalSubscriptions: number;
   totalRevenueUzs: number;
   plansBreakdown: Record<string, number>;
+}
+
+export interface TeacherStatsResponse {
+  coursesCount: number;
+  lessonsCount: number;
+  studentsCount: number;
+  testsCount: number;
+  pendingDeletionCount: number;
+  recentActivities: {
+    id: string;
+    studentName: string;
+    studentEmail: string;
+    studentAvatar?: string | null;
+    lessonTitle: string;
+    lessonOrder: number;
+    isCompleted: boolean;
+    quizScore?: number | null;
+    studiedAt: string;
+  }[];
+}
+
+export interface TeacherStudentItem {
+  studentId: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string | null;
+  courseId: string;
+  courseTitle: string;
+  courseLevel: string;
+  completedLessonsCount: number;
+  totalLessonsCount: number;
+  progressPercent: number;
+  lastActivityAt: string;
+  averageQuizScore?: number | null;
+}
+
+export interface AdminTeacherItem {
+  id: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string | null;
+  role: string;
+  createdAt: string;
+  coursesCount: number;
+  lessonsCount: number;
+  pendingDeletionCount: number;
+  courses: {
+    id: string;
+    title: string;
+    level: string;
+    isPublished: boolean;
+  }[];
+}
+
+export interface AdminDeletionRequestItem {
+  id: string;
+  title: string;
+  order: number;
+  deleteRequested: boolean;
+  deleteReason?: string | null;
+  updatedAt: string;
+  module: {
+    id: string;
+    title: string;
+    course: {
+      id: string;
+      title: string;
+      author?: {
+        id: string;
+        fullName?: string | null;
+        email: string;
+        avatarUrl?: string | null;
+      } | null;
+    };
+  };
 }
 
 export const api = new ApiClient();

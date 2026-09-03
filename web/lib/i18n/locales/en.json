@@ -847,6 +847,7 @@
       "dashboard": "Dashboard",
       "banners": "Banners",
       "courses": "Courses & Lessons",
+      "teachers": "Teachers",
       "tests": "JLPT Tests",
       "shop": "Digital Store",
       "subscriptions": "Subscriptions & VIP",
@@ -1198,5 +1199,38 @@
     "failed": "Unfortunately, you did not pass this time.",
     "reviewAnswers": "Review Answers",
     "backToTests": "Back to Test List"
+  },
+  "sidebar": {
+    "home": "Home",
+    "courses": "Courses",
+    "jlpt": "JLPT",
+    "premium": "Premium",
+    "profile": "Profile",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "logout": "Log Out",
+    "admin": "Admin Panel",
+    "teacher": "Teacher Portal"
+  },
+  "teacher": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "courses": "My Courses & Lessons",
+      "tests": "Tests & Questions",
+      "students": "My Students",
+      "announcements": "Announcements"
+    },
+    "header": {
+      "dashboard": "Teacher Dashboard",
+      "dashboardSub": "Statistics, activity, and quick actions",
+      "courses": "My Courses & Lessons",
+      "coursesSub": "Manage your assigned courses, modules, and learning materials",
+      "tests": "Tests & Questions",
+      "testsSub": "Mock exams and course question banks",
+      "students": "My Students",
+      "studentsSub": "Student progress tracking and feedback",
+      "announcements": "Announcements",
+      "announcementsSub": "Broadcast news and notices to enrolled students"
+    }
   }
 }
