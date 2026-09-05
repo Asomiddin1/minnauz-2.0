@@ -21,6 +21,7 @@ import {
   Search,
   Moon,
   Sun,
+  Maximize2,
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
@@ -63,6 +64,14 @@ export function DashboardSidebar({
       localStorage.setItem('minna-sidebar-collapsed', String(next));
       return next;
     });
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
   };
 
   const navItems: NavItem[] = [
@@ -180,6 +189,14 @@ export function DashboardSidebar({
               aria-label="Mavzuni almashtirish"
             >
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border/70 text-foreground transition-colors hover:bg-secondary"
+              aria-label="Toʻliq ekran"
+            >
+              <Maximize2 className="h-4 w-4" />
             </button>
           </div>
         )}
