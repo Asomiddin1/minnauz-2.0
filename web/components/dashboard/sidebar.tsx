@@ -18,12 +18,16 @@ import {
   Shield,
   Crown,
   GraduationCap,
+  Search,
+  Moon,
+  Sun,
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth-context';
 import Logo, { LogoMark } from '@/components/intro/Logo';
 import { UserAvatar } from '@/components/shared/user-avatar';
+import { useThemeCtx } from '@/lib/theme';
 
 interface NavItem {
   label: string;
@@ -34,14 +38,17 @@ interface NavItem {
 export function DashboardSidebar({
   mobileOpen = false,
   onMobileClose,
+  onSearchOpen,
 }: {
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  onSearchOpen?: () => void;
 }) {
   const { lang, t } = useLang();
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const { theme, toggle: toggleTheme } = useThemeCtx();
 
   React.useEffect(() => {
     const saved = localStorage.getItem('minna-sidebar-collapsed');
@@ -154,6 +161,28 @@ export function DashboardSidebar({
             </div>
           )}
         </div>
+
+        {isMobileDrawer && (
+          <div className="flex items-center gap-2 px-1">
+            <button
+              type="button"
+              onClick={onSearchOpen}
+              className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border/70 bg-secondary/35 px-3 text-left text-[12px] text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+              aria-label="Qidiruvni ochish"
+            >
+              <Search className="h-4 w-4 shrink-0" />
+              <span className="truncate">Qidirish...</span>
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border/70 text-foreground transition-colors hover:bg-secondary"
+              aria-label="Mavzuni almashtirish"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          </div>
+        )}
 
         {/* Navigation items */}
         <nav className="space-y-1 pt-1">

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
 import { DashboardHeader } from '@/components/dashboard/header';
+import { GlobalSearchModal } from '@/components/dashboard/global-search-modal';
 import { useAuth } from '@/lib/auth-context';
 import { useLang } from '@/lib/i18n';
 
@@ -18,6 +19,7 @@ export default function DashboardLayout({
   const { lang } = useLang();
   const router = useRouter();
   const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -47,12 +49,16 @@ export default function DashboardLayout({
         <DashboardSidebar
           mobileOpen={mobileSidebarOpen}
           onMobileClose={() => setMobileSidebarOpen(false)}
+          onSearchOpen={() => setIsSearchModalOpen(true)}
         />
 
         {/* Main Content Area */}
         <div className="flex flex-1 flex-col min-w-0">
           {/* Sticky Header with Hamburger trigger */}
-          <DashboardHeader onMenuClick={() => setMobileSidebarOpen(true)} />
+          <DashboardHeader
+            onMenuClick={() => setMobileSidebarOpen(true)}
+            onSearchOpen={() => setIsSearchModalOpen(true)}
+          />
 
           {/* Page Content */}
           <main className="flex-1 p-3.5 sm:p-6 lg:p-8">
@@ -62,6 +68,10 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
+      <GlobalSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+      />
     </DashboardTabProvider>
   );
 }

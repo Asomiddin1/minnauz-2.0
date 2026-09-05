@@ -24,7 +24,6 @@ import { LogoMark } from '@/components/intro/Logo';
 import { NotificationPopover } from './notification-popover';
 import { useDashboardTab, type DashboardTabId } from './tab-context';
 import { api } from '@/lib/api';
-import { GlobalSearchModal } from './global-search-modal';
 
 // Kanji uchun maxsus stilizatsiyalangan haqiqiy '漢' ieroglif belgisi
 function KanjiIcon({ className }: { className?: string }) {
@@ -42,10 +41,12 @@ export function DashboardHeader({
   activeTab: externalActiveTab,
   onTabChange,
   onMenuClick,
+  onSearchOpen,
 }: {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   onMenuClick?: () => void;
+  onSearchOpen?: () => void;
 }) {
   const { lang, t } = useLang();
   const hDict = t?.dashboardHeader;
@@ -53,7 +54,6 @@ export function DashboardHeader({
   const { theme, toggle } = useThemeCtx();
   const { activeTab, setActiveTab } = useDashboardTab();
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [isSearchModalOpen, setIsSearchModalOpen] = React.useState(false);
   const [isFocusMode, setIsFocusMode] = React.useState(false);
   const [headerCoins, setHeaderCoins] = React.useState<number | null>(null);
   const [dailyRewardToast, setDailyRewardToast] = React.useState<{
@@ -66,12 +66,12 @@ export function DashboardHeader({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsSearchModalOpen((prev) => !prev);
+        onSearchOpen?.();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [onSearchOpen]);
 
   React.useEffect(() => {
     api
@@ -158,15 +158,15 @@ export function DashboardHeader({
               <Menu className="h-4 w-4" />
             </button>
             <Link href={`/${lang}/dashboard`} className="flex items-center">
-              <LogoMark className="h-6 w-6" />
+              <LogoMark className="h-8 w-8" />
             </Link>
           </div>
 
           {/* Universal Search Trigger */}
-          <div className="relative flex-1 max-w-md min-w-0">
+          <div className="relative hidden flex-1 max-w-md min-w-0 md:block">
             <button
               type="button"
-              onClick={() => setIsSearchModalOpen(true)}
+              onClick={onSearchOpen}
               className="group relative flex h-9 w-full items-center justify-between rounded-xl border border-border/70 bg-secondary/35 px-3 text-left transition-all duration-200 hover:border-border hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.99] shadow-2xs"
               title={hDict?.searchTitle || 'Universal qidiruv (Cmd+K / Ctrl+K)'}
             >
@@ -208,7 +208,7 @@ export function DashboardHeader({
               type="button"
               onClick={toggle}
               aria-label={hDict?.themeToggle || 'Toggle theme'}
-              className="grid h-9 w-9 place-items-center rounded-xl border border-border/70 text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95"
+              className="hidden h-9 w-9 place-items-center rounded-xl border border-border/70 text-foreground transition-colors hover:bg-secondary cursor-pointer active:scale-95 md:grid"
             >
               {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </button>
@@ -256,11 +256,6 @@ export function DashboardHeader({
         )}
       </header>
 
-      {/* Global Universal Search Modal */}
-      <GlobalSearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-      />
     </>
   );
 }
